@@ -23,24 +23,6 @@ function getModelPath(): string {
   return path.join(process.cwd(), "passkit-model.pass");
 }
 
-/** Create a luxury background as PNG */
-async function createLuxuryBackground(): Promise<void> {
-  const modelPath = getModelPath();
-  const svg = `
-    <svg width="360" height="440" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="pattern" width="60" height="60" patternUnits="userSpaceOnUse">
-          <rect width="60" height="60" fill="#046348"/>
-          <path d="M30 0 L60 30 L30 60 L0 30 Z" fill="#055d42" opacity="0.3"/>
-          <circle cx="30" cy="30" r="2" fill="#d4af37" opacity="0.4"/>
-        </pattern>
-      </defs>
-      <rect width="360" height="440" fill="url(#pattern)"/>
-    </svg>
-  `;
-  await fs.writeFile(path.join(modelPath, "background.png"), Buffer.from(svg));
-}
-
 /** Generate QR code for membership */
 async function generateQRCode(data: string): Promise<string> {
   return await QRCode.toDataURL(data, { errorCorrectionLevel: "H" });
@@ -82,9 +64,6 @@ export async function generateAppleWalletPass(
     tierName = "VIP Member";
     tierColor = "#ffd700";
   } // brighter gold
-
-  // Prepare luxury background
-  await createLuxuryBackground();
 
   // Generate QR code
   const qrDataURL = await generateQRCode(member.membershipCode);

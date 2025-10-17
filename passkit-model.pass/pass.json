@@ -1,0 +1,83 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.ass.com.casaprive.membership",
+  "teamIdentifier": "64PS3B42A3",
+  "organizationName": "Casa Privé",
+  "description": "Casa Privé Membership Pass",
+  "logoText": "Casa Privé",
+  "foregroundColor": "{TIER_COLOR}",
+  "backgroundColor": "rgb(4,99,72)",
+  "labelColor": "rgb(255,255,255)",
+
+  "storeCard": {
+    "primaryFields": [
+      {
+        "key": "member",
+        "label": "{TIER_NAME}",
+        "value": "{FULL_NAME}"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "code",
+        "label": "MEMBERSHIP CODE",
+        "value": "{MEMBERSHIP_CODE}"
+      },
+      {
+        "key": "status",
+        "label": "STATUS",
+        "value": "{STATUS}"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "joined",
+        "label": "MEMBER SINCE",
+        "value": "{JOIN_DATE}"
+      },
+      {
+        "key": "expires",
+        "label": "VALID UNTIL",
+        "value": "{EXPIRES_AT}"
+      }
+    ],
+    "backFields": [
+      {
+        "key": "welcome",
+        "label": "Welcome",
+        "value": "Dear {FULL_NAME},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events."
+      },
+      {
+        "key": "email",
+        "label": "Email",
+        "value": "{EMAIL}"
+      },
+      {
+        "key": "membershipDetails",
+        "label": "Membership Benefits",
+        "value": "• Priority table reservations\n• Exclusive event access\n• Special member pricing\n• VIP concierge service\n• Complimentary amenities"
+      },
+      {
+        "key": "contact",
+        "label": "Contact Us",
+        "value": "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX"
+      },
+      {
+        "key": "terms",
+        "label": "Terms & Conditions",
+        "value": "This membership card is non-transferable. Visit casaprive.com/terms for full terms."
+      }
+    ]
+  },
+
+  "barcode": {
+    "format": "PKBarcodeFormatQR",
+    "message": "{MEMBERSHIP_CODE}",
+    "messageEncoding": "iso-8859-1"
+  },
+
+  "webServiceURL": "https://api.casaprive.com/passes",
+  "authenticationToken": "9a2f1e7c4b5d6f8a0c3e9d2f5a7b1c4d",
+  "associatedStoreIdentifiers": [],
+  "sharingProhibited": true
+}

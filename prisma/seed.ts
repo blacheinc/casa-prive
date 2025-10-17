@@ -13,7 +13,7 @@ async function main() {
       {
         name: 'Classic Elegance',
         description: 'Perfect for intimate gatherings',
-        price: 500,
+        price: 5000,
         features: [
           'Premium table placement',
           'Complimentary welcome drinks',
@@ -26,7 +26,7 @@ async function main() {
       {
         name: 'VIP Experience',
         description: 'For those who desire the best',
-        price: 1000,
+        price: 10000,
         features: [
           'Prime location seating',
           'Champagne on arrival',
@@ -40,7 +40,7 @@ async function main() {
       {
         name: 'Platinum Reserve',
         description: 'The ultimate luxury experience',
-        price: 2000,
+        price: 20000,
         features: [
           'VIP lounge access',
           'Premium champagne',

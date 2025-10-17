@@ -9,7 +9,7 @@ const SECRET_KEY = new TextEncoder().encode(
 );
 
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD_HASH || "casaprive2024"; // Use bcrypt hash in production
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
 
 interface TokenPayload {
   username: string;
@@ -73,11 +73,19 @@ export async function verifyAdminCredentials(
   password: string
 ): Promise<boolean> {
   const bcrypt = require("bcryptjs");
-  return (
-    username === ADMIN_USERNAME &&
-    (await bcrypt.compare(password, ADMIN_PASSWORD))
-  );
+
+  if (!ADMIN_PASSWORD_HASH) {
+    console.error("❌ Missing ADMIN_PASSWORD_HASH env variable");
+    return false;
+  }
+
+  const passwordMatch = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
+  const isValid = username === ADMIN_USERNAME && passwordMatch;
+
+  console.log("DEBUG verifyAdminCredentials:", { username, passwordMatch, isValid });
+  return isValid;
 }
+
 
 // Check if user is authenticated (server-side)
 export async function isAuthenticated(): Promise<boolean> {

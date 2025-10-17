@@ -52,126 +52,125 @@ export default function WaitlistPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 py-20">
-      <div className="container mx-auto px-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-12">
-            <Clock className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-emerald-400 to-yellow-500 bg-clip-text text-transparent">
-              Join the Waitlist
-            </h1>
-            <p className="text-gray-300">
-              All tables for this Saturday are currently booked. Join our waitlist to be notified when a spot becomes available.
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 py-32">
+      <div className="max-w-2xl mx-auto px-4">
+        <div className="text-center mb-12">
+          <Clock className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+          <h1 className="text-4xl md:text-5xl font-light mb-4 text-white">
+            Join the Waitlist
+          </h1>
+          <p className="text-gray-300 font-light text-sm">
+            All tables are currently booked. Join our waitlist to be notified when a spot becomes available.
+          </p>
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mx-auto mt-6" />
+        </div>
 
-          <div className="bg-slate-800 p-8 rounded-lg border border-emerald-700/30">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-gray-300 mb-2">Full Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                />
+        <div className="bg-slate-800/50 border border-emerald-700/30 p-8 rounded">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm font-light">Full Name *</label>
+              <input
+                type="text"
+                required
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm font-light">Email *</label>
+              <input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm font-light">Phone *</label>
+              <input
+                type="tel"
+                required
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm font-light">Number of Guests (Max 6) *</label>
+              <input
+                type="number"
+                min="1"
+                max="6"
+                required
+                value={formData.numberOfGuests}
+                onChange={(e) => setFormData({ ...formData, numberOfGuests: parseInt(e.target.value) })}
+                className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm font-light">Preferred Date *</label>
+              <input
+                type="date"
+                required
+                value={formData.preferredDate}
+                onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm font-light">Additional Message</label>
+              <textarea
+                value={formData.message}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                rows={4}
+                className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                placeholder="Any special requests or information we should know?"
+              />
+            </div>
+
+            {message && (
+              <div className={`p-4 rounded text-sm ${message.includes('Success') ? 'bg-emerald-900/50 text-emerald-300' : 'bg-red-900/50 text-red-300'}`}>
+                {message}
               </div>
+            )}
 
-              <div>
-                <label className="block text-gray-300 mb-2">Email *</label>
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                />
-              </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-sm font-light tracking-wider rounded hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50 transition"
+            >
+              {loading ? 'JOINING WAITLIST...' : 'JOIN WAITLIST'}
+            </button>
+          </form>
+        </div>
 
-              <div>
-                <label className="block text-gray-300 mb-2">Phone *</label>
-                <input
-                  type="tel"
-                  required
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-300 mb-2">Number of Guests (Max 6) *</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="6"
-                  required
-                  value={formData.numberOfGuests}
-                  onChange={(e) => setFormData({ ...formData, numberOfGuests: parseInt(e.target.value) })}
-                  className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-300 mb-2">Preferred Date *</label>
-                <input
-                  type="date"
-                  required
-                  value={formData.preferredDate}
-                  onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-300 mb-2">Additional Message</label>
-                <textarea
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  rows={4}
-                  className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  placeholder="Any special requests or information we should know?"
-                />
-              </div>
-
-              {message && (
-                <div className={`p-4 rounded-lg ${message.includes('Success') ? 'bg-emerald-900/50 text-emerald-300' : 'bg-red-900/50 text-red-300'}`}>
-                  {message}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg font-semibold hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50 transition"
-              >
-                {loading ? 'Joining Waitlist...' : 'Join Waitlist'}
-              </button>
-            </form>
-          </div>
-
-          <div className="mt-8 bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-6">
-            <h3 className="text-lg font-bold text-yellow-500 mb-3">What Happens Next?</h3>
-            <ul className="space-y-2 text-gray-300 text-sm">
-              <li className="flex items-start gap-2">
-                <span className="text-yellow-500 mt-1">•</span>
-                <span>You&apos;ll receive a confirmation email immediately</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-yellow-500 mt-1">•</span>
-                <span>We&apos;ll notify you via email and phone if a table becomes available</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-yellow-500 mt-1">•</span>
-                <span>You&apos;ll have 2 hours to confirm your booking once notified</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-yellow-500 mt-1">•</span>
-                <span>Waitlist positions are filled on a first-come, first-served basis</span>
-              </li>
-            </ul>
-          </div>
+        <div className="mt-8 bg-yellow-900/20 border border-yellow-500/30 rounded p-6">
+          <h3 className="text-base font-light text-yellow-500 mb-3">What Happens Next?</h3>
+          <ul className="space-y-2 text-gray-300 text-xs font-light">
+            <li className="flex items-start gap-2">
+              <span className="text-yellow-500 mt-1">•</span>
+              <span>You&apos;ll receive a confirmation email immediately</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-yellow-500 mt-1">•</span>
+              <span>We&apos;ll notify you via email and phone if a table becomes available</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-yellow-500 mt-1">•</span>
+              <span>You&apos;ll have 2 hours to confirm your booking once notified</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-yellow-500 mt-1">•</span>
+              <span>Waitlist positions are filled on a first-come, first-served basis</span>
+            </li>
+          </ul>
         </div>
       </div>
     </div>

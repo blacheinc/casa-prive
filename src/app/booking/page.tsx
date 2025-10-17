@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/booking/page.tsx
+// app/booking/page.tsx - PRODUCTION
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Users, CreditCard, Upload } from 'lucide-react';
+import { Calendar, Users, Crown } from 'lucide-react';
 
 interface TablePackage {
   id: string;
@@ -32,58 +32,37 @@ export default function BookingPage() {
   const [tablesAvailable, setTablesAvailable] = useState(true);
 
   useEffect(() => {
-    // In production, fetch from API
     setPackages([
       {
         id: '1',
         name: 'Classic Elegance',
         description: 'Perfect for intimate gatherings',
-        price: 500,
-        features: [
-          'Premium table placement',
-          'Complimentary welcome drinks',
-          'Dedicated server',
-          'Up to 6 guests',
-        ],
+        price: 5000,
+        features: ['Premium table placement', 'Complimentary welcome drinks', 'Dedicated server', 'Up to 6 guests'],
         maxGuests: 6,
       },
       {
         id: '2',
         name: 'VIP Experience',
         description: 'For those who desire the best',
-        price: 1000,
-        features: [
-          'Prime location seating',
-          'Champagne on arrival',
-          'Personal concierge',
-          'Up to 6 guests',
-          'Exclusive menu access',
-        ],
+        price: 10000,
+        features: ['Prime location seating', 'Champagne on arrival', 'Personal concierge', 'Up to 6 guests', 'Exclusive menu access'],
         maxGuests: 6,
       },
       {
         id: '3',
         name: 'Platinum Reserve',
         description: 'The ultimate luxury experience',
-        price: 2000,
-        features: [
-          'VIP lounge access',
-          'Premium champagne',
-          'Dedicated host',
-          'Up to 6 guests',
-          'Complimentary appetizer platter',
-          'Priority valet parking',
-        ],
+        price: 20000,
+        features: ['VIP lounge access', 'Premium champagne', 'Dedicated host', 'Up to 6 guests', 'Complimentary appetizer platter', 'Priority valet parking'],
         maxGuests: 6,
       },
     ]);
 
-    // Check table availability
     checkAvailability();
   }, []);
 
   const checkAvailability = async () => {
-    // In production, fetch from API
     setTablesAvailable(true);
   };
 
@@ -95,9 +74,7 @@ export default function BookingPage() {
     try {
       let proofUrl = '';
       
-      // If bank transfer and proof uploaded, handle file upload
       if (formData.paymentMethod === 'BANK_TRANSFER' && proofFile) {
-        // In production, upload to cloud storage
         proofUrl = 'uploaded-proof-url';
       }
 
@@ -118,7 +95,6 @@ export default function BookingPage() {
       }
 
       if (data.paymentUrl) {
-        // Redirect to Paystack
         window.location.href = data.paymentUrl;
       } else {
         setMessage('Booking submitted successfully! We will confirm once payment is verified.');
@@ -132,18 +108,18 @@ export default function BookingPage() {
 
   if (!tablesAvailable) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto bg-slate-800 p-8 rounded-lg text-center">
-            <h1 className="text-3xl font-bold text-yellow-500 mb-4">All Tables Booked</h1>
-            <p className="text-gray-300 mb-6">
-              We&apos;re currently fully booked for this Saturday. Join our waitlist to be notified when a table becomes available.
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 py-32">
+        <div className="max-w-2xl mx-auto px-4">
+          <div className="bg-slate-800/50 border border-yellow-700/30 p-8 rounded-lg text-center">
+            <h1 className="text-3xl font-light text-yellow-500 mb-4">All Tables Reserved</h1>
+            <p className="text-gray-300 font-light text-sm mb-6">
+              We&apos;re currently fully booked. Join our waitlist to be notified when a table becomes available.
             </p>
             <a
               href="/waitlist"
-              className="inline-block px-8 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition"
+              className="inline-block px-8 py-3 bg-emerald-600 text-white text-sm font-light tracking-wider rounded hover:bg-emerald-500 transition"
             >
-              Join Waitlist
+              JOIN WAITLIST
             </a>
           </div>
         </div>
@@ -152,162 +128,178 @@ export default function BookingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 py-20">
-      <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold text-center mb-4 bg-gradient-to-r from-emerald-400 to-yellow-500 bg-clip-text text-transparent">
-            Reserve Your Table
-          </h1>
-          <p className="text-center text-gray-300 mb-12">
-            Experience an unforgettable evening at Casa Privé
-          </p>
-
-          {/* Packages */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {packages.map((pkg) => (
-              <div
-                key={pkg.id}
-                onClick={() => setSelectedPackage(pkg.id)}
-                className={`bg-slate-800 p-6 rounded-lg border-2 cursor-pointer transition-all transform hover:scale-105 ${
-                  selectedPackage === pkg.id
-                    ? 'border-yellow-500 shadow-lg shadow-yellow-500/20'
-                    : 'border-emerald-700/30 hover:border-emerald-500/50'
-                }`}
-              >
-                <h3 className="text-2xl font-bold text-emerald-400 mb-2">{pkg.name}</h3>
-                <p className="text-gray-400 mb-4">{pkg.description}</p>
-                <div className="text-3xl font-bold text-yellow-500 mb-4">
-                  GHS {pkg.price}
-                </div>
-                <ul className="space-y-2">
-                  {pkg.features.map((feature, index) => (
-                    <li key={index} className="text-gray-300 flex items-start">
-                      <span className="text-emerald-500 mr-2">✓</span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 py-32">
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Hero Section */}
+        <div className="relative h-80 mb-12 overflow-hidden">
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070&auto=format&fit=crop')`,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-slate-900/40" />
+          <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
+            <Crown className="w-12 h-12 text-yellow-500 mb-4" />
+            <h1 className="text-4xl md:text-5xl font-light mb-4 text-white">
+              Reserve Your Table
+            </h1>
+            <p className="text-gray-200 font-light text-sm max-w-xl">
+              Experience an unforgettable evening at Casa Privé
+            </p>
           </div>
+        </div>
 
-          {/* Booking Form */}
-          <div className="bg-slate-800 p-8 rounded-lg">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-gray-300 mb-2">Full Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 mb-2">Email *</label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 mb-2">Phone *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 mb-2">Number of Guests (Max 6) *</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="6"
-                    required
-                    value={formData.numberOfGuests}
-                    onChange={(e) => setFormData({ ...formData, numberOfGuests: parseInt(e.target.value) })}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 mb-2">Event Date *</label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.eventDate}
-                    onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 mb-2">Payment Method *</label>
-                  <select
-                    value={formData.paymentMethod}
-                    onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  >
-                    <option value="PAYSTACK">Pay Online (Paystack)</option>
-                    <option value="BANK_TRANSFER">Bank Transfer</option>
-                  </select>
-                </div>
+        {/* Packages */}
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          {packages.map((pkg) => (
+            <div
+              key={pkg.id}
+              onClick={() => setSelectedPackage(pkg.id)}
+              className={`bg-slate-800/50 p-6 rounded border-2 cursor-pointer transition-all transform hover:scale-105 ${
+                selectedPackage === pkg.id
+                  ? 'border-yellow-500 shadow-lg shadow-yellow-500/20'
+                  : 'border-emerald-700/30 hover:border-emerald-500/50'
+              }`}
+            >
+              <h3 className="text-xl font-light text-emerald-400 mb-2">{pkg.name}</h3>
+              <p className="text-gray-400 text-xs mb-4 font-light">{pkg.description}</p>
+              <div className="text-2xl font-light text-yellow-500 mb-4">
+                GHS {pkg.price}
               </div>
+              <ul className="space-y-2">
+                {pkg.features.map((feature, index) => (
+                  <li key={index} className="text-gray-300 text-xs flex items-start font-light">
+                    <span className="text-emerald-500 mr-2">✓</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
 
-              {formData.paymentMethod === 'BANK_TRANSFER' && (
-                <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
-                  <h4 className="text-yellow-500 font-bold mb-2">Bank Transfer Details:</h4>
-                  <p className="text-gray-300 mb-1">Bank: ABC Bank</p>
-                  <p className="text-gray-300 mb-1">Account Name: Casa Privé Ltd</p>
-                  <p className="text-gray-300 mb-4">Account Number: 1234567890</p>
-                  
-                  <label className="block text-gray-300 mb-2">Upload Proof of Payment</label>
-                  <input
-                    type="file"
-                    accept="image/*,.pdf"
-                    onChange={(e) => setProofFile(e.target.files?.[0] || null)}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600"
-                  />
-                </div>
-              )}
+        {/* Booking Form */}
+        <div className="bg-slate-800/50 border border-emerald-700/30 p-8 rounded">
+          <h2 className="text-2xl font-light text-white mb-6 flex items-center gap-3">
+            <Calendar className="w-6 h-6 text-yellow-500" />
+            Booking Details
+          </h2>
 
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-gray-300 mb-2">Special Requests</label>
-                <textarea
-                  value={formData.specialRequests}
-                  onChange={(e) => setFormData({ ...formData, specialRequests: e.target.value })}
-                  rows={4}
-                  className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  placeholder="Any dietary restrictions, celebrations, or special arrangements?"
+                <label className="block text-gray-300 mb-2 text-sm font-light">Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
                 />
               </div>
 
-              {message && (
-                <div className={`p-4 rounded-lg ${message.includes('success') ? 'bg-emerald-900/50 text-emerald-300' : 'bg-red-900/50 text-red-300'}`}>
-                  {message}
-                </div>
-              )}
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm font-light">Email *</label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
 
-              <button
-                type="submit"
-                disabled={loading || !selectedPackage}
-                className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg font-semibold hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:scale-105"
-              >
-                {loading ? 'Processing...' : 'Confirm Booking'}
-              </button>
-            </form>
-          </div>
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm font-light">Phone *</label>
+                <input
+                  type="tel"
+                  required
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm font-light">Guests (Max 6) *</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="6"
+                  required
+                  value={formData.numberOfGuests}
+                  onChange={(e) => setFormData({ ...formData, numberOfGuests: parseInt(e.target.value) })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm font-light">Event Date *</label>
+                <input
+                  type="date"
+                  required
+                  value={formData.eventDate}
+                  onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm font-light">Payment Method *</label>
+                <select
+                  value={formData.paymentMethod}
+                  onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                >
+                  <option value="PAYSTACK">Pay Online (Paystack)</option>
+                  <option value="BANK_TRANSFER">Bank Transfer</option>
+                </select>
+              </div>
+            </div>
+
+            {formData.paymentMethod === 'BANK_TRANSFER' && (
+              <div className="bg-yellow-900/20 border border-yellow-500/30 rounded p-4">
+                <h4 className="text-yellow-500 font-light text-sm mb-2">Bank Transfer Details:</h4>
+                <p className="text-gray-300 text-xs mb-1 font-light">Bank: ABC Bank</p>
+                <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé Ltd</p>
+                <p className="text-gray-300 text-xs mb-4 font-light">Account Number: 1234567890</p>
+                
+                <label className="block text-gray-300 mb-2 text-sm font-light">Upload Proof of Payment</label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => setProofFile(e.target.files?.[0] || null)}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm font-light">Special Requests</label>
+              <textarea
+                value={formData.specialRequests}
+                onChange={(e) => setFormData({ ...formData, specialRequests: e.target.value })}
+                rows={4}
+                className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                placeholder="Dietary restrictions, celebrations, or special arrangements"
+              />
+            </div>
+
+            {message && (
+              <div className={`p-4 rounded text-sm ${message.includes('success') ? 'bg-emerald-900/50 text-emerald-300' : 'bg-red-900/50 text-red-300'}`}>
+                {message}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading || !selectedPackage}
+              className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-sm font-light tracking-wider rounded hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:scale-105"
+            >
+              {loading ? 'PROCESSING...' : 'CONFIRM BOOKING'}
+            </button>
+          </form>
         </div>
       </div>
     </div>

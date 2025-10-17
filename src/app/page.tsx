@@ -1,186 +1,248 @@
-// app/page.tsx
+// app/page.tsx - PRODUCTION
 import Link from 'next/link';
-import { Crown, Calendar, Users, Sparkles, Shield, Wine } from 'lucide-react';
-import Image from 'next/image';
+import { Crown, Calendar, Users, Sparkles, Shield, Wine, ArrowRight, ChevronDown } from 'lucide-react';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
-        <div className="container mx-auto px-4 py-20 md:py-32">
-          <div className="max-w-4xl mx-auto text-center relative z-10">
-            <div className="inline-block mb-6">
-              <Image
-                src="/logo.png"
-                alt="Casa Privé Logo"
-                width={64}
-                height={64}
-                className="mx-auto animate-pulse"
-              />
-            </div>
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-emerald-400 via-yellow-500 to-emerald-400 bg-clip-text text-transparent">
-              CASA PRIVÉ
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-4">
-              An Ode to Exclusive Living
-            </p>
-            <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
-              Welcome to the epitome of luxury and bespoke entertainment.
-              A sanctuary where the art of living is celebrated through exclusive,
-              imaginative, and flawlessly executed members-only events.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link
-                href="/booking"
-                className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
-              >
-                Reserve Your Table
-              </Link>
-              <Link
-                href="/membership"
-                className="px-8 py-4 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-white rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
-              >
-                Join Casa Privé
-              </Link>
-            </div>
+    <div className="bg-slate-900">
+      {/* 1. HERO SECTION */}
+      <section className="relative h-screen overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.65), rgba(6, 78, 59, 0.75)), url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=2074&auto=format&fit=crop')`,
+          }}
+        />
+
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url('/grid.svg')` }} />
+
+        <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
+          <div className="mb-6 animate-fade-in">
+            <Crown className="w-16 h-16 text-yellow-500 mx-auto opacity-90" />
           </div>
-        </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-slate-900/50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-emerald-400">
-            The Casa Privé Experience
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <FeatureCard
-              icon={<Sparkles className="w-12 h-12" />}
-              title="Curated Excellence"
-              description="Meticulously crafted events from grand galas to intimate gourmet dinners that transform the ordinary into the extraordinary."
-            />
-            <FeatureCard
-              icon={<Users className="w-12 h-12" />}
-              title="Discerning Community"
-              description="Connect with like-minded individuals who appreciate the finer things and the value of intimate, high-quality social experiences."
-            />
-            <FeatureCard
-              icon={<Shield className="w-12 h-12" />}
-              title="Privacy & Prestige"
-              description="Absolute discretion and privacy guaranteed at all events, ensuring a comfortable and exclusive sanctuary."
-            />
-            <FeatureCard
-              icon={<Calendar className="w-12 h-12" />}
-              title="Bespoke Events"
-              description="Innovative, themed, and personalized events including annual galas, themed parties, and private concerts."
-            />
-            <FeatureCard
-              icon={<Wine className="w-12 h-12" />}
-              title="World-Class Venues"
-              description="Exclusive entry to events hosted in the most sought-after and often private locations globally."
-            />
-            <FeatureCard
-              icon={<Crown className="w-12 h-12" />}
-              title="Concierge Service"
-              description="Access to a dedicated membership liaison for customized event experiences and bespoke arrangements."
-            />
-          </div>
-        </div>
-      </section>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-light mb-6 tracking-widest text-white animate-fade-in-up">
+            CASA PRIVÉ
+          </h1>
 
-      {/* About Section */}
-      <section className="py-20 bg-gradient-to-b from-slate-900 to-emerald-950">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-yellow-500">
-              Our Vision
-            </h2>
-            <p className="text-lg text-gray-300 text-center mb-12 leading-relaxed">
-              To be the premier, most sought-after private members&apos; club globally,
-              redefining the benchmark for luxury entertainment experiences. We envision
-              a future where membership at Casa Privé is synonymous with access to the
-              world&apos;s most refined and imaginative social calendar.
-            </p>
+          <div className="h-px w-32 bg-gradient-to-r from-transparent via-yellow-500 to-transparent mb-6" />
 
-            <div className="grid md:grid-cols-2 gap-8 mt-16">
-              <div className="bg-slate-800/50 p-8 rounded-lg border border-emerald-700/30">
-                <h3 className="text-2xl font-bold text-emerald-400 mb-4">Our Essence</h3>
-                <ul className="space-y-3 text-gray-300">
-                  <li className="flex items-start">
-                    <span className="text-yellow-500 mr-2">•</span>
-                    <span>Commitment to elevated luxury and exclusivity</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-yellow-500 mr-2">•</span>
-                    <span>Every detail meticulously crafted</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-yellow-500 mr-2">•</span>
-                    <span>Curated membership of discerning individuals</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-yellow-500 mr-2">•</span>
-                    <span>Unwavering pursuit of perfection</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-slate-800/50 p-8 rounded-lg border border-yellow-700/30">
-                <h3 className="text-2xl font-bold text-yellow-500 mb-4">Our Mission</h3>
-                <ul className="space-y-3 text-gray-300">
-                  <li className="flex items-start">
-                    <span className="text-emerald-500 mr-2">•</span>
-                    <span>Deliver luxurious, immersive experiences</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-emerald-500 mr-2">•</span>
-                    <span>Create bespoke, themed events</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-emerald-500 mr-2">•</span>
-                    <span>Maintain unwavering quality standards</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-emerald-500 mr-2">•</span>
-                    <span>Foster an exclusive sanctuary</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-emerald-900 via-emerald-800 to-yellow-900">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
-            Ready to Experience Casa Privé?
-          </h2>
-          <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
-            Join our exclusive community and elevate your social calendar to new heights
+          <p className="text-xl md:text-2xl font-light text-gray-100 mb-4 animate-fade-in-up animation-delay-200">
+            An Exclusive Drinks Experience
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
+
+          <p className="text-base md:text-lg text-gray-200 mb-12 max-w-2xl leading-relaxed font-light animate-fade-in-up animation-delay-400">
+            Immerse yourself in an evening of premium cocktails, rare spirits, and world-class wines.
+            A sophisticated sanctuary for discerning palates.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up animation-delay-600">
             <Link
               href="/booking"
-              className="px-8 py-4 bg-white text-emerald-900 rounded-lg font-semibold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg"
+              className="group px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-light tracking-widest transition-all duration-300 flex items-center justify-center"
             >
-              Book a Table
+              RESERVE TABLE
+              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
             </Link>
             <Link
               href="/menu"
-              className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-emerald-900 transition-all transform hover:scale-105"
+              className="px-8 py-3 border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-slate-900 text-sm font-light tracking-widest transition-all duration-300"
             >
-              View Menu
+              VIEW DRINKS MENU
             </Link>
-            <Link
-              href="/rules"
-              className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-emerald-900 transition-all transform hover:scale-105"
-            >
-              Event Guidelines
-            </Link>
+          </div>
+        </div>
+
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <ChevronDown className="text-yellow-500" size={24} />
+        </div>
+      </section>
+
+      {/* 2. DRINKS SHOWCASE */}
+      <section className="py-20 px-4 bg-slate-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <Wine className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+            <h2 className="text-3xl md:text-4xl font-light mb-4">
+              Artisanal <span className="text-yellow-500">Libations</span>
+            </h2>
+            <p className="text-gray-300 font-light text-sm max-w-2xl mx-auto">
+              Master mixologists craft extraordinary cocktails using rare spirits and the finest ingredients
+            </p>
+            <div className="h-px w-24 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mx-auto mt-6" />
+          </div>
+
+          {/* Main Featured Drinks Image */}
+          <div className="relative h-[500px] mb-8 group overflow-hidden">
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+              style={{
+                backgroundImage: `url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop')`,
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/30" />
+            <div className="absolute bottom-0 left-0 right-0 p-12 text-center">
+              <div className="max-w-3xl mx-auto">
+                <div className="h-px w-20 bg-yellow-500 mb-4 mx-auto" />
+                <h3 className="text-3xl md:text-4xl font-light mb-3 text-white">Premium Spirits & Cocktails</h3>
+                <p className="text-gray-200 font-light text-base">
+                  From signature cocktails to rare whiskeys, every pour is an experience crafted to perfection
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Drinks Grid */}
+          <div className="grid md:grid-cols-4 gap-4">
+            <div className="md:col-span-2 md:row-span-2 relative h-96 md:h-full group overflow-hidden">
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                style={{
+                  backgroundImage: `url('https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=2187&auto=format&fit=crop')`,
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 p-8">
+                <div className="h-px w-16 bg-yellow-500 mb-4" />
+                <h3 className="text-2xl md:text-3xl font-light text-white mb-2">Fine Spirits</h3>
+                <p className="text-gray-200 font-light text-sm">Curated collection of premium whiskeys and cognacs</p>
+              </div>
+            </div>
+
+            <div className="md:col-span-2 relative h-60 group overflow-hidden">
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                style={{
+                  backgroundImage: `url('https://images.unsplash.com/photo-1572116469696-31de0f17cc34?q=80&w=2070&auto=format&fit=crop')`,
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 p-6">
+                <h4 className="text-lg font-light text-white">Signature Cocktails</h4>
+              </div>
+            </div>
+
+            <div className="relative h-60 group overflow-hidden">
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                style={{
+                  backgroundImage: `url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=2070&auto=format&fit=crop')`,
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 p-6">
+                <h4 className="text-lg font-light text-white">Premium Wines</h4>
+              </div>
+            </div>
+
+            <div className="relative h-60 group overflow-hidden">
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                style={{
+                  backgroundImage: `url('https://images.unsplash.com/photo-1566737236500-c8ac43014a67?q=80&w=2070&auto=format&fit=crop')`,
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 p-6">
+                <h4 className="text-lg font-light text-white">Champagne Bar</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. BENEFITS SECTION */}
+      <section className="py-20 px-4 bg-slate-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-light mb-4">
+              Why <span className="text-yellow-500">Casa Privé</span>
+            </h2>
+            <div className="h-px w-24 bg-gradient-to-r from-transparent via-yellow-500 to-transparent mx-auto" />
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <BenefitCard
+              icon={<Wine className="w-10 h-10" />}
+              title="Premium Selection"
+              description="Curated collection of rare spirits, craft cocktails, and world-class wines."
+            />
+            <BenefitCard
+              icon={<Users className="w-10 h-10" />}
+              title="Elite Community"
+              description="Connect with discerning individuals in an intimate, sophisticated setting."
+            />
+            <BenefitCard
+              icon={<Shield className="w-10 h-10" />}
+              title="Exclusive Access"
+              description="Members-only events with priority reservations and special experiences."
+            />
+            <BenefitCard
+              icon={<Calendar className="w-10 h-10" />}
+              title="Saturday Nights"
+              description="Every Saturday evening, experience Casa Privé at its finest."
+            />
+            <BenefitCard
+              icon={<Sparkles className="w-10 h-10" />}
+              title="Sophisticated Ambiance"
+              description="Elegant venue with premium furnishings and intimate lighting."
+            />
+            <BenefitCard
+              icon={<Crown className="w-10 h-10" />}
+              title="VIP Service"
+              description="Dedicated table service and personalized attention throughout the evening."
+            />
+          </div>
+
+          {/* Vision Quote */}
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-slate-900/50 border border-yellow-700/20 p-8 md:p-12 text-center">
+              <blockquote className="text-xl md:text-2xl font-light leading-relaxed mb-4 text-white">
+                &quot;Where exceptional drinks meet extraordinary company. An exclusive sanctuary for those
+                who appreciate{' '}
+                <span className="text-yellow-500 italic">the art of refined living</span>&quot;
+              </blockquote>
+              <cite className="text-gray-400 not-italic text-sm font-light tracking-wider">
+                — CASA PRIVÉ
+              </cite>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. FINAL CTA */}
+      <section className="py-24 px-4 relative overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop')`,
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-emerald-950/90 to-slate-900/95" />
+
+        <div className="max-w-4xl mx-auto relative z-10">
+          <div className="bg-slate-900/60 backdrop-blur-sm border border-emerald-700/30 p-8 md:p-12 text-center">
+            <Crown className="w-12 h-12 text-yellow-500 mx-auto mb-6 opacity-90" />
+            <h2 className="text-3xl md:text-4xl font-light mb-4 text-white">
+              Reserve Your Experience
+            </h2>
+            <p className="text-base md:text-lg text-gray-200 mb-8 font-light leading-relaxed">
+              Join us for an unforgettable evening of premium drinks and refined company
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Link
+                href="/booking"
+                className="px-8 py-3 bg-white text-emerald-900 hover:bg-gray-100 text-sm font-light tracking-widest transition-all duration-300"
+              >
+                BOOK A TABLE
+              </Link>
+              <Link
+                href="/menu"
+                className="px-8 py-3 border-2 border-white text-white hover:bg-white hover:text-emerald-900 text-sm font-light tracking-widest transition-all duration-300"
+              >
+                VIEW DRINKS MENU
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -188,12 +250,14 @@ export default function HomePage() {
   );
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+function BenefitCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="bg-slate-800/50 p-6 rounded-lg border border-emerald-700/30 hover:border-yellow-500/50 transition-all transform hover:scale-105">
-      <div className="text-yellow-500 mb-4">{icon}</div>
-      <h3 className="text-xl font-bold text-emerald-400 mb-3">{title}</h3>
-      <p className="text-gray-300">{description}</p>
+    <div className="bg-slate-900/50 p-6 border border-emerald-700/30 hover:border-yellow-500/50 transition-all duration-500 h-full group">
+      <div className="text-yellow-500 mb-4 group-hover:scale-110 transition-transform duration-300">
+        {icon}
+      </div>
+      <h3 className="text-lg font-light text-emerald-400 mb-3">{title}</h3>
+      <p className="text-gray-300 leading-relaxed font-light text-sm">{description}</p>
     </div>
   );
 }

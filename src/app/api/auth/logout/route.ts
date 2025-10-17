@@ -1,25 +1,8 @@
-// app/api/auth/logout/route.ts
-import { NextResponse } from 'next/server';
-import { removeAuthCookie } from '@/lib/auth';
+// src/app/api/auth/logout/route.ts
+import { NextResponse } from 'next/server'
+import { removeAuthCookie } from '@/lib/auth'
 
 export async function POST() {
-  await removeAuthCookie();
-  return NextResponse.json({ success: true });
-}
-
-// app/api/auth/me/route.ts - Get current user
-import { NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth';
-
-export async function GET() {
-  const user = await getCurrentUser();
-  
-  if (!user) {
-    return NextResponse.json(
-      { error: 'Not authenticated' },
-      { status: 401 }
-    );
-  }
-
-  return NextResponse.json({ user });
+  await removeAuthCookie()
+  return NextResponse.json({ success: true })
 }

@@ -1,11 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/membership/page.tsx
+// app/membership/page.tsx - PRODUCTION: ADMIN ONLY
 'use client';
 
-import { useState } from 'react';
-import { Crown, CheckCircle, Users, Shield, Calendar } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Crown, CheckCircle, Users, Shield, Calendar, Lock } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function MembershipPage() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [loginError, setLoginError] = useState('');
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -17,6 +23,45 @@ export default function MembershipPage() {
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/auth/check');
+      if (response.ok) {
+        setIsAuthenticated(true);
+      }
+    } catch (error) {
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginData),
+      });
+
+      if (response.ok) {
+        setIsAuthenticated(true);
+      } else {
+        const data = await response.json();
+        setLoginError(data.error || 'Invalid credentials');
+      }
+    } catch (error) {
+      setLoginError('Login failed. Please try again.');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,208 +81,244 @@ export default function MembershipPage() {
         throw new Error(data.error || 'Application failed');
       }
 
-      setMessage('Application submitted successfully! Check your email for your virtual membership card link.');
-      // Optionally redirect to member card page
-      setTimeout(() => {
-        window.location.href = `/member-card/${data.member.membershipCode}`;
-      }, 2000);
+      setMessage('Member created successfully! Check their email for the membership card link.');
+      
+      // Reset form
+      setFormData({
+        fullName: '',
+        email: '',
+        phone: '',
+        profession: '',
+        interest: '',
+        reference1: '',
+        reference2: '',
+      });
+
+      // Optionally open the member card in new tab
+      if (data.member?.membershipCode) {
+        const cardUrl = `${window.location.origin}/member-card/${data.member.membershipCode}`;
+        window.open(cardUrl, '_blank');
+      }
     } catch (error: any) {
-      setMessage(error.message || 'Failed to submit application');
+      setMessage(error.message || 'Failed to create member');
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 py-20">
-      <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <Crown className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-emerald-400 to-yellow-500 bg-clip-text text-transparent">
-              Join Casa Privé
-            </h1>
-            <p className="text-xl text-gray-300">
-              Become part of an elite community that values sophistication and exceptional experiences
-            </p>
-          </div>
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <Crown className="w-12 h-12 text-yellow-500 mx-auto mb-4 animate-pulse" />
+          <p className="text-gray-300 font-light text-sm">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-          {/* Benefits */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <BenefitCard
-              icon={<Calendar className="w-8 h-8" />}
-              title="Priority Access"
-              description="Guaranteed invitations and priority booking for all signature events"
-            />
-            <BenefitCard
-              icon={<Users className="w-8 h-8" />}
-              title="Exclusive Network"
-              description="Connect with influential peers and thought leaders in a refined environment"
-            />
-            <BenefitCard
-              icon={<Shield className="w-8 h-8" />}
-              title="Concierge Service"
-              description="Dedicated membership liaison for customized experiences"
-            />
-          </div>
-
-          {/* Membership Details */}
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <div className="bg-slate-800/50 p-8 rounded-lg border border-emerald-700/30">
-              <h3 className="text-2xl font-bold text-emerald-400 mb-4">What You Get</h3>
-              <ul className="space-y-3">
-                {[
-                  'Priority access to all signature events',
-                  'Exclusive entry to sought-after venues globally',
-                  'Unrivalled networking opportunities',
-                  'Concierge event personalization',
-                  'Discreet privacy at all events',
-                  'Guest privileges for select events',
-                  'Virtual membership card with QR code',
-                  'Access to members-only experiences',
-                ].map((benefit, index) => (
-                  <li key={index} className="flex items-start gap-3 text-gray-300">
-                    <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
-                    <span>{benefit}</span>
-                  </li>
-                ))}
-              </ul>
+  // Login form if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 flex items-center justify-center py-32">
+        <div className="max-w-md w-full mx-auto px-4">
+          <div className="bg-slate-800/50 border border-emerald-700/30 p-8 rounded">
+            <div className="text-center mb-8">
+              <Lock className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+              <h1 className="text-3xl font-light text-white mb-2">Admin Access Only</h1>
+              <p className="text-gray-400 font-light text-sm">
+                Please login to access membership management
+              </p>
             </div>
 
-            <div className="bg-slate-800/50 p-8 rounded-lg border border-yellow-700/30">
-              <h3 className="text-2xl font-bold text-yellow-500 mb-4">Application Process</h3>
-              <div className="space-y-4">
-                <ProcessStep
-                  number="1"
-                  title="Submit Application"
-                  description="Complete the form with your details and references"
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm font-light">Username</label>
+                <input
+                  type="text"
+                  required
+                  value={loginData.username}
+                  onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
                 />
-                <ProcessStep
-                  number="2"
-                  title="Committee Review"
-                  description="Your application will be reviewed by our Membership Committee"
-                />
-                <ProcessStep
-                  number="3"
-                  title="Welcome Kit"
-                  description="Approved members receive a curated welcome kit via courier"
-                />
-                <ProcessStep
-                  number="4"
-                  title="Activation"
-                  description="Pay initiation fee to activate your membership"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Application Form */}
-          <div className="bg-slate-800 p-8 rounded-lg border border-emerald-700/30">
-            <h2 className="text-3xl font-bold text-center text-yellow-500 mb-8">
-              Membership Application
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-gray-300 mb-2">Full Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 mb-2">Email *</label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 mb-2">Phone Number *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 mb-2">Profession/Industry</label>
-                  <input
-                    type="text"
-                    value={formData.profession}
-                    onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
               </div>
 
               <div>
-                <label className="block text-gray-300 mb-2">Why do you want to join Casa Privé?</label>
-                <textarea
-                  value={formData.interest}
-                  onChange={(e) => setFormData({ ...formData, interest: e.target.value })}
-                  rows={4}
-                  className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                  placeholder="Tell us about your interests and what you hope to gain from membership..."
+                <label className="block text-gray-300 mb-2 text-sm font-light">Password</label>
+                <input
+                  type="password"
+                  required
+                  value={loginData.password}
+                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
                 />
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-gray-300 mb-2">Reference 1 (Non-family)</label>
-                  <input
-                    type="text"
-                    value={formData.reference1}
-                    onChange={(e) => setFormData({ ...formData, reference1: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                    placeholder="Name and contact"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 mb-2">Reference 2 (Non-family)</label>
-                  <input
-                    type="text"
-                    value={formData.reference2}
-                    onChange={(e) => setFormData({ ...formData, reference2: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                    placeholder="Name and contact"
-                  />
-                </div>
-              </div>
-
-              {message && (
-                <div className={`p-4 rounded-lg ${message.includes('success') ? 'bg-emerald-900/50 text-emerald-300' : 'bg-red-900/50 text-red-300'}`}>
-                  {message}
+              {loginError && (
+                <div className="p-4 rounded text-sm bg-red-900/50 text-red-300">
+                  {loginError}
                 </div>
               )}
 
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg font-semibold hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50 transition transform hover:scale-105"
+                className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-sm font-light tracking-wider rounded hover:from-emerald-500 hover:to-emerald-400 transition"
               >
-                {loading ? 'Submitting Application...' : 'Submit Application'}
+                LOGIN
               </button>
-
-              <p className="text-center text-gray-400 text-sm">
-                By submitting this application, you agree to our terms and conditions and privacy policy
-              </p>
             </form>
+
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => router.push('/')}
+                className="text-gray-400 hover:text-emerald-400 text-sm font-light"
+              >
+                ← Back to Home
+              </button>
+            </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Main membership form (only visible to authenticated admin)
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 py-32">
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Hero */}
+        <div className="text-center mb-12">
+          <Crown className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+          <h1 className="text-4xl md:text-5xl font-light mb-4 text-white">
+            Create New Member
+          </h1>
+          <p className="text-gray-300 font-light text-sm">
+            Admin Panel - Add new members to Casa Privé
+          </p>
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mx-auto mt-6" />
+        </div>
+
+        {/* Benefits Grid */}
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          <BenefitCard
+            icon={<Calendar className="w-8 h-8" />}
+            title="Priority Access"
+            description="Guaranteed invitations and priority booking for all signature events"
+          />
+          <BenefitCard
+            icon={<Users className="w-8 h-8" />}
+            title="Exclusive Network"
+            description="Connect with influential peers and thought leaders"
+          />
+          <BenefitCard
+            icon={<Shield className="w-8 h-8" />}
+            title="VIP Service"
+            description="Dedicated service and customized experiences"
+          />
+        </div>
+
+        {/* Membership Form */}
+        <div className="bg-slate-800/50 border border-emerald-700/30 p-8 rounded">
+          <h2 className="text-2xl font-light text-center text-yellow-500 mb-8">
+            Member Registration
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm font-light">Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm font-light">Email *</label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm font-light">Phone Number *</label>
+                <input
+                  type="tel"
+                  required
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm font-light">Profession/Industry</label>
+                <input
+                  type="text"
+                  value={formData.profession}
+                  onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm font-light">Notes/Interest</label>
+              <textarea
+                value={formData.interest}
+                onChange={(e) => setFormData({ ...formData, interest: e.target.value })}
+                rows={4}
+                className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                placeholder="Any additional notes about the member..."
+              />
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm font-light">Reference 1</label>
+                <input
+                  type="text"
+                  value={formData.reference1}
+                  onChange={(e) => setFormData({ ...formData, reference1: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                  placeholder="Name and contact"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm font-light">Reference 2</label>
+                <input
+                  type="text"
+                  value={formData.reference2}
+                  onChange={(e) => setFormData({ ...formData, reference2: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
+                  placeholder="Name and contact"
+                />
+              </div>
+            </div>
+
+            {message && (
+              <div className={`p-4 rounded text-sm ${message.includes('success') ? 'bg-emerald-900/50 text-emerald-300' : 'bg-red-900/50 text-red-300'}`}>
+                {message}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-sm font-light tracking-wider rounded hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50 transition transform hover:scale-105"
+            >
+              {loading ? 'CREATING MEMBER...' : 'CREATE MEMBER'}
+            </button>
+          </form>
         </div>
       </div>
     </div>
@@ -246,24 +327,10 @@ export default function MembershipPage() {
 
 function BenefitCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="bg-slate-800/50 p-6 rounded-lg border border-emerald-700/30 hover:border-yellow-500/50 transition-all transform hover:scale-105">
+    <div className="bg-slate-900/50 border border-emerald-700/30 p-6 rounded hover:border-yellow-500/50 transition-all">
       <div className="text-yellow-500 mb-4">{icon}</div>
-      <h3 className="text-xl font-bold text-emerald-400 mb-2">{title}</h3>
-      <p className="text-gray-300">{description}</p>
-    </div>
-  );
-}
-
-function ProcessStep({ number, title, description }: { number: string; title: string; description: string }) {
-  return (
-    <div className="flex gap-4">
-      <div className="flex-shrink-0 w-8 h-8 bg-yellow-500 text-slate-900 rounded-full flex items-center justify-center font-bold">
-        {number}
-      </div>
-      <div>
-        <h4 className="text-white font-bold mb-1">{title}</h4>
-        <p className="text-gray-400 text-sm">{description}</p>
-      </div>
+      <h3 className="text-lg font-light text-emerald-400 mb-2">{title}</h3>
+      <p className="text-gray-300 text-sm font-light">{description}</p>
     </div>
   );
 }

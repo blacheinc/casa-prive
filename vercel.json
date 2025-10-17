@@ -1,7 +1,12 @@
 {
   "functions": {
-    "src/app/api/**/*.ts": {
+    "api/**/*.ts": {
       "includeFiles": "certificates/**"
     }
-  }
+  },
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "ignoreCommand": "git diff --quiet HEAD~1 HEAD ./"
 }

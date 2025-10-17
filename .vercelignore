@@ -1,0 +1,9 @@
+# Don't ignore these folders - they're needed
+!certificates
+!passkit-model
+
+# Ignore development files
+.env.local
+.env.development.local
+node_modules
+.next

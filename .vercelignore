@@ -1,6 +1,7 @@
 # Don't ignore these folders - they're needed
 !certificates
 !passkit-model
+!passkit-model/**
 
 # Ignore development files
 .env.local

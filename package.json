@@ -11,7 +11,8 @@
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
     "prisma:seed": "node prisma/seed.js",
-    "generate-cert-env": "node scripts/generate-cert-env.js"
+    "generate-cert-env": "node scripts/generate-cert-env.js",
+    "verify-passkit": "node scripts/verify-passkit-model.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

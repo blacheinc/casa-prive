@@ -1,7 +1,10 @@
 {
   "functions": {
     "src/app/api/**/*.ts": {
-      "includeFiles": "certificates/**"
+      "includeFiles": [
+        "certificates/**",
+        "passkit-model/**"
+      ]
     }
   },
   "outputDirectory": ".next",

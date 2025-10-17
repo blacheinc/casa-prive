@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/api/members/[code]/wallet/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generateAppleWalletPass } from "@/lib/apple-wallet";
@@ -10,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { code } = await params;
-    
+
     const member = await prisma.member.findUnique({
       where: { membershipCode: code },
     });
@@ -25,8 +24,11 @@ export async function GET(
       membershipCode: member.membershipCode,
       email: member.email,
       joinedAt: member.joinedAt.toISOString(),
+      status: member.status,
+      expiresAt: member.expiresAt?.toISOString(),
     });
 
+    // Convert Node.js Buffer to ArrayBuffer
     const arrayBuffer = passBuffer.buffer.slice(
       passBuffer.byteOffset,
       passBuffer.byteOffset + passBuffer.byteLength
@@ -40,15 +42,9 @@ export async function GET(
     });
   } catch (error: any) {
     console.error("Wallet pass generation error:", error);
-    
-    // Provide more specific error message
     const errorMessage = error.message?.includes("Certificate files not found")
       ? "Apple Wallet service is temporarily unavailable"
       : "Failed to generate wallet pass";
-    
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

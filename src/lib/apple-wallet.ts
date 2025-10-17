@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/lib/apple-wallet.ts
 import { PKPass } from "passkit-generator";
 import fs from "fs/promises";
 import path from "path";
+import QRCode from "qrcode";
 
-interface MemberPassData {
+export interface MemberPassData {
   fullName: string;
   membershipCode: string;
   email: string;
@@ -13,196 +13,166 @@ interface MemberPassData {
   expiresAt?: string;
 }
 
-/**
- * Get certificates path
- */
+/** Get certificate path */
 function getCertPath(): string {
   return path.join(process.cwd(), "certificates");
 }
 
-/**
- * Get path to your pass template folder
- */
+/** Get model path */
 function getModelPath(): string {
   return path.join(process.cwd(), "passkit-model.pass");
 }
 
-/**
- * Generate Apple Wallet pass with dynamic member data
- */
+/** Create a luxury background as PNG */
+async function createLuxuryBackground(): Promise<void> {
+  const modelPath = getModelPath();
+  const svg = `
+    <svg width="360" height="440" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="pattern" width="60" height="60" patternUnits="userSpaceOnUse">
+          <rect width="60" height="60" fill="#046348"/>
+          <path d="M30 0 L60 30 L30 60 L0 30 Z" fill="#055d42" opacity="0.3"/>
+          <circle cx="30" cy="30" r="2" fill="#d4af37" opacity="0.4"/>
+        </pattern>
+      </defs>
+      <rect width="360" height="440" fill="url(#pattern)"/>
+    </svg>
+  `;
+  await fs.writeFile(path.join(modelPath, "background.png"), Buffer.from(svg));
+}
+
+/** Generate QR code for membership */
+async function generateQRCode(data: string): Promise<string> {
+  return await QRCode.toDataURL(data, { errorCorrectionLevel: "H" });
+}
+
+/** Generate Apple Wallet pass */
 export async function generateAppleWalletPass(
   member: MemberPassData
 ): Promise<Buffer> {
-  try {
-    const certPath = getCertPath();
-    const modelPath = getModelPath();
+  const certPath = getCertPath();
+  const modelPath = getModelPath();
 
-    // Load certificates
-    let wwdr: Buffer;
-    let signerCert: Buffer;
-    let signerKey: Buffer;
+  // Load certificates
+  const wwdr = process.env.APPLE_WWDR_CERT
+    ? Buffer.from(process.env.APPLE_WWDR_CERT.replace(/\\n/g, "\n"))
+    : await fs.readFile(path.join(certPath, "wwdr.pem"));
+  const signerCert = process.env.APPLE_SIGNER_CERT
+    ? Buffer.from(process.env.APPLE_SIGNER_CERT.replace(/\\n/g, "\n"))
+    : await fs.readFile(path.join(certPath, "signerCert.pem"));
+  const signerKey = process.env.APPLE_SIGNER_KEY
+    ? Buffer.from(process.env.APPLE_SIGNER_KEY.replace(/\\n/g, "\n"))
+    : await fs.readFile(path.join(certPath, "signerKey.pem"));
+  const signerKeyPassphrase = process.env.PASS_CERT_PASSPHRASE;
 
-    try {
-      wwdr = await fs.readFile(path.join(certPath, "wwdr.pem"));
-      signerCert = await fs.readFile(path.join(certPath, "signerCert.pem"));
-      signerKey = await fs.readFile(path.join(certPath, "signerKey.pem"));
-      console.log("✅ Certificates loaded from files");
-    } catch (readError) {
-      if (
-        process.env.APPLE_WWDR_CERT &&
-        process.env.APPLE_SIGNER_CERT &&
-        process.env.APPLE_SIGNER_KEY
-      ) {
-        wwdr = Buffer.from(process.env.APPLE_WWDR_CERT.replace(/\\n/g, "\n"));
-        signerCert = Buffer.from(
-          process.env.APPLE_SIGNER_CERT.replace(/\\n/g, "\n")
-        );
-        signerKey = Buffer.from(
-          process.env.APPLE_SIGNER_KEY.replace(/\\n/g, "\n")
-        );
-        console.log("✅ Certificates loaded from environment variables");
-      } else {
-        throw new Error(
-          "Certificate files not found. Add to certificates/ or set env variables."
-        );
-      }
+  // Membership tier colors
+  const joinedDate = new Date(member.joinedAt);
+  const now = new Date();
+  const monthsSince = Math.floor(
+    (now.getTime() - joinedDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
+  );
+
+  let tierName = "Member";
+  let tierColor = "#d4af37"; // gold
+  if (monthsSince >= 12) {
+    tierName = "Elite Member";
+    tierColor = "#e5e4e2";
+  } // silver/platinum
+  if (monthsSince >= 24) {
+    tierName = "VIP Member";
+    tierColor = "#ffd700";
+  } // brighter gold
+
+  // Prepare luxury background
+  await createLuxuryBackground();
+
+  // Generate QR code
+  const qrDataURL = await generateQRCode(member.membershipCode);
+
+  // Create pass
+  const pass = await PKPass.from(
+    {
+      model: modelPath,
+      certificates: { wwdr, signerCert, signerKey, signerKeyPassphrase },
+    },
+    {
+      description: "Casa Privé Exclusive Membership Card",
+      organizationName: "Casa Privé",
+      serialNumber: member.membershipCode,
+      logoText: "CASA PRIVÉ",
+      foregroundColor: tierColor,
+      backgroundColor: "#046348",
+      labelColor: "#ffffff",
     }
+  );
 
-    const signerKeyPassphrase = process.env.PASS_CERT_PASSPHRASE;
-
-    // Calculate membership tier
-    const joinedDate = new Date(member.joinedAt);
-    const now = new Date();
-    const monthsSince = Math.floor(
-      (now.getTime() - joinedDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
-    );
-
-    let tierName = "Member";
-    let tierColor = "rgb(212,175,55)"; // Gold
-    if (monthsSince >= 12) {
-      tierName = "Elite Member";
-      tierColor = "rgb(229,228,226)"; // Platinum
-    }
-    if (monthsSince >= 24) {
-      tierName = "VIP Member";
-      tierColor = "rgb(255,215,0)"; // Bright Gold
-    }
-
-    const authenticationToken = process.env.WALLET_AUTH_TOKEN;
-
-    // Create pass
-    const pass = await PKPass.from(
-      {
-        model: modelPath,
-        certificates: { wwdr, signerCert, signerKey, signerKeyPassphrase },
-      },
-      {
-        description: "Casa Privé Exclusive Membership Card",
-        organizationName: "Casa Privé",
-        serialNumber: member.membershipCode,
-        logoText: "CASA PRIVÉ",
-        foregroundColor: tierColor,
-        backgroundColor: "rgb(4,99,72)",
-        labelColor: "rgb(255,255,255)",
-        webServiceURL: "https://api.casaprive.com/passes",
-        authenticationToken,
-      }
-    );
-
-    // Configure storeCard dynamically
-    const storeCard = (pass as any).storeCard ?? {};
-    storeCard.primaryFields = [
-      {
-        key: "member",
-        label: tierName.toUpperCase(),
-        value: member.fullName,
-        textAlignment: "PKTextAlignmentCenter",
-      },
-    ];
-    storeCard.secondaryFields = [
-      {
-        key: "code",
-        label: "MEMBERSHIP CODE",
-        value: member.membershipCode,
-        textAlignment: "PKTextAlignmentLeft",
-      },
-    ];
-    if (member.status) {
-      storeCard.secondaryFields.push({
-        key: "status",
-        label: "STATUS",
-        value: member.status,
-        textAlignment: "PKTextAlignmentRight",
-      });
-    }
-    storeCard.auxiliaryFields = [
-      {
-        key: "joined",
-        label: "MEMBER SINCE",
-        value: joinedDate.toLocaleDateString("en-US", {
-          month: "short",
-          year: "numeric",
-        }),
-        textAlignment: "PKTextAlignmentLeft",
-      },
-    ];
-    if (member.expiresAt) {
-      storeCard.auxiliaryFields.push({
-        key: "expires",
-        label: "VALID UNTIL",
-        value: new Date(member.expiresAt).toLocaleDateString("en-US", {
-          month: "short",
-          year: "numeric",
-        }),
-        textAlignment: "PKTextAlignmentRight",
-      });
-    }
-
-    storeCard.backFields = [
-      {
-        key: "welcome",
-        label: "Welcome",
-        value: `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events and services.`,
-      },
-      {
-        key: "email",
-        label: "Email",
-        value: member.email,
-      },
-      {
-        key: "membershipDetails",
-        label: "Membership Benefits",
-        value:
-          "• Priority table reservations\n• Exclusive event access\n• Special member pricing\n• VIP concierge service\n• Complimentary amenities",
-      },
-      {
-        key: "contact",
-        label: "Contact Us",
-        value:
-          "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX",
-      },
-      {
-        key: "terms",
-        label: "Terms & Conditions",
-        value:
-          "This membership card is non-transferable. Valid only for the member named above. Visit casaprive.com/terms for full terms and conditions.",
-      },
-    ];
-
-    // Add barcode dynamically
-    (pass as any).barcode = {
-      format: "PKBarcodeFormatQR",
-      message: member.membershipCode,
-      messageEncoding: "iso-8859-1",
-      altText: member.membershipCode,
-    };
-
-    // Generate pkpass buffer
-    const buffer = pass.getAsBuffer();
-    console.log("✅ Luxury wallet pass generated successfully");
-    return buffer;
-  } catch (error) {
-    console.error("Error generating Apple Wallet pass:", error);
-    throw error;
+  // Configure storeCard
+  const storeCard = (pass as any).storeCard ?? {};
+  storeCard.primaryFields = [
+    {
+      key: "member",
+      label: tierName.toUpperCase(),
+      value: member.fullName,
+      textAlignment: "PKTextAlignmentCenter",
+    },
+  ];
+  storeCard.secondaryFields = [
+    { key: "code", label: "MEMBERSHIP CODE", value: member.membershipCode },
+  ];
+  if (member.status) {
+    storeCard.secondaryFields.push({
+      key: "status",
+      label: "STATUS",
+      value: member.status,
+    });
   }
+  storeCard.auxiliaryFields = [
+    {
+      key: "joined",
+      label: "MEMBER SINCE",
+      value: joinedDate.toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      }),
+    },
+  ];
+  if (member.expiresAt) {
+    storeCard.auxiliaryFields.push({
+      key: "expires",
+      label: "VALID UNTIL",
+      value: new Date(member.expiresAt).toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      }),
+    });
+  }
+  storeCard.backFields = [
+    {
+      key: "welcome",
+      label: "Welcome",
+      value: `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events.`,
+    },
+    { key: "email", label: "Email", value: member.email },
+    {
+      key: "membershipDetails",
+      label: "Membership Benefits",
+      value:
+        "• Priority table reservations\n• Exclusive event access\n• Special member pricing\n• VIP concierge service\n• Complimentary amenities",
+    },
+    {
+      key: "contact",
+      label: "Contact Us",
+      value:
+        "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX",
+    },
+    {
+      key: "terms",
+      label: "Terms & Conditions",
+      value:
+        "This membership card is non-transferable. Visit casaprive.com/terms for full terms",
+    },
+    { key: "qrCode", label: "QR Code", value: qrDataURL },
+  ];
+
+  return pass.getAsBuffer();
 }

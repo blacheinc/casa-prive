@@ -18,8 +18,8 @@ export async function generateAppleWalletPass(
 ): Promise<Buffer> {
   const certPath = path.join(process.cwd(), "certificates");
   const modelPath = path.join(process.cwd(), "passkit-model.pass");
-  // Use /tmp which is writable on Vercel/Lambda
-  const tempModelPath = path.join("/tmp", `pass-${member.membershipCode}-${Date.now()}`);
+  // Use /tmp which is writable on Vercel/Lambda - MUST end with .pass
+  const tempModelPath = path.join("/tmp", `pass-${member.membershipCode}-${Date.now()}.pass`);
 
   console.log("Certificate path:", certPath);
   console.log("Model path:", modelPath);

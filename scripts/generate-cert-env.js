@@ -6,7 +6,7 @@
 // 
 // PURPOSE:
 // Converts binary Apple Wallet certificate files (.pem) into base64-encoded 
-// text strings that can be stored as environment variables in Vercel.
+// text strings that can be stored as environment variables in Vercel
 //
 // WHY THIS IS NEEDED:
 // - Vercel may not deploy the certificates/ folder reliably

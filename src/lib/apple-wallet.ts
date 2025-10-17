@@ -3,7 +3,7 @@
 import { PKPass } from "passkit-generator";
 import fs from "fs/promises";
 import path from "path";
-import sharp from "sharp"; // You'll need to install: npm install sharp
+import sharp from "sharp";
 
 interface MemberPassData {
   fullName: string;
@@ -26,7 +26,7 @@ function getModelPath(): string {
 }
 
 /**
- * Convert public logo to all required pass formats
+ * Convert public logo to all required pass formats.
  */
 async function prepareLogoImages(): Promise<void> {
   const publicLogoPath = path.join(process.cwd(), "public", "logo.png");

@@ -22,11 +22,13 @@ export async function generateAppleWalletPass(
   console.log("Certificate path:", certPath);
   console.log("Model path:", modelPath);
 
-  // Verify model folder exists
+  // Verify model folder exists and has required files
   try {
     await fs.access(modelPath);
+    await fs.access(path.join(modelPath, "pass.json"));
+    console.log("Model folder and pass.json verified");
   } catch (error) {
-    throw new Error(`Model folder not found at: ${modelPath}`);
+    throw new Error(`Model folder or pass.json not found at: ${modelPath}`);
   }
 
   // Load certificates
@@ -88,9 +90,6 @@ export async function generateAppleWalletPass(
 
     console.log("Pass created successfully");
 
-    // Explicitly set the pass type
-    (pass as any).type = "storeCard";
-
     // Set barcode with actual membership code
     pass.setBarcodes({
       message: member.membershipCode,
@@ -98,10 +97,18 @@ export async function generateAppleWalletPass(
       messageEncoding: "iso-8859-1",
     });
 
-    console.log("Barcode configured");
+    console.log("Barcode set successfully");
 
-    // Use type assertion to access fields (passkit-generator internals)
+    // Use type assertion to access internal fields
     const passData = pass as any;
+
+    // Ensure field arrays exist
+    if (!passData.primaryFields) passData.primaryFields = [];
+    if (!passData.secondaryFields) passData.secondaryFields = [];
+    if (!passData.auxiliaryFields) passData.auxiliaryFields = [];
+    if (!passData.backFields) passData.backFields = [];
+
+    console.log("Field arrays initialized");
 
     // Add primary field (member name)
     passData.primaryFields.push({
@@ -184,6 +191,17 @@ export async function generateAppleWalletPass(
     // Generate the pass buffer
     const buffer = pass.getAsBuffer();
     console.log("Pass buffer generated, size:", buffer.length, "bytes");
+
+    // Validate buffer is not empty and is reasonable size
+    if (!buffer || buffer.length === 0) {
+      throw new Error("Generated pass buffer is empty");
+    }
+
+    if (buffer.length < 1000) {
+      throw new Error("Generated pass buffer is too small - likely invalid");
+    }
+
+    console.log("Pass validation successful");
 
     return buffer;
   } catch (error) {

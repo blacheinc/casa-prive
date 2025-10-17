@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/lib/apple-wallet.ts
 import { PKPass } from "passkit-generator";
 import fs from "fs/promises";
@@ -86,7 +87,6 @@ export async function generateAppleWalletPass(
 
     const signerKeyPassphrase = process.env.PASS_CERT_PASSPHRASE;
 
-    // Create the pass shell
     const pass = await PKPass.from(
       {
         model: modelPath,
@@ -108,20 +108,23 @@ export async function generateAppleWalletPass(
       }
     );
 
-    // Add fields after creation
-    pass.primaryFields.push({
+    // 👇 Add this line
+    const storeCard = (pass as any).storeCard;
+
+    // Add fields under storeCard
+    storeCard.primaryFields.push({
       key: "member",
       label: "MEMBER NAME",
       value: member.fullName,
     });
 
-    pass.secondaryFields.push({
+    storeCard.secondaryFields.push({
       key: "code",
       label: "MEMBERSHIP CODE",
       value: member.membershipCode,
     });
 
-    pass.auxiliaryFields.push({
+    storeCard.auxiliaryFields.push({
       key: "joined",
       label: "MEMBER SINCE",
       value: new Date(member.joinedAt).toLocaleDateString("en-US", {
@@ -130,13 +133,13 @@ export async function generateAppleWalletPass(
       }),
     });
 
-    pass.backFields.push({
+    storeCard.backFields.push({
       key: "email",
       label: "Email",
       value: member.email,
     });
 
-    pass.backFields.push({
+    storeCard.backFields.push({
       key: "terms",
       label: "Terms & Conditions",
       value: "Visit casaprive.com for full terms and conditions.",

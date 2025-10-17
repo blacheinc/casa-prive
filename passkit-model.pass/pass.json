@@ -15,7 +15,7 @@
     "message": "CASA-PRIVE-MEMBER-1234",
     "messageEncoding": "iso-8859-1"
   },
-
+ 
   "storeCard": {
     "primaryFields": [
       {
@@ -54,7 +54,7 @@
 
   "relevantDate": "2025-01-01T00:00-08:00",
   "webServiceURL": "https://api.casaprive.com/passes",
-  "authenticationToken": "abc123xyz",
+  "authenticationToken": "9a2f1e7c4b5d6f8a0c3e9d2f5a7b1c4d",
   "associatedStoreIdentifiers": [],
   "sharingProhibited": true
 }

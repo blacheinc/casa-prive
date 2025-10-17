@@ -20,12 +20,7 @@ function getModelPath(): string {
   return path.join(process.cwd(), "passkit-model.pass");
 }
 
-/**
- * Generates a luxurious Apple Wallet pass using pre-made images.
- */
-export async function generateAppleWalletPass(
-  member: MemberPassData
-): Promise<Buffer> {
+export async function generateAppleWalletPass(member: MemberPassData): Promise<Buffer> {
   try {
     const certPath = getCertPath();
     const modelPath = getModelPath();
@@ -56,23 +51,17 @@ export async function generateAppleWalletPass(
 
     const signerKeyPassphrase = process.env.PASS_CERT_PASSPHRASE;
 
+    // Determine tier
     const joinedDate = new Date(member.joinedAt);
     const now = new Date();
-    const monthsSince = Math.floor(
-      (now.getTime() - joinedDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
-    );
+    const monthsSince = Math.floor((now.getTime() - joinedDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
 
     let tierName = "Member";
     let tierColor = "rgb(212,175,55)"; // Gold
-    if (monthsSince >= 12) {
-      tierName = "Elite Member";
-      tierColor = "rgb(229,228,226)"; // Platinum
-    }
-    if (monthsSince >= 24) {
-      tierName = "VIP Member";
-      tierColor = "rgb(255,215,0)"; // Brighter Gold
-    }
+    if (monthsSince >= 12) { tierName = "Elite Member"; tierColor = "rgb(229,228,226)"; } // Platinum
+    if (monthsSince >= 24) { tierName = "VIP Member"; tierColor = "rgb(255,215,0)"; } // Bright Gold
 
+    // Create pass
     const pass = await PKPass.from(
       {
         model: modelPath,
@@ -146,9 +135,7 @@ export async function generateAppleWalletPass(
       },
     ];
 
-    const buffer = pass.getAsBuffer();
-    console.log("✅ Luxury wallet pass generated successfully (static images)");
-    return buffer;
+    return pass.getAsBuffer();
   } catch (error) {
     console.error("Error generating Apple Wallet pass:", error);
     throw error;

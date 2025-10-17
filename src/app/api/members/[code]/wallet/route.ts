@@ -5,11 +5,13 @@ import { generateAppleWalletPass } from "@/lib/apple-wallet";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { code: string } }
+  { params }: { params: Promise<{ code: string }> }
 ) {
   try {
+    const { code } = await params; // FIXED: Await params
+    
     const member = await prisma.member.findUnique({
-      where: { membershipCode: params.code },
+      where: { membershipCode: code },
     });
 
     if (!member) {

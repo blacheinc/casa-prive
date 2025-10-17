@@ -1,20 +1,20 @@
 // app/api/menu-items/route.ts
-import { NextRequest as NextReq2, NextResponse as NextRes2 } from 'next/server';
-import { prisma as db } from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-export async function POST(request: NextReq2) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { name, description, category, price, image, isAvailable } = body;
 
     if (!name || !category || price === undefined) {
-      return NextRes2.json(
+      return NextResponse.json(
         { error: 'Name, category, and price are required' },
         { status: 400 }
       );
     }
 
-    const menuItem = await db.menuItem.create({
+    const menuItem = await prisma.menuItem.create({
       data: {
         name,
         description: description || null,
@@ -25,24 +25,24 @@ export async function POST(request: NextReq2) {
       },
     });
 
-    return NextRes2.json({ menuItem }, { status: 201 });
+    return NextResponse.json({ menuItem }, { status: 201 });
   } catch (error) {
     console.error('Create menu item error:', error);
-    return NextRes2.json(
+    return NextResponse.json(
       { error: 'Failed to create menu item' },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: NextReq2) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
 
     const where = category ? { category } : {};
 
-    const menuItems = await db.menuItem.findMany({
+    const menuItems = await prisma.menuItem.findMany({
       where,
       orderBy: [
         { category: 'asc' },
@@ -50,10 +50,10 @@ export async function GET(request: NextReq2) {
       ],
     });
 
-    return NextRes2.json({ menuItems });
+    return NextResponse.json({ menuItems });
   } catch (error) {
     console.error('Get menu items error:', error);
-    return NextRes2.json(
+    return NextResponse.json(
       { error: 'Failed to fetch menu items' },
       { status: 500 }
     );

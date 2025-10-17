@@ -3,14 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { rateLimit } from '@/lib/rate-limit';
 
-
 const limiter = rateLimit({
-  interval: 60 * 1000, // 1 minute
-  maxRequests: 10, // 10 bookings per minute per IP
+  interval: 60 * 1000,
+  maxRequests: 10,
 });
 
 export async function POST_WITH_RATE_LIMIT(request: NextRequest) {
-  // Apply rate limiting
   const rateLimitResult = limiter(request);
 
   if (!rateLimitResult.success) {
@@ -34,11 +32,13 @@ export async function POST_WITH_RATE_LIMIT(request: NextRequest) {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params; // FIXED: Await params
+    
     const booking = await prisma.booking.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         package: true,
       },
@@ -63,14 +63,15 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params; // FIXED: Await params
     const body = await request.json();
     const { status, tableNumber } = body;
 
     const booking = await prisma.booking.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(status && { status }),
         ...(tableNumber && { tableNumber: parseInt(tableNumber) }),

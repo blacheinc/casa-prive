@@ -102,16 +102,20 @@ export async function generateAppleWalletPass(
         organizationName: "Casa Privé",
         serialNumber: member.membershipCode,
         logoText: "Casa Privé",
-        foregroundColor: "rgb(212,175,55)", // gold
-        backgroundColor: "rgb(4,99,72)", // emerald green
-        labelColor: "rgb(255,255,255)", // white
+        foregroundColor: "rgb(212,175,55)",
+        backgroundColor: "rgb(4,99,72)",
+        labelColor: "rgb(255,255,255)",
       }
     );
 
-    // 👇 Add this line
-    const storeCard = (pass as any).storeCard;
+    // Ensure storeCard exists
+    const storeCard = (pass as any).storeCard ?? {};
+    storeCard.primaryFields = storeCard.primaryFields ?? [];
+    storeCard.secondaryFields = storeCard.secondaryFields ?? [];
+    storeCard.auxiliaryFields = storeCard.auxiliaryFields ?? [];
+    storeCard.backFields = storeCard.backFields ?? [];
 
-    // Add fields under storeCard
+    // Now safely push your fields
     storeCard.primaryFields.push({
       key: "member",
       label: "MEMBER NAME",

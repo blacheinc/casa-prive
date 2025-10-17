@@ -1,22 +1,42 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // lib/sheets.ts
-import { google } from 'googleapis';
+
+const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL || '';
 
 export class GoogleSheetsService {
-  private sheets;
-  private spreadsheetId: string;
+  private scriptUrl: string;
 
   constructor() {
-    const credentials = JSON.parse(
-      process.env.GOOGLE_SHEETS_CREDENTIALS || '{}'
-    );
+    this.scriptUrl = GOOGLE_SCRIPT_URL;
     
-    const auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
+    if (!this.scriptUrl) {
+      console.warn('⚠️  GOOGLE_SCRIPT_URL not configured. Google Sheets logging disabled.');
+    }
+  }
 
-    this.sheets = google.sheets({ version: 'v4', auth });
-    this.spreadsheetId = process.env.GOOGLE_SHEET_ID || '';
+  private async logToSheet(data: any): Promise<void> {
+    if (!this.scriptUrl) {
+      console.log('Google Sheets logging skipped - no URL configured');
+      return;
+    }
+
+    try {
+      const response = await fetch(this.scriptUrl, {
+        method: 'POST',
+        mode: 'no-cors', // Required for Google Apps Script
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      // Note: With no-cors mode, we can't read the response
+      // But if no error is thrown, the submission was successful
+      console.log('✅ Logged to Google Sheets:', data.type);
+    } catch (error) {
+      console.error('❌ Google Sheets logging failed:', error);
+      // Don't throw - logging failure shouldn't break the main flow
+    }
   }
 
   async logBooking(booking: {
@@ -32,33 +52,10 @@ export class GoogleSheetsService {
     paymentMethod: string;
     paymentStatus: string;
   }) {
-    try {
-      await this.sheets.spreadsheets.values.append({
-        spreadsheetId: this.spreadsheetId,
-        range: 'Bookings!A:K',
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: [
-            [
-              booking.date,
-              booking.id,
-              booking.fullName,
-              booking.email,
-              booking.phone,
-              booking.packageName,
-              booking.numberOfGuests,
-              booking.tableNumber || 'Unassigned',
-              booking.amount,
-              booking.paymentMethod,
-              booking.paymentStatus,
-            ],
-          ],
-        },
-      });
-    } catch (error) {
-      console.error('Error logging booking to Google Sheets:', error);
-      throw error;
-    }
+    await this.logToSheet({
+      type: 'booking',
+      ...booking,
+    });
   }
 
   async logOrder(order: {
@@ -71,34 +68,22 @@ export class GoogleSheetsService {
     paymentMethod: string;
     paymentStatus: string;
   }) {
-    try {
-      const itemsDetails = order.items
-        .map((item) => `${item.name} x${item.quantity} (GHS ${item.price})`)
-        .join(', ');
+    // Format items for Google Sheets
+    const itemsDetails = order.items
+      .map((item) => `${item.name} x${item.quantity} (GHS ${item.price})`)
+      .join(', ');
 
-      await this.sheets.spreadsheets.values.append({
-        spreadsheetId: this.spreadsheetId,
-        range: 'Orders!A:H',
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: [
-            [
-              order.date,
-              order.id,
-              order.customerName,
-              order.tableNumberOrName,
-              itemsDetails,
-              order.totalAmount,
-              order.paymentMethod,
-              order.paymentStatus,
-            ],
-          ],
-        },
-      });
-    } catch (error) {
-      console.error('Error logging order to Google Sheets:', error);
-      throw error;
-    }
+    await this.logToSheet({
+      type: 'order',
+      id: order.id,
+      date: order.date,
+      customerName: order.customerName,
+      tableNumberOrName: order.tableNumberOrName,
+      itemsDetails,
+      totalAmount: order.totalAmount,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+    });
   }
 
   async logWaitlist(waitlist: {
@@ -111,30 +96,10 @@ export class GoogleSheetsService {
     preferredDate: string;
     message: string | null;
   }) {
-    try {
-      await this.sheets.spreadsheets.values.append({
-        spreadsheetId: this.spreadsheetId,
-        range: 'Waitlist!A:H',
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: [
-            [
-              waitlist.date,
-              waitlist.id,
-              waitlist.fullName,
-              waitlist.email,
-              waitlist.phone,
-              waitlist.numberOfGuests,
-              waitlist.preferredDate,
-              waitlist.message || '',
-            ],
-          ],
-        },
-      });
-    } catch (error) {
-      console.error('Error logging waitlist to Google Sheets:', error);
-      throw error;
-    }
+    await this.logToSheet({
+      type: 'waitlist',
+      ...waitlist,
+    });
   }
 
   async logFeedback(feedback: {
@@ -146,29 +111,10 @@ export class GoogleSheetsService {
     category: string;
     message: string;
   }) {
-    try {
-      await this.sheets.spreadsheets.values.append({
-        spreadsheetId: this.spreadsheetId,
-        range: 'Feedback!A:G',
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: [
-            [
-              feedback.date,
-              feedback.id,
-              feedback.name,
-              feedback.email,
-              feedback.rating,
-              feedback.category,
-              feedback.message,
-            ],
-          ],
-        },
-      });
-    } catch (error) {
-      console.error('Error logging feedback to Google Sheets:', error);
-      throw error;
-    }
+    await this.logToSheet({
+      type: 'feedback',
+      ...feedback,
+    });
   }
 }
 

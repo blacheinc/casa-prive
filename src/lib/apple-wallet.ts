@@ -9,12 +9,14 @@ interface MemberPassData {
   membershipCode: string;
   email: string;
   joinedAt: string;
-  phone?: string;
-  status: string;
-  expiresAt?: string;
 }
 
+/**
+ * Get the correct path for certificates based on project structure
+ */
 function getCertPath(): string {
+  // Since certificates/ is in root and src/ is also in root
+  // Go up from src/lib to root, then into certificates
   return path.join(process.cwd(), "certificates");
 }
 
@@ -22,6 +24,9 @@ function getModelPath(): string {
   return path.join(process.cwd(), "passkit-model.pass");
 }
 
+/**
+ * Generates an Apple Wallet pass (.pkpass) for a member.
+ */
 export async function generateAppleWalletPass(
   member: MemberPassData
 ): Promise<Buffer> {
@@ -29,30 +34,27 @@ export async function generateAppleWalletPass(
     const certPath = getCertPath();
     const modelPath = getModelPath();
 
-    console.log("📂 Certificate path:", certPath);
-    console.log("📂 Model path:", modelPath);
+    console.log("Certificate path:", certPath);
+    console.log("Model path:", modelPath);
 
-    // Check if model path exists
-    try {
-      await fs.access(modelPath);
-      console.log("✅ Model directory exists");
-    } catch {
-      console.error("❌ Model directory not found at:", modelPath);
-      throw new Error(`Model directory not found at ${modelPath}. Please create the passkit-model.pass folder.`);
-    }
-
+    // Read certificates with better error handling
     let wwdr: Buffer;
     let signerCert: Buffer;
     let signerKey: Buffer;
 
     try {
+      // Try reading from files first
       wwdr = await fs.readFile(path.join(certPath, "wwdr.pem"));
       signerCert = await fs.readFile(path.join(certPath, "signerCert.pem"));
       signerKey = await fs.readFile(path.join(certPath, "signerKey.pem"));
+
       console.log("✅ Certificates loaded from files");
     } catch (readError) {
-      console.log("⚠️  Certificate files not found, trying environment variables...");
+      console.log(
+        "⚠️  Certificate files not found, trying environment variables..."
+      );
 
+      // Fallback to environment variables (for Vercel deployment)
       if (
         process.env.APPLE_WWDR_CERT &&
         process.env.APPLE_SIGNER_CERT &&
@@ -65,9 +67,24 @@ export async function generateAppleWalletPass(
         signerKey = Buffer.from(
           process.env.APPLE_SIGNER_KEY.replace(/\\n/g, "\n")
         );
+
+        console.log(wwdr?.slice(0, 50));
+        console.log(signerCert?.slice(0, 50));
+        console.log(signerKey?.slice(0, 50));
+
         console.log("✅ Certificates loaded from environment variables");
       } else {
-        console.error("❌ No certificates found");
+        console.error("❌ Error reading certificate files:", readError);
+        console.error("Attempted path:", certPath);
+
+        // List what's actually in the directory for debugging
+        try {
+          const files = await fs.readdir(certPath);
+          console.log("Files in certificates directory:", files);
+        } catch (dirError) {
+          console.error("Cannot read certificates directory:", dirError);
+        }
+
         throw new Error(
           "Certificate files not found. Please either:\n" +
             "1. Add certificate files to the certificates/ folder, OR\n" +
@@ -77,48 +94,6 @@ export async function generateAppleWalletPass(
     }
 
     const signerKeyPassphrase = process.env.PASS_CERT_PASSPHRASE;
-
-    // Format the "Member Since" date
-    const memberSince = new Date(member.joinedAt).toLocaleDateString("en-US", {
-      month: "short",
-      year: "numeric",
-    });
-
-    console.log("🎨 Creating pass configuration...");
-
-    // BRAND COLORS - Emerald Green and Gold
-    const passConfig: any = {
-      description: "Casa Privé Membership Pass",
-      organizationName: "Casa Privé",
-      passTypeIdentifier: "pass.com.casaprive.membership",
-      teamIdentifier: "64PS3B42A3",
-      serialNumber: member.membershipCode,
-      logoText: "Casa Privé",
-      
-      // EMERALD GREEN BACKGROUND
-      backgroundColor: "rgb(16, 185, 129)",
-      
-      // GOLD FOREGROUND
-      foregroundColor: "rgb(234, 179, 8)",
-      
-      // WHITE LABELS
-      labelColor: "rgb(255, 255, 255)",
-      
-      barcode: {
-        format: "PKBarcodeFormatQR",
-        message: `CASA-PRIVE-${member.membershipCode}`,
-        messageEncoding: "iso-8859-1",
-        altText: member.membershipCode,
-      },
-    };
-
-    // Add expiration date if it exists
-    if (member.expiresAt) {
-      passConfig.expirationDate = new Date(member.expiresAt).toISOString();
-      passConfig.relevantDate = new Date(member.expiresAt).toISOString();
-    }
-
-    console.log("🔧 Initializing PKPass...");
 
     const pass = await PKPass.from(
       {
@@ -130,71 +105,44 @@ export async function generateAppleWalletPass(
           signerKeyPassphrase,
         },
       },
-      passConfig
+      {
+        description: "Casa Privé Membership",
+        organizationName: "Casa Privé",
+        serialNumber: member.membershipCode,
+        logoText: "Casa Privé",
+        foregroundColor: "rgb(212,175,55)",
+        backgroundColor: "rgb(4,99,72)",
+        labelColor: "rgb(255,255,255)",
+      }
     );
 
-    console.log("✅ PKPass initialized");
-
-    // Try to add logo - don't fail if logo is missing
-    try {
-      const logoPath = path.join(process.cwd(), "public", "logo.png");
-      const logoBuffer = await fs.readFile(logoPath);
-      
-      pass.addBuffer("icon.png", logoBuffer);
-      pass.addBuffer("icon@2x.png", logoBuffer);
-      pass.addBuffer("logo.png", logoBuffer);
-      pass.addBuffer("logo@2x.png", logoBuffer);
-      
-      console.log("✅ Logo added to pass");
-    } catch (logoError) {
-      console.warn("⚠️  Could not add logo (this is optional):", logoError);
-    }
-
-    console.log("📝 Adding pass fields...");
-
-    // Initialize storeCard structure
+    // Ensure storeCard exists
     const storeCard = (pass as any).storeCard ?? {};
-    storeCard.primaryFields = [];
-    storeCard.secondaryFields = [];
-    storeCard.auxiliaryFields = [];
-    storeCard.backFields = [];
+    storeCard.primaryFields = storeCard.primaryFields ?? [];
+    storeCard.secondaryFields = storeCard.secondaryFields ?? [];
+    storeCard.auxiliaryFields = storeCard.auxiliaryFields ?? [];
+    storeCard.backFields = storeCard.backFields ?? [];
 
-    // PRIMARY FIELD
+    // Now safely push your fields
     storeCard.primaryFields.push({
-      key: "memberName",
+      key: "member",
       label: "MEMBER NAME",
       value: member.fullName,
-      textAlignment: "PKTextAlignmentLeft",
     });
 
-    // SECONDARY FIELD
     storeCard.secondaryFields.push({
-      key: "membershipCode",
+      key: "code",
       label: "MEMBERSHIP CODE",
       value: member.membershipCode,
-      textAlignment: "PKTextAlignmentLeft",
     });
 
-    // AUXILIARY FIELDS
     storeCard.auxiliaryFields.push({
-      key: "memberSince",
+      key: "joined",
       label: "MEMBER SINCE",
-      value: memberSince,
-      textAlignment: "PKTextAlignmentLeft",
-    });
-
-    storeCard.auxiliaryFields.push({
-      key: "status",
-      label: "STATUS",
-      value: member.status,
-      textAlignment: "PKTextAlignmentRight",
-    });
-
-    // BACK FIELDS
-    storeCard.backFields.push({
-      key: "about",
-      label: "About Casa Privé",
-      value: "Casa Privé is an exclusive members' club offering sophisticated experiences and premium networking opportunities every Saturday evening.",
+      value: new Date(member.joinedAt).toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      }),
     });
 
     storeCard.backFields.push({
@@ -203,72 +151,18 @@ export async function generateAppleWalletPass(
       value: member.email,
     });
 
-    if (member.phone) {
-      storeCard.backFields.push({
-        key: "phone",
-        label: "Phone",
-        value: member.phone,
-      });
-    }
-
-    if (member.expiresAt) {
-      const expiryDate = new Date(member.expiresAt).toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      });
-      
-      storeCard.backFields.push({
-        key: "expiresAt",
-        label: "Membership Expires",
-        value: expiryDate,
-      });
-    }
-
-    storeCard.backFields.push({
-      key: "benefits",
-      label: "Exclusive Member Benefits",
-      value: "✓ Priority event access\n✓ Premium drinks selection\n✓ VIP concierge service\n✓ Members-only Saturday events\n✓ Complimentary guest privileges\n✓ Special birthday recognition",
-    });
-
-    storeCard.backFields.push({
-      key: "usage",
-      label: "How to Use",
-      value: "Present this pass at Casa Privé events for entry. Your QR code will be scanned for verification.",
-    });
-
-    storeCard.backFields.push({
-      key: "contact",
-      label: "Contact Us",
-      value: "Visit casaprive.com\nEmail: hello@casaprive.com",
-    });
-
     storeCard.backFields.push({
       key: "terms",
       label: "Terms & Conditions",
-      value: "Membership is non-transferable. Visit casaprive.com/terms for complete terms.",
+      value: "Visit casaprive.com for full terms and conditions.",
     });
-
-    // Assign the storeCard back to pass
-    (pass as any).storeCard = storeCard;
-
-    console.log("✅ Pass fields added");
-    console.log("🔨 Generating buffer...");
 
     // Generate .pkpass buffer
     const buffer = pass.getAsBuffer();
-    
-    console.log("✅ Wallet pass generated successfully for:", member.fullName);
-    console.log("📦 Buffer size:", buffer.length, "bytes");
-    
-    if (buffer.length === 0) {
-      throw new Error("Generated pass buffer is empty");
-    }
-    
+    console.log("✅ Wallet pass generated successfully");
     return buffer;
-  } catch (error: any) {
-    console.error("❌ Error in generateAppleWalletPass:", error);
-    console.error("Stack:", error.stack);
+  } catch (error) {
+    console.error("Error generating Apple Wallet pass:", error);
     throw error;
   }
 }

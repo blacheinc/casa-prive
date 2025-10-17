@@ -50,8 +50,9 @@ export async function generateAppleWalletPass(
   // Determine membership tier
   const joinedDate = new Date(member.joinedAt);
   const now = new Date();
-  const monthsSince =
-    Math.floor((now.getTime() - joinedDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
+  const monthsSince = Math.floor(
+    (now.getTime() - joinedDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
+  );
 
   let tierName = "Member";
   let tierColor = "#d4af37"; // gold
@@ -70,47 +71,62 @@ export async function generateAppleWalletPass(
   // Create the pass
   const pass = await PKPass.from(
     {
-      model: modelPath, // Must contain required images like background.png, icon.png, logo.png
+      model: modelPath,
       certificates: { wwdr, signerCert, signerKey, signerKeyPassphrase },
     },
     {
+      // Pass Type - REQUIRED
+      passTypeIdentifier: process.env.PASS_TYPE_IDENTIFIER || "pass.com.casaprive.membership",
+      teamIdentifier: process.env.TEAM_IDENTIFIER || "64PS3B42A3",
+      
+      // Basic pass info
       description: "Casa Privé Exclusive Membership Card",
       organizationName: "Casa Privé",
       serialNumber: member.membershipCode,
       logoText: "CASA PRIVÉ",
+      
+      // Colors
       foregroundColor: tierColor,
       backgroundColor: "#046348",
       labelColor: "#ffffff",
     }
   );
 
-  // Configure card fields dynamically
-  const storeCard = (pass as any).storeCard ?? {};
-  storeCard.primaryFields = [
-    {
-      key: "member",
-      label: tierName.toUpperCase(),
-      value: member.fullName,
-      textAlignment: "PKTextAlignmentCenter",
-    },
-  ];
+  // Add primary field
+  pass.primaryFields.push({
+    key: "member",
+    label: tierName.toUpperCase(),
+    value: member.fullName,
+    textAlignment: "PKTextAlignmentCenter",
+  });
 
-  storeCard.secondaryFields = [
-    { key: "code", label: "MEMBERSHIP CODE", value: member.membershipCode },
-  ];
+  // Add secondary fields
+  pass.secondaryFields.push({
+    key: "code",
+    label: "MEMBERSHIP CODE",
+    value: member.membershipCode,
+  });
+
   if (member.status) {
-    storeCard.secondaryFields.push({ key: "status", label: "STATUS", value: member.status });
+    pass.secondaryFields.push({
+      key: "status",
+      label: "STATUS",
+      value: member.status,
+    });
   }
 
-  storeCard.auxiliaryFields = [
-    {
-      key: "joined",
-      label: "MEMBER SINCE",
-      value: joinedDate.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
-    },
-  ];
+  // Add auxiliary fields
+  pass.auxiliaryFields.push({
+    key: "joined",
+    label: "MEMBER SINCE",
+    value: joinedDate.toLocaleDateString("en-US", {
+      month: "short",
+      year: "numeric",
+    }),
+  });
+
   if (member.expiresAt) {
-    storeCard.auxiliaryFields.push({
+    pass.auxiliaryFields.push({
       key: "expires",
       label: "VALID UNTIL",
       value: new Date(member.expiresAt).toLocaleDateString("en-US", {
@@ -120,13 +136,18 @@ export async function generateAppleWalletPass(
     });
   }
 
-  storeCard.backFields = [
+  // Add back fields
+  pass.backFields.push(
     {
       key: "welcome",
       label: "Welcome",
       value: `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events.`,
     },
-    { key: "email", label: "Email", value: member.email },
+    {
+      key: "email",
+      label: "Email",
+      value: member.email,
+    },
     {
       key: "membershipDetails",
       label: "Membership Benefits",
@@ -136,15 +157,24 @@ export async function generateAppleWalletPass(
     {
       key: "contact",
       label: "Contact Us",
-      value: "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX",
+      value:
+        "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX",
     },
     {
       key: "terms",
       label: "Terms & Conditions",
-      value: "This membership card is non-transferable. Visit casaprive.com/terms for full terms",
+      value:
+        "This membership card is non-transferable. Visit casaprive.com/terms for full terms",
     },
-    { key: "qrCode", label: "QR Code", value: qrDataURL },
-  ];
+    {
+      key: "qrCode",
+      label: "QR Code",
+      value: qrDataURL,
+    }
+  );
+
+  // Set the pass type to storeCard
+  pass.type = "storeCard";
 
   return pass.getAsBuffer();
 }

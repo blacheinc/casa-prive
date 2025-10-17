@@ -18,11 +18,12 @@ export async function generateAppleWalletPass(
 ): Promise<Buffer> {
   const certPath = path.join(process.cwd(), "certificates");
   const modelPath = path.join(process.cwd(), "passkit-model.pass");
+  const tempModelPath = path.join(process.cwd(), ".temp-pass-model");
 
   console.log("Certificate path:", certPath);
   console.log("Model path:", modelPath);
 
-  // Verify model folder exists and has required files
+  // Verify model folder exists
   try {
     await fs.access(modelPath);
     await fs.access(path.join(modelPath, "pass.json"));
@@ -44,7 +45,6 @@ export async function generateAppleWalletPass(
     ? Buffer.from(process.env.APPLE_SIGNER_KEY.replace(/\\n/g, "\n"))
     : await fs.readFile(path.join(certPath, "signerKey.pem"));
   
-  // Only set passphrase if it exists and is not empty, otherwise undefined
   const envPassphrase = process.env.PASS_CERT_PASSPHRASE;
   const signerKeyPassphrase = (envPassphrase && envPassphrase.trim() !== '') ? envPassphrase : undefined;
 
@@ -56,18 +56,128 @@ export async function generateAppleWalletPass(
   );
 
   let tierName = "Member";
-  let tierColor = "rgb(212, 175, 55)"; // gold
+  let tierColor = "rgb(212, 175, 55)";
 
   if (monthsSince >= 12) {
     tierName = "Elite Member";
-    tierColor = "rgb(229, 228, 226)"; // silver
+    tierColor = "rgb(229, 228, 226)";
   }
   if (monthsSince >= 24) {
     tierName = "VIP Member";
-    tierColor = "rgb(255, 215, 0)"; // bright gold
+    tierColor = "rgb(255, 215, 0)";
   }
 
   try {
+    // Create a temporary copy of the model with updated pass.json
+    await fs.mkdir(tempModelPath, { recursive: true });
+    
+    // Copy all files from model to temp
+    const files = await fs.readdir(modelPath);
+    for (const file of files) {
+      if (file === 'pass.json') continue; // We'll create this separately
+      await fs.copyFile(
+        path.join(modelPath, file),
+        path.join(tempModelPath, file)
+      );
+    }
+
+    // Create modified pass.json with actual values
+    const passJson = {
+      formatVersion: 1,
+      passTypeIdentifier: process.env.PASS_TYPE_IDENTIFIER || "pass.com.casaprive.membership",
+      teamIdentifier: process.env.TEAM_IDENTIFIER || "64PS3B42A3",
+      organizationName: "Casa Privé",
+      description: "Casa Privé Exclusive Membership Card",
+      logoText: "CASA PRIVÉ",
+      foregroundColor: tierColor,
+      backgroundColor: "rgb(4, 99, 72)",
+      labelColor: "rgb(255, 255, 255)",
+      serialNumber: member.membershipCode,
+      barcodes: [{
+        message: member.membershipCode,
+        format: "PKBarcodeFormatQR",
+        messageEncoding: "iso-8859-1"
+      }],
+      storeCard: {
+        headerFields: [],
+        primaryFields: [{
+          key: "member",
+          label: tierName.toUpperCase(),
+          value: member.fullName,
+          textAlignment: "PKTextAlignmentCenter"
+        }],
+        secondaryFields: [{
+          key: "code",
+          label: "MEMBERSHIP CODE",
+          value: member.membershipCode
+        }],
+        auxiliaryFields: [{
+          key: "joined",
+          label: "MEMBER SINCE",
+          value: joinedDate.toLocaleDateString("en-US", {
+            month: "short",
+            year: "numeric"
+          })
+        }],
+        backFields: [
+          {
+            key: "welcome",
+            label: "Welcome",
+            value: `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events.`
+          },
+          {
+            key: "email",
+            label: "Email",
+            value: member.email
+          },
+          {
+            key: "benefits",
+            label: "Membership Benefits",
+            value: "• Priority table reservations\n• Exclusive event access\n• Special member pricing\n• VIP concierge service\n• Complimentary amenities"
+          },
+          {
+            key: "contact",
+            label: "Contact Us",
+            value: "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX"
+          },
+          {
+            key: "terms",
+            label: "Terms & Conditions",
+            value: "This membership card is non-transferable. Visit casaprive.com/terms for full terms and conditions."
+          }
+        ]
+      }
+    };
+
+    // Add status if provided
+    if (member.status) {
+      passJson.storeCard.secondaryFields.push({
+        key: "status",
+        label: "STATUS",
+        value: member.status
+      });
+    }
+
+    // Add expiry if provided
+    if (member.expiresAt) {
+      passJson.storeCard.auxiliaryFields.push({
+        key: "expires",
+        label: "VALID UNTIL",
+        value: new Date(member.expiresAt).toLocaleDateString("en-US", {
+          month: "short",
+          year: "numeric"
+        })
+      });
+    }
+
+    // Write the modified pass.json
+    await fs.writeFile(
+      path.join(tempModelPath, "pass.json"),
+      JSON.stringify(passJson, null, 2)
+    );
+
+    console.log("Created temporary pass model with values");
+
     // Prepare certificate config
     const certConfig: any = {
       wwdr,
@@ -75,108 +185,25 @@ export async function generateAppleWalletPass(
       signerKey,
     };
     
-    // Only add passphrase if it exists
     if (signerKeyPassphrase) {
       certConfig.signerKeyPassphrase = signerKeyPassphrase;
     }
 
-    // Create the pass with overrides
-    const pass = await PKPass.from(
-      {
-        model: modelPath,
-        certificates: certConfig,
-      },
-      {
-        serialNumber: member.membershipCode,
-        description: "Casa Privé Exclusive Membership Card",
-        logoText: "CASA PRIVÉ",
-        foregroundColor: tierColor,
-        backgroundColor: "rgb(4, 99, 72)",
-        labelColor: "rgb(255, 255, 255)",
-      }
-    );
-
-    console.log("Pass created successfully");
-
-    // Set barcode
-    pass.setBarcodes({
-      message: member.membershipCode,
-      format: "PKBarcodeFormatQR",
-      messageEncoding: "iso-8859-1",
+    // Create pass from temporary model
+    const pass = await PKPass.from({
+      model: tempModelPath,
+      certificates: certConfig,
     });
 
-    console.log("Barcode set successfully");
-
-    // Update field values using the library's proper methods
-    // Access internal structure to update existing field values
-    const passInternal = pass as any;
-    
-    if (passInternal.props && passInternal.props.storeCard) {
-      console.log("Updating field values...");
-      
-      // Update primary field value
-      if (passInternal.props.storeCard.primaryFields[0]) {
-        passInternal.props.storeCard.primaryFields[0].label = tierName.toUpperCase();
-        passInternal.props.storeCard.primaryFields[0].value = member.fullName;
-      }
-
-      // Update secondary fields
-      if (passInternal.props.storeCard.secondaryFields[0]) {
-        passInternal.props.storeCard.secondaryFields[0].value = member.membershipCode;
-      }
-      if (passInternal.props.storeCard.secondaryFields[1] && member.status) {
-        passInternal.props.storeCard.secondaryFields[1].value = member.status;
-      } else if (!member.status && passInternal.props.storeCard.secondaryFields[1]) {
-        // Remove status field if no status
-        passInternal.props.storeCard.secondaryFields.splice(1, 1);
-      }
-
-      // Update auxiliary field
-      if (passInternal.props.storeCard.auxiliaryFields[0]) {
-        passInternal.props.storeCard.auxiliaryFields[0].value = joinedDate.toLocaleDateString("en-US", {
-          month: "short",
-          year: "numeric",
-        });
-      }
-
-      // Add expiry field if needed
-      if (member.expiresAt) {
-        passInternal.props.storeCard.auxiliaryFields.push({
-          key: "expires",
-          label: "VALID UNTIL",
-          value: new Date(member.expiresAt).toLocaleDateString("en-US", {
-            month: "short",
-            year: "numeric",
-          }),
-        });
-      }
-
-      // Update back fields
-      const backFields = passInternal.props.storeCard.backFields;
-      if (backFields[0]) {
-        backFields[0].value = `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events.`;
-      }
-      if (backFields[1]) {
-        backFields[1].value = member.email;
-      }
-      if (backFields[2]) {
-        backFields[2].value = "• Priority table reservations\n• Exclusive event access\n• Special member pricing\n• VIP concierge service\n• Complimentary amenities";
-      }
-      if (backFields[3]) {
-        backFields[3].value = "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX";
-      }
-      if (backFields[4]) {
-        backFields[4].value = "This membership card is non-transferable. Visit casaprive.com/terms for full terms and conditions.";
-      }
-
-      console.log("Pass fields updated successfully");
-    } else {
-      console.warn("Warning: storeCard structure not found");
-    }
+    console.log("Pass created successfully");
 
     // Generate the pass buffer
     const buffer = pass.getAsBuffer();
     console.log("Pass buffer generated, size:", buffer.length, "bytes");
+
+    // Cleanup temp directory
+    await fs.rm(tempModelPath, { recursive: true, force: true });
+    console.log("Cleaned up temporary files");
 
     // Validate buffer
     if (!buffer || buffer.length === 0) {
@@ -191,6 +218,11 @@ export async function generateAppleWalletPass(
 
     return buffer;
   } catch (error) {
+    // Cleanup on error
+    try {
+      await fs.rm(tempModelPath, { recursive: true, force: true });
+    } catch {}
+    
     console.error("Error creating pass:", error);
     throw new Error(`Failed to create pass: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }

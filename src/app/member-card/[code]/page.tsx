@@ -26,6 +26,7 @@ function MemberCardContent() {
   const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [downloadingWallet, setDownloadingWallet] = useState(false);
   const qrRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
@@ -75,6 +76,48 @@ function MemberCardContent() {
           URL.revokeObjectURL(url);
         }
       });
+    }
+  };
+
+  const addToAppleWallet = async () => {
+    if (!member) return;
+    
+    setDownloadingWallet(true);
+    
+    try {
+      // For iOS Safari, direct navigation works best
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      
+      if (isIOS || isSafari) {
+        // Direct navigation for Safari/iOS
+        window.location.href = `/api/members/${member.membershipCode}/wallet`;
+      } else {
+        // Blob download for other browsers
+        const response = await fetch(`/api/members/${member.membershipCode}/wallet`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to generate wallet pass');
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `casaprive-${member.membershipCode}.pkpass`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
+      
+      setTimeout(() => setDownloadingWallet(false), 2000);
+      
+    } catch (error) {
+      console.error('Error downloading wallet pass:', error);
+      alert('Failed to download Apple Wallet pass. Please try again.');
+      setDownloadingWallet(false);
     }
   };
 
@@ -266,15 +309,15 @@ function MemberCardContent() {
             DOWNLOAD QR CODE
           </button>
           
-          {/* Direct link to Apple Wallet pass - works better with Safari/iOS */}
-          <a
-            href={`/api/members/${member.membershipCode}/wallet`}
-            download={`casaprive-${member.membershipCode}.pkpass`}
-            className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 text-white text-sm rounded hover:from-yellow-500 hover:to-yellow-400 transition flex items-center gap-2 font-light tracking-wider"
+          {/* Apple Wallet Button with JavaScript download */}
+          <button
+            onClick={addToAppleWallet}
+            disabled={downloadingWallet}
+            className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 text-white text-sm rounded hover:from-yellow-500 hover:to-yellow-400 transition flex items-center gap-2 font-light tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Download size={18} />
-            ADD TO APPLE WALLET
-          </a>
+            {downloadingWallet ? 'GENERATING...' : 'ADD TO APPLE WALLET'}
+          </button>
           
           <a
             href="/booking"

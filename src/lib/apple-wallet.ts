@@ -54,8 +54,12 @@ export async function generateAppleWalletPass(
         process.env.APPLE_SIGNER_KEY
       ) {
         wwdr = Buffer.from(process.env.APPLE_WWDR_CERT.replace(/\\n/g, "\n"));
-        signerCert = Buffer.from(process.env.APPLE_SIGNER_CERT.replace(/\\n/g, "\n"));
-        signerKey = Buffer.from(process.env.APPLE_SIGNER_KEY.replace(/\\n/g, "\n"));
+        signerCert = Buffer.from(
+          process.env.APPLE_SIGNER_CERT.replace(/\\n/g, "\n")
+        );
+        signerKey = Buffer.from(
+          process.env.APPLE_SIGNER_KEY.replace(/\\n/g, "\n")
+        );
         console.log("✅ Certificates loaded from environment variables");
       } else {
         throw new Error(
@@ -84,6 +88,8 @@ export async function generateAppleWalletPass(
       tierColor = "rgb(255,215,0)"; // Bright Gold
     }
 
+    const authenticationToken = process.env.WALLET_AUTH_TOKEN;
+
     // Create pass
     const pass = await PKPass.from(
       {
@@ -98,6 +104,8 @@ export async function generateAppleWalletPass(
         foregroundColor: tierColor,
         backgroundColor: "rgb(4,99,72)",
         labelColor: "rgb(255,255,255)",
+        webServiceURL: "https://api.casaprive.com/passes",
+        authenticationToken,
       }
     );
 
@@ -170,7 +178,8 @@ export async function generateAppleWalletPass(
       {
         key: "contact",
         label: "Contact Us",
-        value: "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX",
+        value:
+          "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX",
       },
       {
         key: "terms",

@@ -57,15 +57,18 @@ export async function generateAppleWalletPass(
   );
 
   let tierName = "Member";
-  let tierColor = "rgb(212, 175, 55)";
+  let tierColor = "rgb(212, 175, 55)"; // Gold
+  let backgroundColor = "rgb(17, 24, 39)"; // Dark slate
 
   if (monthsSince >= 12) {
     tierName = "Elite Member";
-    tierColor = "rgb(229, 228, 226)";
+    tierColor = "rgb(192, 192, 192)"; // Silver
+    backgroundColor = "rgb(30, 41, 59)"; // Slate blue
   }
   if (monthsSince >= 24) {
     tierName = "VIP Member";
-    tierColor = "rgb(255, 215, 0)";
+    tierColor = "rgb(255, 215, 0)"; // Bright gold
+    backgroundColor = "rgb(15, 23, 42)"; // Deep navy
   }
 
   try {
@@ -87,7 +90,7 @@ export async function generateAppleWalletPass(
     // Create pass.json with populated values
     const passJson = {
       formatVersion: 1,
-      passTypeIdentifier: process.env.PASS_TYPE_IDENTIFIER || "pass.ass.com.casaprive.membership",
+      passTypeIdentifier: process.env.PASS_TYPE_IDENTIFIER || "pass.com.casaprive.membership",
       teamIdentifier: process.env.TEAM_IDENTIFIER || "64PS3B42A3",
       organizationName: "Casa Privé",
       description: "Casa Privé Exclusive Membership Card",
@@ -153,20 +156,12 @@ export async function generateAppleWalletPass(
     };
 
     // Add optional fields
-    if (member.status) {
-      passJson.storeCard.secondaryFields.push({
-        key: "status",
-        label: "STATUS",
-        value: member.status
-      });
-    }
-
     if (member.expiresAt) {
-      passJson.storeCard.auxiliaryFields.push({
+      passJson.storeCard.backFields.splice(1, 0, {
         key: "expires",
-        label: "VALID UNTIL",
+        label: "Valid Until",
         value: new Date(member.expiresAt).toLocaleDateString("en-US", {
-          month: "short",
+          month: "long",
           year: "numeric"
         })
       });

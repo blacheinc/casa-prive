@@ -14,11 +14,9 @@
     "auxiliaryFields": [],
     "backFields": []
   },
-  "barcodes": [
-    {
-      "format": "PKBarcodeFormatQR",
-      "message": "",
-      "messageEncoding": "iso-8859-1"
-    }
-  ]
+  "barcode": {
+    "format": "PKBarcodeFormatQR",
+    "message": "PLACEHOLDER",
+    "messageEncoding": "iso-8859-1"
+  }
 }

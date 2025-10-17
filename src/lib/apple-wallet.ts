@@ -88,15 +88,23 @@ export async function generateAppleWalletPass(
 
     console.log("Pass created successfully");
 
-    // Set barcode
+    // Explicitly set the pass type
+    (pass as any).type = "storeCard";
+
+    // Set barcode with actual membership code
     pass.setBarcodes({
       message: member.membershipCode,
       format: "PKBarcodeFormatQR",
       messageEncoding: "iso-8859-1",
     });
 
+    console.log("Barcode configured");
+
+    // Use type assertion to access fields (passkit-generator internals)
+    const passData = pass as any;
+
     // Add primary field (member name)
-    pass.primaryFields.push({
+    passData.primaryFields.push({
       key: "member",
       label: tierName.toUpperCase(),
       value: member.fullName,
@@ -104,14 +112,14 @@ export async function generateAppleWalletPass(
     });
 
     // Add secondary fields
-    pass.secondaryFields.push({
+    passData.secondaryFields.push({
       key: "code",
       label: "MEMBERSHIP CODE",
       value: member.membershipCode,
     });
 
     if (member.status) {
-      pass.secondaryFields.push({
+      passData.secondaryFields.push({
         key: "status",
         label: "STATUS",
         value: member.status,
@@ -119,7 +127,7 @@ export async function generateAppleWalletPass(
     }
 
     // Add auxiliary fields
-    pass.auxiliaryFields.push({
+    passData.auxiliaryFields.push({
       key: "joined",
       label: "MEMBER SINCE",
       value: joinedDate.toLocaleDateString("en-US", {
@@ -129,7 +137,7 @@ export async function generateAppleWalletPass(
     });
 
     if (member.expiresAt) {
-      pass.auxiliaryFields.push({
+      passData.auxiliaryFields.push({
         key: "expires",
         label: "VALID UNTIL",
         value: new Date(member.expiresAt).toLocaleDateString("en-US", {
@@ -140,7 +148,7 @@ export async function generateAppleWalletPass(
     }
 
     // Add back fields
-    pass.backFields.push(
+    passData.backFields.push(
       {
         key: "welcome",
         label: "Welcome",

@@ -51,6 +51,7 @@ export async function GET(
     });
   } catch (error: any) {
     console.error("Wallet pass generation error:", error);
+    console.error("Error stack:", error.stack);
     
     const errorMessage = error.message?.includes("Certificate files not found")
       ? "Apple Wallet service is temporarily unavailable"
@@ -58,12 +59,15 @@ export async function GET(
       ? "Wallet pass configuration error"
       : "Failed to generate wallet pass";
     
-    return NextResponse.json(
-      { 
-        error: errorMessage,
-        details: process.env.NODE_ENV === "development" ? error.message : undefined
-      },
-      { status: 500 }
-    );
+    // In development, return detailed error
+    const errorDetails = process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview"
+      ? {
+          error: errorMessage,
+          details: error.message,
+          stack: error.stack?.split('\n').slice(0, 5).join('\n')
+        }
+      : { error: errorMessage };
+    
+    return NextResponse.json(errorDetails, { status: 500 });
   }
 }

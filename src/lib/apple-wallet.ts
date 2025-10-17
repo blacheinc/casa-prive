@@ -11,18 +11,46 @@ interface MemberPassData {
 }
 
 /**
+ * Get the correct path for certificates based on environment
+ */
+function getCertPath(): string {
+  // In Vercel/Lambda, process.cwd() might not work as expected
+  // Try multiple possible paths
+  const possiblePaths = [
+    path.join(process.cwd(), "certificates"),
+    path.join("/var/task", "certificates"),
+    path.join(__dirname, "..", "..", "certificates"),
+  ];
+
+  return possiblePaths[0]; // Default to process.cwd()
+}
+
+/**
  * Generates an Apple Wallet pass (.pkpass) for a member.
  */
 export async function generateAppleWalletPass(
   member: MemberPassData
 ): Promise<Buffer> {
   try {
-    const certPath = path.join(process.cwd(), "certificates");
+    const certPath = getCertPath();
     const modelPath = path.join(process.cwd(), "passkit-model");
 
-    const wwdr = await fs.readFile(path.join(certPath, "wwdr.pem"));
-    const signerCert = await fs.readFile(path.join(certPath, "signerCert.pem"));
-    const signerKey = await fs.readFile(path.join(certPath, "signerKey.pem"));
+    console.log("Looking for certificates at:", certPath);
+
+    // Read certificates with better error handling
+    let wwdr: Buffer;
+    let signerCert: Buffer;
+    let signerKey: Buffer;
+
+    try {
+      wwdr = await fs.readFile(path.join(certPath, "wwdr.pem"));
+      signerCert = await fs.readFile(path.join(certPath, "signerCert.pem"));
+      signerKey = await fs.readFile(path.join(certPath, "signerKey.pem"));
+    } catch (readError) {
+      console.error("Error reading certificate files:", readError);
+      throw new Error("Certificate files not found. Please ensure certificates are deployed.");
+    }
+
     const signerKeyPassphrase = process.env.PASS_CERT_PASSPHRASE;
 
     // Create the pass shell

@@ -1,30 +1,26 @@
-// src/app/api/members/[code]/wallet/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { generateAppleWalletPass } from '@/lib/apple-wallet';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { generateAppleWalletPass } from "@/lib/apple-wallet";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { code: string } }
+  { params }: { params: Promise<{ code: string }> }
 ) {
   try {
-    const { code } = params;
+    const { code } = await params;
 
-    // Find the member
     const member = await prisma.member.findUnique({
       where: { membershipCode: code },
     });
 
     if (!member) {
-      return NextResponse.json(
-        { error: 'Member not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
-    if (member.status !== 'ACTIVE') {
+    if (member.status !== "ACTIVE") {
       return NextResponse.json(
-        { error: 'Membership is not active' },
+        { error: "Membership is not active" },
         { status: 403 }
       );
     }
@@ -39,28 +35,33 @@ export async function GET(
       expiresAt: member.expiresAt?.toISOString(),
     });
 
-    // Convert Buffer to Uint8Array for NextResponse
+    // Convert Buffer to Uint8Array (compatible with NextResponse)
     const uint8Array = new Uint8Array(passBuffer);
 
-    // Return with correct headers for Safari/iOS
     return new NextResponse(uint8Array, {
       status: 200,
       headers: {
-        'Content-Type': 'application/vnd.apple.pkpass',
-        'Content-Disposition': `attachment; filename="casaprive-${code}.pkpass"`,
-        'Content-Length': passBuffer.length.toString(),
-        // Important for iOS/Safari
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
+        "Content-Type": "application/vnd.apple.pkpass",
+        "Content-Disposition": `attachment; filename="casaprive-${member.membershipCode}.pkpass"`,
+        "Content-Length": passBuffer.length.toString(),
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
       },
     });
-  } catch (error) {
-    console.error('Error generating wallet pass:', error);
+  } catch (error: any) {
+    console.error("Wallet pass generation error:", error);
+    
+    const errorMessage = error.message?.includes("Certificate files not found")
+      ? "Apple Wallet service is temporarily unavailable"
+      : error.message?.includes("Model folder not found")
+      ? "Wallet pass configuration error"
+      : "Failed to generate wallet pass";
+    
     return NextResponse.json(
       { 
-        error: 'Failed to generate wallet pass',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        error: errorMessage,
+        details: process.env.NODE_ENV === "development" ? error.message : undefined
       },
       { status: 500 }
     );

@@ -13,12 +13,12 @@ export interface MemberPassData {
   expiresAt?: string;
 }
 
-/** Get certificate path */
+/** Get certificate folder path */
 function getCertPath(): string {
   return path.join(process.cwd(), "certificates");
 }
 
-/** Get model path */
+/** Get pass model folder path */
 function getModelPath(): string {
   return path.join(process.cwd(), "passkit-model.pass");
 }
@@ -47,31 +47,30 @@ export async function generateAppleWalletPass(
     : await fs.readFile(path.join(certPath, "signerKey.pem"));
   const signerKeyPassphrase = process.env.PASS_CERT_PASSPHRASE;
 
-  // Membership tier colors
+  // Determine membership tier
   const joinedDate = new Date(member.joinedAt);
   const now = new Date();
-  const monthsSince = Math.floor(
-    (now.getTime() - joinedDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
-  );
+  const monthsSince =
+    Math.floor((now.getTime() - joinedDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
 
   let tierName = "Member";
   let tierColor = "#d4af37"; // gold
   if (monthsSince >= 12) {
     tierName = "Elite Member";
-    tierColor = "#e5e4e2";
-  } // silver/platinum
+    tierColor = "#e5e4e2"; // silver
+  }
   if (monthsSince >= 24) {
     tierName = "VIP Member";
-    tierColor = "#ffd700";
-  } // brighter gold
+    tierColor = "#ffd700"; // bright gold
+  }
 
   // Generate QR code
   const qrDataURL = await generateQRCode(member.membershipCode);
 
-  // Create pass
+  // Create the pass
   const pass = await PKPass.from(
     {
-      model: modelPath,
+      model: modelPath, // Must contain required images like background.png, icon.png, logo.png
       certificates: { wwdr, signerCert, signerKey, signerKeyPassphrase },
     },
     {
@@ -85,7 +84,7 @@ export async function generateAppleWalletPass(
     }
   );
 
-  // Configure storeCard
+  // Configure card fields dynamically
   const storeCard = (pass as any).storeCard ?? {};
   storeCard.primaryFields = [
     {
@@ -95,24 +94,19 @@ export async function generateAppleWalletPass(
       textAlignment: "PKTextAlignmentCenter",
     },
   ];
+
   storeCard.secondaryFields = [
     { key: "code", label: "MEMBERSHIP CODE", value: member.membershipCode },
   ];
   if (member.status) {
-    storeCard.secondaryFields.push({
-      key: "status",
-      label: "STATUS",
-      value: member.status,
-    });
+    storeCard.secondaryFields.push({ key: "status", label: "STATUS", value: member.status });
   }
+
   storeCard.auxiliaryFields = [
     {
       key: "joined",
       label: "MEMBER SINCE",
-      value: joinedDate.toLocaleDateString("en-US", {
-        month: "short",
-        year: "numeric",
-      }),
+      value: joinedDate.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
     },
   ];
   if (member.expiresAt) {
@@ -125,6 +119,7 @@ export async function generateAppleWalletPass(
       }),
     });
   }
+
   storeCard.backFields = [
     {
       key: "welcome",
@@ -141,14 +136,12 @@ export async function generateAppleWalletPass(
     {
       key: "contact",
       label: "Contact Us",
-      value:
-        "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX",
+      value: "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX",
     },
     {
       key: "terms",
       label: "Terms & Conditions",
-      value:
-        "This membership card is non-transferable. Visit casaprive.com/terms for full terms",
+      value: "This membership card is non-transferable. Visit casaprive.com/terms for full terms",
     },
     { key: "qrCode", label: "QR Code", value: qrDataURL },
   ];

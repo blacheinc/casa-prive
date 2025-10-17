@@ -1,0 +1,210 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Change to "sqlite" for development
+  url      = env("DATABASE_URL")
+}
+
+model TablePackage {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  features    String[] // Array of features
+  maxGuests   Int      @default(6)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  bookings    Booking[]
+}
+
+model Booking {
+  id                String        @id @default(cuid())
+  packageId         String
+  package           TablePackage  @relation(fields: [packageId], references: [id])
+  
+  // Guest Information
+  fullName          String
+  email             String
+  phone             String
+  numberOfGuests    Int
+  specialRequests   String?
+  
+  // Table Assignment
+  tableNumber       Int?
+  
+  // Event Date
+  eventDate         DateTime
+  
+  // Payment Information
+  paymentMethod     PaymentMethod
+  paymentStatus     PaymentStatus @default(PENDING)
+  paymentReference  String?
+  proofOfPayment    String? // URL to uploaded proof for bank transfer
+  amount            Float
+  
+  // Status
+  status            BookingStatus @default(PENDING)
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  orders            Order[]
+}
+
+model MenuItem {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  category    MenuCategory
+  price       Float
+  image       String?
+  isAvailable Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id                String        @id @default(cuid())
+  bookingId         String?
+  booking           Booking?      @relation(fields: [bookingId], references: [id])
+  
+  // Order Information
+  customerName      String
+  tableNumberOrName String
+  
+  // Payment
+  paymentMethod     PaymentMethod
+  paymentStatus     PaymentStatus @default(PENDING)
+  paymentReference  String?
+  totalAmount       Float
+  
+  status            OrderStatus   @default(PENDING)
+  items             OrderItem[]
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+model OrderItem {
+  id          String    @id @default(cuid())
+  orderId     String
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId  String
+  menuItem    MenuItem  @relation(fields: [menuItemId], references: [id])
+  quantity    Int
+  price       Float
+  notes       String?
+  createdAt   DateTime  @default(now())
+}
+
+model Member {
+  id              String    @id @default(cuid())
+  fullName        String
+  email           String    @unique
+  phone           String?
+  membershipCode  String    @unique
+  qrCode          String? // Generated QR code data
+  status          MemberStatus @default(ACTIVE)
+  joinedAt        DateTime  @default(now())
+  expiresAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Waitlist {
+  id              String    @id @default(cuid())
+  fullName        String
+  email           String
+  phone           String
+  numberOfGuests  Int
+  preferredDate   DateTime
+  message         String?
+  status          WaitlistStatus @default(PENDING)
+  notified        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Feedback {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  rating      Int      // 1-5
+  category    FeedbackCategory
+  message     String
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model EventSettings {
+  id              String   @id @default(cuid())
+  totalTables     Int      @default(20)
+  bookedTables    Int      @default(0)
+  currentEventDate DateTime
+  isBookingOpen   Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+}
+
+enum PaymentMethod {
+  PAYSTACK
+  BANK_TRANSFER
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  READY
+  SERVED
+  CANCELLED
+}
+
+enum MenuCategory {
+  APPETIZER
+  MAIN_COURSE
+  DESSERT
+  BEVERAGE
+  COCKTAIL
+  WINE
+}
+
+enum MemberStatus {
+  ACTIVE
+  EXPIRED
+  SUSPENDED
+}
+
+enum WaitlistStatus {
+  PENDING
+  NOTIFIED
+  CONFIRMED
+  EXPIRED
+}
+
+enum FeedbackCategory {
+  GENERAL
+  SERVICE
+  FOOD
+  AMBIANCE
+  EVENT
+  MEMBERSHIP
+}

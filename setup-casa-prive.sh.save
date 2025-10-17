@@ -1,0 +1,480 @@
+:wq
+#!/bin/bash
+
+# Casa Privé - Complete Project Setup Script
+# This script creates all necessary files and directories
+
+echo "🏆 Setting up Casa Privé project structure..."
+
+# Create main directories
+echo "📁 Creating directories..."
+
+mkdir -p app/api/bookings
+mkdir -p app/api/orders
+mkdir -p app/api/members
+mkdir -p app/api/waitlist
+mkdir -p app/api/feedback
+mkdir -p app/api/packages
+mkdir -p app/api/menu-items
+mkdir -p app/api/settings
+mkdir -p app/api/stats
+mkdir -p app/api/upload
+mkdir -p app/api/payment/callback
+mkdir -p app/admin
+mkdir -p app/booking/success
+mkdir -p app/menu
+mkdir -p app/member-card/[code]
+mkdir -p app/membership
+mkdir -p app/rules
+mkdir -p app/waitlist
+mkdir -p app/feedback
+mkdir -p app/order/success
+mkdir -p app/payment/failed
+mkdir -p components
+mkdir -p lib
+mkdir -p prisma
+mkdir -p public/uploads
+mkdir -p .github/workflows
+
+# Create API route files
+echo "📄 Creating API routes..."
+
+touch app/api/bookings/route.ts
+touch app/api/bookings/[id]/route.ts
+touch app/api/orders/route.ts
+touch app/api/orders/[id]/route.ts
+touch app/api/members/route.ts
+touch app/api/waitlist/route.ts
+touch app/api/feedback/route.ts
+touch app/api/packages/route.ts
+touch app/api/menu-items/route.ts
+touch app/api/settings/route.ts
+touch app/api/stats/route.ts
+touch app/api/upload/route.ts
+touch app/api/payment/callback/route.ts
+
+# Create page files
+echo "📄 Creating pages..."
+
+touch app/page.tsx
+touch app/layout.tsx
+touch app/globals.css
+touch app/admin/page.tsx
+touch app/booking/page.tsx
+touch app/booking/success/page.tsx
+touch app/menu/page.tsx
+touch app/member-card/[code]/page.tsx
+touch app/membership/page.tsx
+touch app/rules/page.tsx
+touch app/waitlist/page.tsx
+touch app/feedback/page.tsx
+touch app/order/success/page.tsx
+touch app/payment/failed/page.tsx
+
+# Create component files
+echo "📄 Creating components..."
+
+touch components/Navigation.tsx
+touch components/Footer.tsx
+
+# Create lib files
+echo "📄 Creating library files..."
+
+touch lib/prisma.ts
+touch lib/paystack.ts
+touch lib/sheets.ts
+touch lib/email.ts
+touch lib/card.ts
+touch lib/utils.ts
+touch lib/constants.ts
+
+# Create Prisma files
+echo "📄 Creating Prisma files..."
+
+touch prisma/schema.prisma
+touch prisma/seed.ts
+
+# Create configuration files
+echo "📄 Creating configuration files..."
+
+touch .env
+touch .env.example
+touch .gitignore
+touch middleware.ts
+touch next.config.js
+touch tailwind.config.ts
+touch tsconfig.json
+touch package.json
+touch vercel.json
+touch Dockerfile
+touch docker-compose.yml
+touch .dockerignore
+
+# Create documentation files
+echo "📄 Creating documentation..."
+
+touch README.md
+touch DEPLOYMENT_GUIDE.md
+
+# Create GitHub workflow
+touch .github/workflows/ci.yml
+
+# Create a file list for reference
+echo "📋 Creating file reference list..."
+
+cat > FILE_LIST.md << 'EOF'
+# Casa Privé - File Structure
+
+## API Routes
+- app/api/bookings/route.ts
+- app/api/bookings/[id]/route.ts
+- app/api/orders/route.ts
+- app/api/orders/[id]/route.ts
+- app/api/members/route.ts
+- app/api/waitlist/route.ts
+- app/api/feedback/route.ts
+- app/api/packages/route.ts
+- app/api/menu-items/route.ts
+- app/api/settings/route.ts
+- app/api/stats/route.ts
+- app/api/upload/route.ts
+- app/api/payment/callback/route.ts
+
+## Pages
+- app/page.tsx (Homepage)
+- app/layout.tsx (Root layout)
+- app/globals.css (Global styles)
+- app/admin/page.tsx (Admin dashboard)
+- app/booking/page.tsx (Booking page)
+- app/booking/success/page.tsx (Booking success)
+- app/menu/page.tsx (Menu & ordering)
+- app/member-card/[code]/page.tsx (Virtual membership card)
+- app/membership/page.tsx (Membership application)
+- app/rules/page.tsx (Event rules & guidelines)
+- app/waitlist/page.tsx (Waitlist page)
+- app/feedback/page.tsx (Feedback form)
+- app/order/success/page.tsx (Order success)
+- app/payment/failed/page.tsx (Payment failed)
+
+## Components
+- components/Navigation.tsx
+- components/Footer.tsx
+
+## Library
+- lib/prisma.ts (Database client)
+- lib/paystack.ts (Payment service)
+- lib/sheets.ts (Google Sheets integration)
+- lib/email.ts (Email service)
+- lib/card.ts (Membership card generation)
+- lib/utils.ts (Utility functions)
+- lib/constants.ts (Constants)
+
+## Database
+- prisma/schema.prisma (Database schema)
+- prisma/seed.ts (Database seeding)
+
+## Configuration
+- .env (Environment variables - DO NOT COMMIT)
+- .env.example (Environment template)
+- .gitignore (Git ignore rules)
+- middleware.ts (Next.js middleware)
+- next.config.js (Next.js config)
+- tailwind.config.ts (Tailwind config)
+- tsconfig.json (TypeScript config)
+- package.json (Dependencies)
+- vercel.json (Vercel deployment)
+- Dockerfile (Docker image)
+- docker-compose.yml (Docker compose)
+- .dockerignore (Docker ignore)
+
+## Documentation
+- README.md (Main documentation)
+- DEPLOYMENT_GUIDE.md (Deployment guide)
+
+## CI/CD
+- .github/workflows/ci.yml (GitHub Actions)
+
+## Public
+- public/uploads/ (File uploads directory)
+EOF
+
+# Update .gitignore
+echo "📝 Creating .gitignore..."
+
+cat > .gitignore << 'EOF'
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env
+.env*.local
+.env.production
+.env.development
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# prisma
+/prisma/*.db
+/prisma/*.db-journal
+
+# uploads
+/public/uploads/*
+!/public/uploads/.gitkeep
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+EOF
+
+# Create .gitkeep for uploads directory
+touch public/uploads/.gitkeep
+
+# Create a helper script for copying code
+echo "📝 Creating code copy helper..."
+
+cat > COPY_CODE_GUIDE.md << 'EOF'
+# Code Copy Guide
+
+## How to Fill the Files
+
+All files have been created. Now you need to copy the code from the artifacts:
+
+### Step 1: Environment Configuration
+Copy code to:
+- `.env` - Environment variables
+- `.env.example` - Environment template
+
+### Step 2: Database Setup
+Copy code to:
+- `prisma/schema.prisma` - Database schema
+- `prisma/seed.ts` - Database seed file
+
+### Step 3: Library Files
+Copy code to:
+- `lib/prisma.ts`
+- `lib/paystack.ts`
+- `lib/sheets.ts`
+- `lib/email.ts`
+- `lib/card.ts`
+- `lib/utils.ts`
+- `lib/constants.ts`
+
+### Step 4: API Routes
+Copy code to all files in `app/api/`:
+- bookings/route.ts
+- bookings/[id]/route.ts
+- orders/route.ts
+- orders/[id]/route.ts
+- members/route.ts
+- waitlist/route.ts
+- feedback/route.ts
+- packages/route.ts
+- menu-items/route.ts
+- settings/route.ts
+- stats/route.ts
+- upload/route.ts
+- payment/callback/route.ts
+
+### Step 5: Pages
+Copy code to:
+- `app/page.tsx` - Homepage
+- `app/layout.tsx` - Root layout
+- `app/globals.css` - Global styles
+- `app/admin/page.tsx` - Admin dashboard
+- `app/booking/page.tsx` - Booking page
+- `app/booking/success/page.tsx` - Success page
+- `app/menu/page.tsx` - Menu page
+- `app/member-card/[code]/page.tsx` - Member card
+- `app/membership/page.tsx` - Membership page
+- `app/rules/page.tsx` - Rules page
+- `app/waitlist/page.tsx` - Waitlist page
+- `app/feedback/page.tsx` - Feedback page
+- `app/order/success/page.tsx` - Order success
+- `app/payment/failed/page.tsx` - Payment failed
+
+### Step 6: Components
+Copy code to:
+- `components/Navigation.tsx`
+- `components/Footer.tsx`
+
+### Step 7: Configuration Files
+Copy code to:
+- `package.json`
+- `tsconfig.json`
+- `tailwind.config.ts`
+- `next.config.js`
+- `middleware.ts`
+- `vercel.json`
+- `Dockerfile`
+- `docker-compose.yml`
+- `.dockerignore`
+
+### Step 8: Documentation
+Copy code to:
+- `README.md`
+- `DEPLOYMENT_GUIDE.md`
+
+### Step 9: CI/CD
+Copy code to:
+- `.github/workflows/ci.yml`
+
+## Quick Copy Commands
+
+You can use these commands to open files for editing:
+
+```bash
+# Open environment file
+nano .env
+
+# Open Prisma schema
+nano prisma/schema.prisma
+
+# Open homepage
+nano app/page.tsx
+
+# etc...
+```
+
+Or use your favorite code editor:
+```bash
+code .  # VS Code
+atom .  # Atom
+subl .  # Sublime Text
+```
+EOF
+
+# Create installation script
+echo "📝 Creating installation script..."
+
+cat > install.sh << 'EOF'
+#!/bin/bash
+
+echo "🚀 Installing Casa Privé dependencies..."
+
+# Install dependencies
+npm install @prisma/client prisma
+npm install googleapis nodemailer qrcode date-fns
+npm install lucide-react zod react-hook-form @hookform/resolvers sharp
+npm install -D @types/nodemailer @types/qrcode
+
+echo "✅ Dependencies installed!"
+echo ""
+echo "📋 Next steps:"
+echo "1. Copy all code from artifacts to corresponding files"
+echo "2. Update .env with your configuration"
+echo "3. Run: npx prisma generate"
+echo "4. Run: npx prisma db push"
+echo "5. Run: npm run dev"
+EOF
+
+chmod +x install.sh
+
+# Create a quick reference guide
+cat > QUICK_START.md << 'EOF'
+# Quick Start Guide
+
+## 1. Files Created ✅
+All necessary files and directories have been created!
+
+## 2. Next Steps
+
+### A. Copy Code
+Copy all code from the provided artifacts into the corresponding files.
+See `COPY_CODE_GUIDE.md` for detailed instructions.
+
+### B. Install Dependencies
+```bash
+chmod +x install.sh
+./install.sh
+```
+
+Or manually:
+```bash
+npm install @prisma/client prisma googleapis nodemailer qrcode date-fns lucide-react zod react-hook-form @hookform/resolvers sharp
+npm install -D @types/nodemailer @types/qrcode
+```
+
+### C. Configure Environment
+Edit `.env` file with your credentials:
+- Database URL
+- Paystack keys
+- Google Sheets credentials
+- Email settings
+
+### D. Set Up Database
+```bash
+npx prisma generate
+npx prisma db push
+npx prisma db seed  # Optional: seed with sample data
+```
+
+### E. Run Development Server
+```bash
+npm run dev
+```
+
+Visit: http://localhost:3000
+
+## 3. File Reference
+- See `FILE_LIST.md` for complete file structure
+- See `COPY_CODE_GUIDE.md` for code copying instructions
+
+## 4. Need Help?
+- Check `README.md` for detailed documentation
+- Check `DEPLOYMENT_GUIDE.md` for deployment instructions
+EOF
+
+echo ""
+echo "✅ Project structure created successfully!"
+echo ""
+echo "📁 Created directories:"
+echo "   - app/ (with all pages and API routes)"
+echo "   - components/"
+echo "   - lib/"
+echo "   - prisma/"
+echo "   - public/uploads/"
+echo ""
+echo "📄 Created $(find . -type f -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.json" -o -name "*.md" | wc -l) files"
+echo ""
+echo "📋 Next steps:"
+echo "   1. Read QUICK_START.md for instructions"
+echo "   2. Read COPY_CODE_GUIDE.md for code copying guide"
+echo "   3. Run: chmod +x install.sh && ./install.sh"
+echo "   4. Copy all code from artifacts to files"
+echo "   5. Configure .env file"
+echo "   6. Run: npx prisma generate && npx prisma db push"
+echo "   7. Run: npm run dev"
+echo ""
+echo "🎉 Happy coding!"
+EOF

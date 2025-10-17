@@ -1,103 +1,199 @@
-import Image from "next/image";
+// app/page.tsx
+import Link from 'next/link';
+import { Crown, Calendar, Users, Sparkles, Shield, Wine } from 'lucide-react';
+import Image from 'next/image';
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+        <div className="container mx-auto px-4 py-20 md:py-32">
+          <div className="max-w-4xl mx-auto text-center relative z-10">
+            <div className="inline-block mb-6">
+              <Image
+                src="/logo.png"
+                alt="Casa Privé Logo"
+                width={64}
+                height={64}
+                className="mx-auto animate-pulse"
+              />
+            </div>
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-emerald-400 via-yellow-500 to-emerald-400 bg-clip-text text-transparent">
+              CASA PRIVÉ
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 mb-4">
+              An Ode to Exclusive Living
+            </p>
+            <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
+              Welcome to the epitome of luxury and bespoke entertainment.
+              A sanctuary where the art of living is celebrated through exclusive,
+              imaginative, and flawlessly executed members-only events.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link
+                href="/booking"
+                className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
+              >
+                Reserve Your Table
+              </Link>
+              <Link
+                href="/membership"
+                className="px-8 py-4 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-white rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
+              >
+                Join Casa Privé
+              </Link>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-slate-900/50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-emerald-400">
+            The Casa Privé Experience
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <FeatureCard
+              icon={<Sparkles className="w-12 h-12" />}
+              title="Curated Excellence"
+              description="Meticulously crafted events from grand galas to intimate gourmet dinners that transform the ordinary into the extraordinary."
+            />
+            <FeatureCard
+              icon={<Users className="w-12 h-12" />}
+              title="Discerning Community"
+              description="Connect with like-minded individuals who appreciate the finer things and the value of intimate, high-quality social experiences."
+            />
+            <FeatureCard
+              icon={<Shield className="w-12 h-12" />}
+              title="Privacy & Prestige"
+              description="Absolute discretion and privacy guaranteed at all events, ensuring a comfortable and exclusive sanctuary."
+            />
+            <FeatureCard
+              icon={<Calendar className="w-12 h-12" />}
+              title="Bespoke Events"
+              description="Innovative, themed, and personalized events including annual galas, themed parties, and private concerts."
+            />
+            <FeatureCard
+              icon={<Wine className="w-12 h-12" />}
+              title="World-Class Venues"
+              description="Exclusive entry to events hosted in the most sought-after and often private locations globally."
+            />
+            <FeatureCard
+              icon={<Crown className="w-12 h-12" />}
+              title="Concierge Service"
+              description="Access to a dedicated membership liaison for customized event experiences and bespoke arrangements."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className="py-20 bg-gradient-to-b from-slate-900 to-emerald-950">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-yellow-500">
+              Our Vision
+            </h2>
+            <p className="text-lg text-gray-300 text-center mb-12 leading-relaxed">
+              To be the premier, most sought-after private members&apos; club globally,
+              redefining the benchmark for luxury entertainment experiences. We envision
+              a future where membership at Casa Privé is synonymous with access to the
+              world&apos;s most refined and imaginative social calendar.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-8 mt-16">
+              <div className="bg-slate-800/50 p-8 rounded-lg border border-emerald-700/30">
+                <h3 className="text-2xl font-bold text-emerald-400 mb-4">Our Essence</h3>
+                <ul className="space-y-3 text-gray-300">
+                  <li className="flex items-start">
+                    <span className="text-yellow-500 mr-2">•</span>
+                    <span>Commitment to elevated luxury and exclusivity</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-yellow-500 mr-2">•</span>
+                    <span>Every detail meticulously crafted</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-yellow-500 mr-2">•</span>
+                    <span>Curated membership of discerning individuals</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-yellow-500 mr-2">•</span>
+                    <span>Unwavering pursuit of perfection</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-slate-800/50 p-8 rounded-lg border border-yellow-700/30">
+                <h3 className="text-2xl font-bold text-yellow-500 mb-4">Our Mission</h3>
+                <ul className="space-y-3 text-gray-300">
+                  <li className="flex items-start">
+                    <span className="text-emerald-500 mr-2">•</span>
+                    <span>Deliver luxurious, immersive experiences</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-emerald-500 mr-2">•</span>
+                    <span>Create bespoke, themed events</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-emerald-500 mr-2">•</span>
+                    <span>Maintain unwavering quality standards</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-emerald-500 mr-2">•</span>
+                    <span>Foster an exclusive sanctuary</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-emerald-900 via-emerald-800 to-yellow-900">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
+            Ready to Experience Casa Privé?
+          </h2>
+          <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
+            Join our exclusive community and elevate your social calendar to new heights
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link
+              href="/booking"
+              className="px-8 py-4 bg-white text-emerald-900 rounded-lg font-semibold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg"
+            >
+              Book a Table
+            </Link>
+            <Link
+              href="/menu"
+              className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-emerald-900 transition-all transform hover:scale-105"
+            >
+              View Menu
+            </Link>
+            <Link
+              href="/rules"
+              className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-emerald-900 transition-all transform hover:scale-105"
+            >
+              Event Guidelines
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+  return (
+    <div className="bg-slate-800/50 p-6 rounded-lg border border-emerald-700/30 hover:border-yellow-500/50 transition-all transform hover:scale-105">
+      <div className="text-yellow-500 mb-4">{icon}</div>
+      <h3 className="text-xl font-bold text-emerald-400 mb-3">{title}</h3>
+      <p className="text-gray-300">{description}</p>
     </div>
   );
 }

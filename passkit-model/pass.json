@@ -1,0 +1,60 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.ass.com.casaprive.membership",
+  "serialNumber": "1234567890",
+  "teamIdentifier": "64PS3B42A3",
+  "organizationName": "Casa Privé",
+  "description": "Casa Privé Membership Pass",
+  "logoText": "Casa Privé",
+  "foregroundColor": "rgb(212,175,55)",
+  "backgroundColor": "rgb(4,99,72)",
+  "labelColor": "rgb(255,255,255)",
+
+  "barcode": {
+    "format": "PKBarcodeFormatQR",
+    "message": "CASA-PRIVE-MEMBER-1234",
+    "messageEncoding": "iso-8859-1"
+  },
+
+  "storeCard": {
+    "primaryFields": [
+      {
+        "key": "memberName",
+        "label": "MEMBER NAME",
+        "value": "John Doe"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "membershipCode",
+        "label": "MEMBERSHIP CODE",
+        "value": "CP-001"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "memberSince",
+        "label": "MEMBER SINCE",
+        "value": "Jan 2025"
+      }
+    ],
+    "backFields": [
+      {
+        "key": "email",
+        "label": "Email",
+        "value": "johndoe@example.com"
+      },
+      {
+        "key": "terms",
+        "label": "Terms & Conditions",
+        "value": "Visit casaprive.com for full terms and conditions."
+      }
+    ]
+  },
+
+  "relevantDate": "2025-01-01T00:00-08:00",
+  "webServiceURL": "https://api.casaprive.com/passes",
+  "authenticationToken": "abc123xyz",
+  "associatedStoreIdentifiers": [],
+  "sharingProhibited": true
+}

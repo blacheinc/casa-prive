@@ -2,7 +2,6 @@
 import { PKPass } from "passkit-generator";
 import fs from "fs/promises";
 import path from "path";
-import QRCode from "qrcode";
 
 export interface MemberPassData {
   fullName: string;
@@ -21,11 +20,6 @@ function getCertPath(): string {
 /** Get pass model folder path */
 function getModelPath(): string {
   return path.join(process.cwd(), "passkit-model.pass");
-}
-
-/** Generate QR code for membership */
-async function generateQRCode(data: string): Promise<string> {
-  return await QRCode.toDataURL(data, { errorCorrectionLevel: "H" });
 }
 
 /** Generate Apple Wallet pass */
@@ -55,44 +49,49 @@ export async function generateAppleWalletPass(
   );
 
   let tierName = "Member";
-  let tierColor = "#d4af37"; // gold
+  let tierColor = "rgb(212, 175, 55)"; // gold
   if (monthsSince >= 12) {
     tierName = "Elite Member";
-    tierColor = "#e5e4e2"; // silver
+    tierColor = "rgb(229, 228, 226)"; // silver
   }
   if (monthsSince >= 24) {
     tierName = "VIP Member";
-    tierColor = "#ffd700"; // bright gold
+    tierColor = "rgb(255, 215, 0)"; // bright gold
   }
 
-  // Generate QR code
-  const qrDataURL = await generateQRCode(member.membershipCode);
-
-  // Create the pass
+  // Create the pass with all required fields
   const pass = await PKPass.from(
     {
       model: modelPath,
       certificates: { wwdr, signerCert, signerKey, signerKeyPassphrase },
     },
     {
-      // Pass Type - REQUIRED
+      // Required fields
       passTypeIdentifier: process.env.PASS_TYPE_IDENTIFIER || "pass.com.casaprive.membership",
       teamIdentifier: process.env.TEAM_IDENTIFIER || "64PS3B42A3",
-      
-      // Basic pass info
+      serialNumber: member.membershipCode,
       description: "Casa Privé Exclusive Membership Card",
       organizationName: "Casa Privé",
-      serialNumber: member.membershipCode,
-      logoText: "CASA PRIVÉ",
       
-      // Colors
+      // Visual styling
+      logoText: "CASA PRIVÉ",
       foregroundColor: tierColor,
-      backgroundColor: "#046348",
-      labelColor: "#ffffff",
+      backgroundColor: "rgb(4, 99, 72)",
+      labelColor: "rgb(255, 255, 255)",
     }
   );
 
-  // Add primary field
+  // Set the pass structure type
+  pass.type = "storeCard";
+
+  // Set barcode after pass creation
+  pass.setBarcodes({
+    message: member.membershipCode,
+    format: "PKBarcodeFormatQR",
+    messageEncoding: "iso-8859-1",
+  });
+
+  // Add primary field (member name)
   pass.primaryFields.push({
     key: "member",
     label: tierName.toUpperCase(),
@@ -165,16 +164,8 @@ export async function generateAppleWalletPass(
       label: "Terms & Conditions",
       value:
         "This membership card is non-transferable. Visit casaprive.com/terms for full terms",
-    },
-    {
-      key: "qrCode",
-      label: "QR Code",
-      value: qrDataURL,
     }
   );
-
-  // Set the pass type to storeCard
-  pass.type = "storeCard";
 
   return pass.getAsBuffer();
 }

@@ -60,9 +60,17 @@ export async function generateAppleWalletPass(
         process.env.APPLE_SIGNER_CERT &&
         process.env.APPLE_SIGNER_KEY
       ) {
-        wwdr = Buffer.from(process.env.APPLE_WWDR_CERT, "base64");
-        signerCert = Buffer.from(process.env.APPLE_SIGNER_CERT, "base64");
-        signerKey = Buffer.from(process.env.APPLE_SIGNER_KEY, "base64");
+        wwdr = Buffer.from(process.env.APPLE_WWDR_CERT.replace(/\\n/g, "\n"));
+        signerCert = Buffer.from(
+          process.env.APPLE_SIGNER_CERT.replace(/\\n/g, "\n")
+        );
+        signerKey = Buffer.from(
+          process.env.APPLE_SIGNER_KEY.replace(/\\n/g, "\n")
+        );
+
+        console.log(wwdr?.slice(0, 50));
+        console.log(signerCert?.slice(0, 50));
+        console.log(signerKey?.slice(0, 50));
 
         console.log("✅ Certificates loaded from environment variables");
       } else {

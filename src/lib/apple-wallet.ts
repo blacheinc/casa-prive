@@ -29,8 +29,17 @@ export async function generateAppleWalletPass(
     const certPath = getCertPath();
     const modelPath = getModelPath();
 
-    console.log("Certificate path:", certPath);
-    console.log("Model path:", modelPath);
+    console.log("📂 Certificate path:", certPath);
+    console.log("📂 Model path:", modelPath);
+
+    // Check if model path exists
+    try {
+      await fs.access(modelPath);
+      console.log("✅ Model directory exists");
+    } catch {
+      console.error("❌ Model directory not found at:", modelPath);
+      throw new Error(`Model directory not found at ${modelPath}. Please create the passkit-model.pass folder.`);
+    }
 
     let wwdr: Buffer;
     let signerCert: Buffer;
@@ -58,6 +67,7 @@ export async function generateAppleWalletPass(
         );
         console.log("✅ Certificates loaded from environment variables");
       } else {
+        console.error("❌ No certificates found");
         throw new Error(
           "Certificate files not found. Please either:\n" +
             "1. Add certificate files to the certificates/ folder, OR\n" +
@@ -74,6 +84,8 @@ export async function generateAppleWalletPass(
       year: "numeric",
     });
 
+    console.log("🎨 Creating pass configuration...");
+
     // BRAND COLORS - Emerald Green and Gold
     const passConfig: any = {
       description: "Casa Privé Membership Pass",
@@ -83,20 +95,19 @@ export async function generateAppleWalletPass(
       serialNumber: member.membershipCode,
       logoText: "Casa Privé",
       
-      // EMERALD GREEN BACKGROUND (your brand color)
-      backgroundColor: "rgb(16, 185, 129)", // Emerald-500
+      // EMERALD GREEN BACKGROUND
+      backgroundColor: "rgb(16, 185, 129)",
       
-      // GOLD FOREGROUND (for main text and values)
-      foregroundColor: "rgb(234, 179, 8)", // Gold/Yellow-500
+      // GOLD FOREGROUND
+      foregroundColor: "rgb(234, 179, 8)",
       
-      // WHITE LABELS (for field labels)
+      // WHITE LABELS
       labelColor: "rgb(255, 255, 255)",
       
       barcode: {
         format: "PKBarcodeFormatQR",
         message: `CASA-PRIVE-${member.membershipCode}`,
         messageEncoding: "iso-8859-1",
-        // Gold colored QR code
         altText: member.membershipCode,
       },
     };
@@ -106,6 +117,8 @@ export async function generateAppleWalletPass(
       passConfig.expirationDate = new Date(member.expiresAt).toISOString();
       passConfig.relevantDate = new Date(member.expiresAt).toISOString();
     }
+
+    console.log("🔧 Initializing PKPass...");
 
     const pass = await PKPass.from(
       {
@@ -120,12 +133,13 @@ export async function generateAppleWalletPass(
       passConfig
     );
 
-    // Add logo to the pass
+    console.log("✅ PKPass initialized");
+
+    // Try to add logo - don't fail if logo is missing
     try {
       const logoPath = path.join(process.cwd(), "public", "logo.png");
       const logoBuffer = await fs.readFile(logoPath);
       
-      // Add logo in multiple resolutions for better display
       pass.addBuffer("icon.png", logoBuffer);
       pass.addBuffer("icon@2x.png", logoBuffer);
       pass.addBuffer("logo.png", logoBuffer);
@@ -133,9 +147,10 @@ export async function generateAppleWalletPass(
       
       console.log("✅ Logo added to pass");
     } catch (logoError) {
-      console.warn("⚠️  Could not add logo to pass:", logoError);
-      // Continue without logo if it fails
+      console.warn("⚠️  Could not add logo (this is optional):", logoError);
     }
+
+    console.log("📝 Adding pass fields...");
 
     // Initialize storeCard structure
     const storeCard = (pass as any).storeCard ?? {};
@@ -144,7 +159,7 @@ export async function generateAppleWalletPass(
     storeCard.auxiliaryFields = [];
     storeCard.backFields = [];
 
-    // PRIMARY FIELD - Member Name (Gold, prominent)
+    // PRIMARY FIELD
     storeCard.primaryFields.push({
       key: "memberName",
       label: "MEMBER NAME",
@@ -152,7 +167,7 @@ export async function generateAppleWalletPass(
       textAlignment: "PKTextAlignmentLeft",
     });
 
-    // SECONDARY FIELD - Membership Code (Gold)
+    // SECONDARY FIELD
     storeCard.secondaryFields.push({
       key: "membershipCode",
       label: "MEMBERSHIP CODE",
@@ -160,7 +175,7 @@ export async function generateAppleWalletPass(
       textAlignment: "PKTextAlignmentLeft",
     });
 
-    // AUXILIARY FIELDS - Additional info (Gold text, white labels)
+    // AUXILIARY FIELDS
     storeCard.auxiliaryFields.push({
       key: "memberSince",
       label: "MEMBER SINCE",
@@ -175,7 +190,7 @@ export async function generateAppleWalletPass(
       textAlignment: "PKTextAlignmentRight",
     });
 
-    // BACK FIELDS - Detailed information
+    // BACK FIELDS
     storeCard.backFields.push({
       key: "about",
       label: "About Casa Privé",
@@ -219,30 +234,41 @@ export async function generateAppleWalletPass(
     storeCard.backFields.push({
       key: "usage",
       label: "How to Use",
-      value: "Present this pass at Casa Privé events for entry. Your QR code will be scanned for verification. Keep your membership active for uninterrupted access.",
+      value: "Present this pass at Casa Privé events for entry. Your QR code will be scanned for verification.",
     });
 
     storeCard.backFields.push({
       key: "contact",
       label: "Contact Us",
-      value: "Visit casaprive.com\nEmail: hello@casaprive.com\nFor inquiries and reservations",
+      value: "Visit casaprive.com\nEmail: hello@casaprive.com",
     });
 
     storeCard.backFields.push({
       key: "terms",
       label: "Terms & Conditions",
-      value: "Membership is non-transferable and subject to Casa Privé's terms of service. Management reserves the right to revoke membership for violations. Visit casaprive.com/terms for complete terms and conditions.",
+      value: "Membership is non-transferable. Visit casaprive.com/terms for complete terms.",
     });
 
     // Assign the storeCard back to pass
     (pass as any).storeCard = storeCard;
 
+    console.log("✅ Pass fields added");
+    console.log("🔨 Generating buffer...");
+
     // Generate .pkpass buffer
     const buffer = pass.getAsBuffer();
+    
     console.log("✅ Wallet pass generated successfully for:", member.fullName);
+    console.log("📦 Buffer size:", buffer.length, "bytes");
+    
+    if (buffer.length === 0) {
+      throw new Error("Generated pass buffer is empty");
+    }
+    
     return buffer;
-  } catch (error) {
-    console.error("Error generating Apple Wallet pass:", error);
+  } catch (error: any) {
+    console.error("❌ Error in generateAppleWalletPass:", error);
+    console.error("Stack:", error.stack);
     throw error;
   }
 }

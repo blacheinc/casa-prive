@@ -27,7 +27,7 @@ export async function generateAppleWalletPass(
     await fs.access(modelPath);
     await fs.access(path.join(modelPath, "pass.json"));
     console.log("Model folder and pass.json verified");
-  } catch (error) {
+  } catch {
     throw new Error(`Model folder or pass.json not found at: ${modelPath}`);
   }
 

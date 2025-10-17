@@ -30,6 +30,7 @@ function MemberCardContent() {
 
   useEffect(() => {
     fetchMember();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.code]);
 
   const fetchMember = async () => {
@@ -291,7 +292,7 @@ function MemberCardContent() {
             <li>• Screenshot or save this page for offline access</li>
             <li>• Present your QR code at event check-in</li>
             <li>• Your membership code is unique and non-transferable</li>
-            <li>• Click "Add to Apple Wallet" to save to your iPhone</li>
+            <li>• Click &ldquo;Add to Apple Wallet&rdquo; to save to your iPhone</li>
             <li>• Events are held every Saturday evening</li>
           </ul>
         </div>

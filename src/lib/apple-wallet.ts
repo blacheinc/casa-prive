@@ -87,7 +87,7 @@ export async function generateAppleWalletPass(
     // Create pass.json with populated values
     const passJson = {
       formatVersion: 1,
-      passTypeIdentifier: process.env.PASS_TYPE_IDENTIFIER || "pass.com.casaprive.membership",
+      passTypeIdentifier: process.env.PASS_TYPE_IDENTIFIER || "pass.ass.com.casaprive.membership",
       teamIdentifier: process.env.TEAM_IDENTIFIER || "64PS3B42A3",
       organizationName: "Casa Privé",
       description: "Casa Privé Exclusive Membership Card",

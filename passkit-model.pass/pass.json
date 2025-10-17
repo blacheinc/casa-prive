@@ -9,10 +9,61 @@
   "backgroundColor": "rgb(4, 99, 72)",
   "labelColor": "rgb(255, 255, 255)",
   "storeCard": {
-    "primaryFields": [],
-    "secondaryFields": [],
-    "auxiliaryFields": [],
-    "backFields": []
+    "headerFields": [],
+    "primaryFields": [
+      {
+        "key": "member",
+        "label": "MEMBER",
+        "value": "",
+        "textAlignment": "PKTextAlignmentCenter"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "code",
+        "label": "MEMBERSHIP CODE",
+        "value": ""
+      },
+      {
+        "key": "status",
+        "label": "STATUS",
+        "value": ""
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "joined",
+        "label": "MEMBER SINCE",
+        "value": ""
+      }
+    ],
+    "backFields": [
+      {
+        "key": "welcome",
+        "label": "Welcome",
+        "value": ""
+      },
+      {
+        "key": "email",
+        "label": "Email",
+        "value": ""
+      },
+      {
+        "key": "benefits",
+        "label": "Membership Benefits",
+        "value": ""
+      },
+      {
+        "key": "contact",
+        "label": "Contact Us",
+        "value": ""
+      },
+      {
+        "key": "terms",
+        "label": "Terms & Conditions",
+        "value": ""
+      }
+    ]
   },
   "barcode": {
     "format": "PKBarcodeFormatQR",

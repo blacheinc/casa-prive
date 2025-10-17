@@ -44,7 +44,9 @@ export async function generateAppleWalletPass(
     ? Buffer.from(process.env.APPLE_SIGNER_KEY.replace(/\\n/g, "\n"))
     : await fs.readFile(path.join(certPath, "signerKey.pem"));
   
-  const signerKeyPassphrase = process.env.PASS_CERT_PASSPHRASE || "";
+  // Only set passphrase if it exists and is not empty, otherwise undefined
+  const envPassphrase = process.env.PASS_CERT_PASSPHRASE;
+  const signerKeyPassphrase = (envPassphrase && envPassphrase.trim() !== '') ? envPassphrase : undefined;
 
   // Determine membership tier
   const joinedDate = new Date(member.joinedAt);
@@ -66,19 +68,25 @@ export async function generateAppleWalletPass(
   }
 
   try {
-    // Create the pass
+    // Prepare certificate config
+    const certConfig: any = {
+      wwdr,
+      signerCert,
+      signerKey,
+    };
+    
+    // Only add passphrase if it exists
+    if (signerKeyPassphrase) {
+      certConfig.signerKeyPassphrase = signerKeyPassphrase;
+    }
+
+    // Create the pass with overrides
     const pass = await PKPass.from(
       {
         model: modelPath,
-        certificates: {
-          wwdr,
-          signerCert,
-          signerKey,
-          signerKeyPassphrase,
-        },
+        certificates: certConfig,
       },
       {
-        // Override pass.json values
         serialNumber: member.membershipCode,
         description: "Casa Privé Exclusive Membership Card",
         logoText: "CASA PRIVÉ",
@@ -90,7 +98,7 @@ export async function generateAppleWalletPass(
 
     console.log("Pass created successfully");
 
-    // Set barcode with actual membership code
+    // Set barcode
     pass.setBarcodes({
       message: member.membershipCode,
       format: "PKBarcodeFormatQR",
@@ -99,100 +107,78 @@ export async function generateAppleWalletPass(
 
     console.log("Barcode set successfully");
 
-    // Use type assertion to access internal fields
-    const passData = pass as any;
+    // Update field values using the library's proper methods
+    // Access internal structure to update existing field values
+    const passInternal = pass as any;
+    
+    if (passInternal.props && passInternal.props.storeCard) {
+      console.log("Updating field values...");
+      
+      // Update primary field value
+      if (passInternal.props.storeCard.primaryFields[0]) {
+        passInternal.props.storeCard.primaryFields[0].label = tierName.toUpperCase();
+        passInternal.props.storeCard.primaryFields[0].value = member.fullName;
+      }
 
-    // Ensure field arrays exist
-    if (!passData.primaryFields) passData.primaryFields = [];
-    if (!passData.secondaryFields) passData.secondaryFields = [];
-    if (!passData.auxiliaryFields) passData.auxiliaryFields = [];
-    if (!passData.backFields) passData.backFields = [];
+      // Update secondary fields
+      if (passInternal.props.storeCard.secondaryFields[0]) {
+        passInternal.props.storeCard.secondaryFields[0].value = member.membershipCode;
+      }
+      if (passInternal.props.storeCard.secondaryFields[1] && member.status) {
+        passInternal.props.storeCard.secondaryFields[1].value = member.status;
+      } else if (!member.status && passInternal.props.storeCard.secondaryFields[1]) {
+        // Remove status field if no status
+        passInternal.props.storeCard.secondaryFields.splice(1, 1);
+      }
 
-    console.log("Field arrays initialized");
-
-    // Add primary field (member name)
-    passData.primaryFields.push({
-      key: "member",
-      label: tierName.toUpperCase(),
-      value: member.fullName,
-      textAlignment: "PKTextAlignmentCenter",
-    });
-
-    // Add secondary fields
-    passData.secondaryFields.push({
-      key: "code",
-      label: "MEMBERSHIP CODE",
-      value: member.membershipCode,
-    });
-
-    if (member.status) {
-      passData.secondaryFields.push({
-        key: "status",
-        label: "STATUS",
-        value: member.status,
-      });
-    }
-
-    // Add auxiliary fields
-    passData.auxiliaryFields.push({
-      key: "joined",
-      label: "MEMBER SINCE",
-      value: joinedDate.toLocaleDateString("en-US", {
-        month: "short",
-        year: "numeric",
-      }),
-    });
-
-    if (member.expiresAt) {
-      passData.auxiliaryFields.push({
-        key: "expires",
-        label: "VALID UNTIL",
-        value: new Date(member.expiresAt).toLocaleDateString("en-US", {
+      // Update auxiliary field
+      if (passInternal.props.storeCard.auxiliaryFields[0]) {
+        passInternal.props.storeCard.auxiliaryFields[0].value = joinedDate.toLocaleDateString("en-US", {
           month: "short",
           year: "numeric",
-        }),
-      });
-    }
-
-    // Add back fields
-    passData.backFields.push(
-      {
-        key: "welcome",
-        label: "Welcome",
-        value: `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events.`,
-      },
-      {
-        key: "email",
-        label: "Email",
-        value: member.email,
-      },
-      {
-        key: "membershipDetails",
-        label: "Membership Benefits",
-        value:
-          "• Priority table reservations\n• Exclusive event access\n• Special member pricing\n• VIP concierge service\n• Complimentary amenities",
-      },
-      {
-        key: "contact",
-        label: "Contact Us",
-        value:
-          "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX",
-      },
-      {
-        key: "terms",
-        label: "Terms & Conditions",
-        value:
-          "This membership card is non-transferable. Visit casaprive.com/terms for full terms and conditions.",
+        });
       }
-    );
 
-    console.log("Pass fields configured");
+      // Add expiry field if needed
+      if (member.expiresAt) {
+        passInternal.props.storeCard.auxiliaryFields.push({
+          key: "expires",
+          label: "VALID UNTIL",
+          value: new Date(member.expiresAt).toLocaleDateString("en-US", {
+            month: "short",
+            year: "numeric",
+          }),
+        });
+      }
+
+      // Update back fields
+      const backFields = passInternal.props.storeCard.backFields;
+      if (backFields[0]) {
+        backFields[0].value = `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events.`;
+      }
+      if (backFields[1]) {
+        backFields[1].value = member.email;
+      }
+      if (backFields[2]) {
+        backFields[2].value = "• Priority table reservations\n• Exclusive event access\n• Special member pricing\n• VIP concierge service\n• Complimentary amenities";
+      }
+      if (backFields[3]) {
+        backFields[3].value = "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX";
+      }
+      if (backFields[4]) {
+        backFields[4].value = "This membership card is non-transferable. Visit casaprive.com/terms for full terms and conditions.";
+      }
+
+      console.log("Pass fields updated successfully");
+    } else {
+      console.warn("Warning: storeCard structure not found");
+    }
 
     // Generate the pass buffer
     const buffer = pass.getAsBuffer();
     console.log("Pass buffer generated, size:", buffer.length, "bytes");
 
-    // Validate buffer is not empty and is reasonable size
+    // Validate buffer
     if (!buffer || buffer.length === 0) {
       throw new Error("Generated pass buffer is empty");
     }

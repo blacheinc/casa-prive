@@ -1,5 +1,5 @@
+// lib/sheets.ts - FIXED: Proper async handling with no-cors
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// lib/sheets.ts
 
 const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL || '';
 
@@ -21,17 +21,20 @@ export class GoogleSheetsService {
     }
 
     try {
-      const response = await fetch(this.scriptUrl, {
+      // Use no-cors mode and don't wait for response
+      fetch(this.scriptUrl, {
         method: 'POST',
-        mode: 'no-cors', // Required for Google Apps Script
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
+      }).catch(error => {
+        // Silently log errors - don't break the flow
+        console.error('Google Sheets logging failed:', error);
       });
 
-      // Note: With no-cors mode, we can't read the response
-      // But if no error is thrown, the submission was successful
+      // Immediately resolve - don't wait for the fetch
       console.log('✅ Logged to Google Sheets:', data.type);
     } catch (error) {
       console.error('❌ Google Sheets logging failed:', error);
@@ -68,7 +71,6 @@ export class GoogleSheetsService {
     paymentMethod: string;
     paymentStatus: string;
   }) {
-    // Format items for Google Sheets
     const itemsDetails = order.items
       .map((item) => `${item.name} x${item.quantity} (GHS ${item.price})`)
       .join(', ');

@@ -1,6 +1,7 @@
 // components/Footer.tsx - BOXED DESIGN
 import Link from 'next/link';
 import { Crown, Mail, Phone, MapPin } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Footer() {
     return (
@@ -11,7 +12,14 @@ export default function Footer() {
                         {/* Brand */}
                         <div>
                             <div className="flex items-center gap-2 mb-4">
-                                <Crown className="w-8 h-8 text-yellow-500" />
+                                <Image
+                                    src="/logo.png"
+                                    alt="Casa Privé Logo"
+                                    width={40}
+                                    height={40}
+                                    className="group-hover:scale-110 transition-transform"
+                                    style={{ background: 'transparent' }}
+                                />
                                 <span className="text-lg font-light text-emerald-400">CASA PRIVÉ</span>
                             </div>
                             <p className="text-gray-400 text-xs font-light leading-relaxed">

@@ -93,6 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             width={64}
                             height={64}
                             className="mx-auto animate-pulse"
+                            style={{ background: 'transparent' }}
                         />
                         <span className="text-xl font-bold text-emerald-400">CASA PRIVÉ</span>
                     </div>

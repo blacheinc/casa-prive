@@ -1,12 +1,13 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
-// app/member-card/[code]/page.tsx - FIXED WITH SUSPENSE
+// app/member-card/[code]/page.tsx - FIXED WITH LOGO & APPLE WALLET
 'use client';
 
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useParams } from 'next/navigation';
-import { Crown, Download, Calendar, Mail, Phone, CheckCircle } from 'lucide-react';
+import { Download, Calendar, Mail, Phone, CheckCircle } from 'lucide-react';
+import Image from 'next/image';
 
 interface Member {
   id: string;
@@ -25,6 +26,7 @@ function MemberCardContent() {
   const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [downloadingWallet, setDownloadingWallet] = useState(false);
   const qrRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
@@ -60,7 +62,7 @@ function MemberCardContent() {
 
     if (ctx) {
       ctx.drawImage(img, 0, 0);
-      
+
       canvas.toBlob((blob) => {
         if (blob) {
           const url = URL.createObjectURL(blob);
@@ -80,11 +82,49 @@ function MemberCardContent() {
     window.print();
   };
 
+  const addToAppleWallet = async () => {
+    if (!member) return;
+
+    setDownloadingWallet(true);
+
+    try {
+      // Fetch the .pkpass file
+      const response = await fetch(`/api/members/${member.membershipCode}/wallet`);
+
+      if (!response.ok) {
+        throw new Error('Failed to generate wallet pass');
+      }
+
+      // Download the file
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `casaprive-${member.membershipCode}.pkpass`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading wallet pass:', error);
+      alert('Failed to generate Apple Wallet pass. Please try again.');
+    } finally {
+      setDownloadingWallet(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <Crown className="w-16 h-16 text-yellow-500 mx-auto mb-4 animate-pulse" />
+          <Image
+            src="/logo.png"
+            alt="Casa Privé Logo"
+            width={64}
+            height={64}
+            className="mx-auto mb-4 animate-pulse"
+            style={{ background: 'transparent' }}
+          />
           <p className="text-gray-300 font-light text-sm">Loading your membership card...</p>
         </div>
       </div>
@@ -115,7 +155,14 @@ function MemberCardContent() {
       <div className="max-w-4xl mx-auto px-4">
         {/* Welcome Message */}
         <div className="text-center mb-12">
-          <Crown className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+          <Image
+            src="/logo.png"
+            alt="Casa Privé Logo"
+            width={64}
+            height={64}
+            className="mx-auto mb-4"
+            style={{ background: 'transparent' }}
+          />
           <h1 className="text-4xl md:text-5xl font-light mb-4 text-white">
             Welcome to Casa Privé
           </h1>
@@ -128,8 +175,8 @@ function MemberCardContent() {
         <div className="bg-slate-800/50 border border-emerald-700/30 p-8 rounded mb-8">
           <h2 className="text-2xl font-light text-yellow-500 mb-4">Your Exclusive Membership</h2>
           <p className="text-gray-300 leading-relaxed mb-4 text-sm font-light">
-            As a valued member of Casa Privé, you are part of an elite community that values 
-            sophistication, privacy, and exceptional experiences. Your membership grants you 
+            As a valued member of Casa Privé, you are part of an elite community that values
+            sophistication, privacy, and exceptional experiences. Your membership grants you
             access to exclusive Saturday night drinks events and premium networking opportunities.
           </p>
           <div className="grid md:grid-cols-3 gap-4 mt-6">
@@ -160,29 +207,34 @@ function MemberCardContent() {
                   </h3>
                   <p className="text-gray-400 text-sm font-light">Members&apos; Club</p>
                 </div>
-                <Crown className="w-12 h-12 text-yellow-500" />
+                <Image
+                  src="/logo.png"
+                  alt="Casa Privé"
+                  width={48}
+                  height={48}
+                  style={{ background: 'transparent' }}
+                />
               </div>
 
               {/* Member Info */}
               <div className="mb-8">
                 <p className="text-gray-400 text-xs uppercase tracking-wider mb-1 font-light">Member Name</p>
                 <h2 className="text-2xl font-light text-white mb-4">{member.fullName}</h2>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-gray-400 text-xs uppercase tracking-wider mb-1 font-light">Member Since</p>
                     <p className="text-emerald-400 font-light">
-                      {new Date(member.joinedAt).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        year: 'numeric' 
+                      {new Date(member.joinedAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        year: 'numeric'
                       })}
                     </p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-xs uppercase tracking-wider mb-1 font-light">Status</p>
-                    <p className={`font-light ${
-                      member.status === 'ACTIVE' ? 'text-emerald-400' : 'text-red-400'
-                    }`}>
+                    <p className={`font-light ${member.status === 'ACTIVE' ? 'text-emerald-400' : 'text-red-400'
+                      }`}>
                       {member.status}
                     </p>
                   </div>
@@ -200,10 +252,10 @@ function MemberCardContent() {
               {/* QR Code */}
               <div className="flex justify-center mb-6">
                 <div className="bg-white p-4 rounded-lg">
-                  <img 
+                  <img
                     ref={qrRef}
-                    src={member.qrCode} 
-                    alt="Membership QR Code" 
+                    src={member.qrCode}
+                    alt="Membership QR Code"
                     className="w-48 h-48"
                     crossOrigin="anonymous"
                   />
@@ -249,11 +301,12 @@ function MemberCardContent() {
             DOWNLOAD QR CODE
           </button>
           <button
-            onClick={downloadMemberCard}
-            className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 text-white text-sm rounded hover:from-yellow-500 hover:to-yellow-400 transition flex items-center gap-2 font-light tracking-wider"
+            onClick={addToAppleWallet}
+            disabled={downloadingWallet}
+            className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 text-white text-sm rounded hover:from-yellow-500 hover:to-yellow-400 transition flex items-center gap-2 font-light tracking-wider disabled:opacity-50"
           >
             <Download size={18} />
-            SAVE FULL CARD
+            {downloadingWallet ? 'GENERATING...' : 'ADD TO APPLE WALLET'}
           </button>
           <a
             href="/booking"
@@ -271,7 +324,7 @@ function MemberCardContent() {
             <li>• Screenshot or save this page for offline access</li>
             <li>• Present your QR code at event check-in</li>
             <li>• Your membership code is unique and non-transferable</li>
-            <li>• Contact us if you need to update your information</li>
+            <li>• Add to Apple Wallet for quick access on iPhone</li>
             <li>• Events are held every Saturday evening</li>
           </ul>
         </div>
@@ -285,7 +338,14 @@ function LoadingFallback() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 flex items-center justify-center">
       <div className="text-center">
-        <Crown className="w-16 h-16 text-yellow-500 mx-auto mb-4 animate-pulse" />
+        <Image
+          src="/logo.png"
+          alt="Casa Privé Logo"
+          width={64}
+          height={64}
+          className="mx-auto mb-4 animate-pulse"
+          style={{ background: 'transparent' }}
+        />
         <p className="text-gray-300 font-light text-sm">Loading...</p>
       </div>
     </div>

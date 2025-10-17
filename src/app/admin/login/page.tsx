@@ -56,6 +56,7 @@ export default function AdminLogin() {
                         width={64}
                         height={64}
                         className="mx-auto animate-pulse"
+                        style={{ background: 'transparent' }}
                     />
                     <h1 className="text-3xl font-bold text-white mb-2">Casa Privé Admin</h1>
                     <p className="text-gray-400">Sign in to access the admin panel</p>

@@ -1,6 +1,7 @@
-// app/page.tsx - PRODUCTION
+// app/page.tsx - UPDATED WITH LOGO
 import Link from 'next/link';
-import { Crown, Calendar, Users, Sparkles, Shield, Wine, ArrowRight, ChevronDown } from 'lucide-react';
+import { Calendar, Users, Sparkles, Shield, Wine, ArrowRight, ChevronDown } from 'lucide-react';
+import Image from 'next/image';
 
 export default function HomePage() {
   return (
@@ -18,7 +19,14 @@ export default function HomePage() {
 
         <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
           <div className="mb-6 animate-fade-in">
-            <Crown className="w-16 h-16 text-yellow-500 mx-auto opacity-90" />
+            <Image
+              src="/logo.png"
+              alt="Casa Privé Logo"
+              width={80}
+              height={80}
+              className="mx-auto opacity-90"
+              style={{ background: 'transparent' }}
+            />
           </div>
 
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-light mb-6 tracking-widest text-white animate-fade-in-up">
@@ -188,7 +196,8 @@ export default function HomePage() {
               description="Elegant venue with premium furnishings and intimate lighting."
             />
             <BenefitCard
-              icon={<Crown className="w-10 h-10" />}
+              icon={<Image src="/logo.png" alt="VIP" width={40} height={40}
+                style={{ background: 'transparent' }} />}
               title="VIP Service"
               description="Dedicated table service and personalized attention throughout the evening."
             />
@@ -222,7 +231,14 @@ export default function HomePage() {
 
         <div className="max-w-4xl mx-auto relative z-10">
           <div className="bg-slate-900/60 backdrop-blur-sm border border-emerald-700/30 p-8 md:p-12 text-center">
-            <Crown className="w-12 h-12 text-yellow-500 mx-auto mb-6 opacity-90" />
+            <Image
+              src="/logo.png"
+              alt="Casa Privé"
+              width={64}
+              height={64}
+              className="mx-auto mb-6 opacity-90"
+              style={{ background: 'transparent' }}
+            />
             <h2 className="text-3xl md:text-4xl font-light mb-4 text-white">
               Reserve Your Experience
             </h2>

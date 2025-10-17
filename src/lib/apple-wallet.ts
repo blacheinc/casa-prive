@@ -20,8 +20,7 @@ function getCertPath(): string {
 }
 
 function getModelPath(): string {
-  // Same for passkit-model
-  return path.join(process.cwd(), "passkit-model");
+  return path.join(process.cwd(), "passkit-model.pass");
 }
 
 /**
@@ -47,11 +46,13 @@ export async function generateAppleWalletPass(
       wwdr = await fs.readFile(path.join(certPath, "wwdr.pem"));
       signerCert = await fs.readFile(path.join(certPath, "signerCert.pem"));
       signerKey = await fs.readFile(path.join(certPath, "signerKey.pem"));
-      
+
       console.log("✅ Certificates loaded from files");
     } catch (readError) {
-      console.log("⚠️  Certificate files not found, trying environment variables...");
-      
+      console.log(
+        "⚠️  Certificate files not found, trying environment variables..."
+      );
+
       // Fallback to environment variables (for Vercel deployment)
       if (
         process.env.APPLE_WWDR_CERT &&
@@ -61,12 +62,12 @@ export async function generateAppleWalletPass(
         wwdr = Buffer.from(process.env.APPLE_WWDR_CERT, "base64");
         signerCert = Buffer.from(process.env.APPLE_SIGNER_CERT, "base64");
         signerKey = Buffer.from(process.env.APPLE_SIGNER_KEY, "base64");
-        
+
         console.log("✅ Certificates loaded from environment variables");
       } else {
         console.error("❌ Error reading certificate files:", readError);
         console.error("Attempted path:", certPath);
-        
+
         // List what's actually in the directory for debugging
         try {
           const files = await fs.readdir(certPath);
@@ -74,11 +75,11 @@ export async function generateAppleWalletPass(
         } catch (dirError) {
           console.error("Cannot read certificates directory:", dirError);
         }
-        
+
         throw new Error(
           "Certificate files not found. Please either:\n" +
-          "1. Add certificate files to the certificates/ folder, OR\n" +
-          "2. Set APPLE_WWDR_CERT, APPLE_SIGNER_CERT, and APPLE_SIGNER_KEY environment variables"
+            "1. Add certificate files to the certificates/ folder, OR\n" +
+            "2. Set APPLE_WWDR_CERT, APPLE_SIGNER_CERT, and APPLE_SIGNER_KEY environment variables"
         );
       }
     }

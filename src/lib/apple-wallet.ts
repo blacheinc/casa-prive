@@ -1,4 +1,4 @@
-// lib/apple-wallet.ts
+// src/lib/apple-wallet.ts
 import { PKPass } from "passkit-generator";
 import fs from "fs/promises";
 import path from "path";
@@ -11,18 +11,17 @@ interface MemberPassData {
 }
 
 /**
- * Get the correct path for certificates based on environment
+ * Get the correct path for certificates based on project structure
  */
 function getCertPath(): string {
-  // In Vercel/Lambda, process.cwd() might not work as expected
-  // Try multiple possible paths
-  const possiblePaths = [
-    path.join(process.cwd(), "certificates"),
-    path.join("/var/task", "certificates"),
-    path.join(__dirname, "..", "..", "certificates"),
-  ];
+  // Since certificates/ is in root and src/ is also in root
+  // Go up from src/lib to root, then into certificates
+  return path.join(process.cwd(), "certificates");
+}
 
-  return possiblePaths[0]; // Default to process.cwd()
+function getModelPath(): string {
+  // Same for passkit-model
+  return path.join(process.cwd(), "passkit-model");
 }
 
 /**
@@ -33,9 +32,10 @@ export async function generateAppleWalletPass(
 ): Promise<Buffer> {
   try {
     const certPath = getCertPath();
-    const modelPath = path.join(process.cwd(), "passkit-model");
+    const modelPath = getModelPath();
 
-    console.log("Looking for certificates at:", certPath);
+    console.log("Certificate path:", certPath);
+    console.log("Model path:", modelPath);
 
     // Read certificates with better error handling
     let wwdr: Buffer;
@@ -46,8 +46,20 @@ export async function generateAppleWalletPass(
       wwdr = await fs.readFile(path.join(certPath, "wwdr.pem"));
       signerCert = await fs.readFile(path.join(certPath, "signerCert.pem"));
       signerKey = await fs.readFile(path.join(certPath, "signerKey.pem"));
+      
+      console.log("✅ Certificates loaded successfully");
     } catch (readError) {
-      console.error("Error reading certificate files:", readError);
+      console.error("❌ Error reading certificate files:", readError);
+      console.error("Attempted path:", certPath);
+      
+      // List what's actually in the directory for debugging
+      try {
+        const files = await fs.readdir(certPath);
+        console.log("Files in certificates directory:", files);
+      } catch (dirError) {
+        console.error("Cannot read certificates directory:", dirError);
+      }
+      
       throw new Error("Certificate files not found. Please ensure certificates are deployed.");
     }
 
@@ -111,6 +123,7 @@ export async function generateAppleWalletPass(
 
     // Generate .pkpass buffer
     const buffer = pass.getAsBuffer();
+    console.log("✅ Wallet pass generated successfully");
     return buffer;
   } catch (error) {
     console.error("Error generating Apple Wallet pass:", error);

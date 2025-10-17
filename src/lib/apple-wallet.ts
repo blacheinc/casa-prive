@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// src/lib/apple-wallet.ts
 import { PKPass } from "passkit-generator";
 import fs from "fs/promises";
 import path from "path";
@@ -12,19 +13,31 @@ interface MemberPassData {
   expiresAt?: string;
 }
 
+/**
+ * Get certificates path
+ */
 function getCertPath(): string {
   return path.join(process.cwd(), "certificates");
 }
 
+/**
+ * Get path to your pass template folder
+ */
 function getModelPath(): string {
   return path.join(process.cwd(), "passkit-model.pass");
 }
 
-export async function generateAppleWalletPass(member: MemberPassData): Promise<Buffer> {
+/**
+ * Generate Apple Wallet pass with dynamic member data
+ */
+export async function generateAppleWalletPass(
+  member: MemberPassData
+): Promise<Buffer> {
   try {
     const certPath = getCertPath();
     const modelPath = getModelPath();
 
+    // Load certificates
     let wwdr: Buffer;
     let signerCert: Buffer;
     let signerKey: Buffer;
@@ -33,7 +46,8 @@ export async function generateAppleWalletPass(member: MemberPassData): Promise<B
       wwdr = await fs.readFile(path.join(certPath, "wwdr.pem"));
       signerCert = await fs.readFile(path.join(certPath, "signerCert.pem"));
       signerKey = await fs.readFile(path.join(certPath, "signerKey.pem"));
-    } catch {
+      console.log("✅ Certificates loaded from files");
+    } catch (readError) {
       if (
         process.env.APPLE_WWDR_CERT &&
         process.env.APPLE_SIGNER_CERT &&
@@ -42,24 +56,33 @@ export async function generateAppleWalletPass(member: MemberPassData): Promise<B
         wwdr = Buffer.from(process.env.APPLE_WWDR_CERT.replace(/\\n/g, "\n"));
         signerCert = Buffer.from(process.env.APPLE_SIGNER_CERT.replace(/\\n/g, "\n"));
         signerKey = Buffer.from(process.env.APPLE_SIGNER_KEY.replace(/\\n/g, "\n"));
+        console.log("✅ Certificates loaded from environment variables");
       } else {
         throw new Error(
-          "Certificate files not found. Add them to certificates/ or set environment variables."
+          "Certificate files not found. Add to certificates/ or set env variables."
         );
       }
     }
 
     const signerKeyPassphrase = process.env.PASS_CERT_PASSPHRASE;
 
-    // Determine tier
+    // Calculate membership tier
     const joinedDate = new Date(member.joinedAt);
     const now = new Date();
-    const monthsSince = Math.floor((now.getTime() - joinedDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
+    const monthsSince = Math.floor(
+      (now.getTime() - joinedDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
+    );
 
     let tierName = "Member";
     let tierColor = "rgb(212,175,55)"; // Gold
-    if (monthsSince >= 12) { tierName = "Elite Member"; tierColor = "rgb(229,228,226)"; } // Platinum
-    if (monthsSince >= 24) { tierName = "VIP Member"; tierColor = "rgb(255,215,0)"; } // Bright Gold
+    if (monthsSince >= 12) {
+      tierName = "Elite Member";
+      tierColor = "rgb(229,228,226)"; // Platinum
+    }
+    if (monthsSince >= 24) {
+      tierName = "VIP Member";
+      tierColor = "rgb(255,215,0)"; // Bright Gold
+    }
 
     // Create pass
     const pass = await PKPass.from(
@@ -78,6 +101,7 @@ export async function generateAppleWalletPass(member: MemberPassData): Promise<B
       }
     );
 
+    // Configure storeCard dynamically
     const storeCard = (pass as any).storeCard ?? {};
     storeCard.primaryFields = [
       {
@@ -87,26 +111,42 @@ export async function generateAppleWalletPass(member: MemberPassData): Promise<B
         textAlignment: "PKTextAlignmentCenter",
       },
     ];
-
     storeCard.secondaryFields = [
-      { key: "code", label: "MEMBERSHIP CODE", value: member.membershipCode },
+      {
+        key: "code",
+        label: "MEMBERSHIP CODE",
+        value: member.membershipCode,
+        textAlignment: "PKTextAlignmentLeft",
+      },
     ];
     if (member.status) {
-      storeCard.secondaryFields.push({ key: "status", label: "STATUS", value: member.status });
+      storeCard.secondaryFields.push({
+        key: "status",
+        label: "STATUS",
+        value: member.status,
+        textAlignment: "PKTextAlignmentRight",
+      });
     }
-
     storeCard.auxiliaryFields = [
       {
         key: "joined",
         label: "MEMBER SINCE",
-        value: joinedDate.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+        value: joinedDate.toLocaleDateString("en-US", {
+          month: "short",
+          year: "numeric",
+        }),
+        textAlignment: "PKTextAlignmentLeft",
       },
     ];
     if (member.expiresAt) {
       storeCard.auxiliaryFields.push({
         key: "expires",
         label: "VALID UNTIL",
-        value: new Date(member.expiresAt).toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+        value: new Date(member.expiresAt).toLocaleDateString("en-US", {
+          month: "short",
+          year: "numeric",
+        }),
+        textAlignment: "PKTextAlignmentRight",
       });
     }
 
@@ -114,9 +154,13 @@ export async function generateAppleWalletPass(member: MemberPassData): Promise<B
       {
         key: "welcome",
         label: "Welcome",
-        value: `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Your membership grants you exclusive access to premium events and services.`,
+        value: `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events and services.`,
       },
-      { key: "email", label: "Email", value: member.email },
+      {
+        key: "email",
+        label: "Email",
+        value: member.email,
+      },
       {
         key: "membershipDetails",
         label: "Membership Benefits",
@@ -131,11 +175,23 @@ export async function generateAppleWalletPass(member: MemberPassData): Promise<B
       {
         key: "terms",
         label: "Terms & Conditions",
-        value: "Non-transferable. Visit casaprive.com/terms for full details.",
+        value:
+          "This membership card is non-transferable. Valid only for the member named above. Visit casaprive.com/terms for full terms and conditions.",
       },
     ];
 
-    return pass.getAsBuffer();
+    // Add barcode dynamically
+    (pass as any).barcode = {
+      format: "PKBarcodeFormatQR",
+      message: member.membershipCode,
+      messageEncoding: "iso-8859-1",
+      altText: member.membershipCode,
+    };
+
+    // Generate pkpass buffer
+    const buffer = pass.getAsBuffer();
+    console.log("✅ Luxury wallet pass generated successfully");
+    return buffer;
   } catch (error) {
     console.error("Error generating Apple Wallet pass:", error);
     throw error;

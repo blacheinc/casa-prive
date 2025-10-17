@@ -269,7 +269,7 @@ export async function generateAppleWalletPass(
         serialNumber: member.membershipCode,
         logoText: "CASA PRIVÉ",
 
-        // Luxury color scheme
+        // Luxury color scheme.
         foregroundColor: "rgb(212,175,55)", // Gold text
         backgroundColor: "rgb(4,99,72)", // Deep green
         labelColor: "rgb(255,255,255)", // White labels

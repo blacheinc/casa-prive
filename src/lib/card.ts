@@ -36,7 +36,7 @@ export function generateAppleWalletPass(member: {
     formatVersion: 1,
     passTypeIdentifier: 'pass.com.casaprive.membership',
     serialNumber: member.membershipCode,
-    teamIdentifier: 'YOUR_TEAM_ID',
+    teamIdentifier: '64PS3B42A3',
     organizationName: 'Casa Privé',
     description: 'Casa Privé Membership Card',
     logoText: 'Casa Privé',

@@ -19,12 +19,22 @@ export async function GET(
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
-    // Generate the pass
+    if (member.status !== 'ACTIVE') {
+      return NextResponse.json(
+        { error: "Membership is not active" },
+        { status: 403 }
+      );
+    }
+
+    // Generate the pass with ALL member data
     const passBuffer = await generateAppleWalletPass({
       fullName: member.fullName,
       membershipCode: member.membershipCode,
       email: member.email,
+      phone: member.phone || undefined,
       joinedAt: member.joinedAt.toISOString(),
+      status: member.status,
+      expiresAt: member.expiresAt?.toISOString(),
     });
 
     const arrayBuffer = passBuffer.buffer.slice(
@@ -41,13 +51,12 @@ export async function GET(
   } catch (error: any) {
     console.error("Wallet pass generation error:", error);
     
-    // Provide more specific error message
     const errorMessage = error.message?.includes("Certificate files not found")
       ? "Apple Wallet service is temporarily unavailable"
       : "Failed to generate wallet pass";
     
     return NextResponse.json(
-      { error: errorMessage },
+      { error: errorMessage, details: error.message },
       { status: 500 }
     );
   }

@@ -52,7 +52,7 @@
     ]
   },
 
-  "relevantDate": "2025-01-01T00:00-08:00",
+  "relevantDate": "2026-01-01T00:00-08:00",
   "webServiceURL": "https://api.casaprive.com/passes",
   "authenticationToken": "9a2f1e7c4b5d6f8a0c3e9d2f5a7b1c4d",
   "associatedStoreIdentifiers": [],

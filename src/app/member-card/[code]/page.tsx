@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
-// app/member-card/[code]/page.tsx - FIXED WITH LOGO & APPLE WALLET
+// app/member-card/[code]/page.tsx - FIXED WITH DIRECT LINK FOR SAFARI
 'use client';
 
 import { useState, useEffect, useRef, Suspense } from 'react';
@@ -26,7 +26,6 @@ function MemberCardContent() {
   const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [downloadingWallet, setDownloadingWallet] = useState(false);
   const qrRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
@@ -75,41 +74,6 @@ function MemberCardContent() {
           URL.revokeObjectURL(url);
         }
       });
-    }
-  };
-
-  const downloadMemberCard = () => {
-    window.print();
-  };
-
-  const addToAppleWallet = async () => {
-    if (!member) return;
-
-    setDownloadingWallet(true);
-
-    try {
-      // Fetch the .pkpass file
-      const response = await fetch(`/api/members/${member.membershipCode}/wallet`);
-
-      if (!response.ok) {
-        throw new Error('Failed to generate wallet pass');
-      }
-
-      // Download the file
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `casaprive-${member.membershipCode}.pkpass`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading wallet pass:', error);
-      alert('Failed to generate Apple Wallet pass. Please try again.');
-    } finally {
-      setDownloadingWallet(false);
     }
   };
 
@@ -300,14 +264,17 @@ function MemberCardContent() {
             <Download size={18} />
             DOWNLOAD QR CODE
           </button>
-          <button
-            onClick={addToAppleWallet}
-            disabled={downloadingWallet}
-            className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 text-white text-sm rounded hover:from-yellow-500 hover:to-yellow-400 transition flex items-center gap-2 font-light tracking-wider disabled:opacity-50"
+          
+          {/* Direct link to Apple Wallet pass - works better with Safari/iOS */}
+          <a
+            href={`/api/members/${member.membershipCode}/wallet`}
+            download={`casaprive-${member.membershipCode}.pkpass`}
+            className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 text-white text-sm rounded hover:from-yellow-500 hover:to-yellow-400 transition flex items-center gap-2 font-light tracking-wider"
           >
             <Download size={18} />
-            {downloadingWallet ? 'GENERATING...' : 'ADD TO APPLE WALLET'}
-          </button>
+            ADD TO APPLE WALLET
+          </a>
+          
           <a
             href="/booking"
             className="px-6 py-3 border-2 border-emerald-500 text-emerald-500 hover:bg-emerald-500 hover:text-white text-sm rounded transition flex items-center gap-2 font-light tracking-wider"
@@ -324,7 +291,7 @@ function MemberCardContent() {
             <li>• Screenshot or save this page for offline access</li>
             <li>• Present your QR code at event check-in</li>
             <li>• Your membership code is unique and non-transferable</li>
-            <li>• Add to Apple Wallet for quick access on iPhone</li>
+            <li>• Click "Add to Apple Wallet" to save to your iPhone</li>
             <li>• Events are held every Saturday evening</li>
           </ul>
         </div>

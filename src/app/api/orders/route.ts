@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/api/orders/route.ts
+// app/api/orders/route.ts - FIXED TYPE ERROR
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { paystack } from '@/lib/paystack';
 import { googleSheets } from '@/lib/sheets';
 import { emailService } from '@/lib/email';
 import { format } from 'date-fns';
+import { OrderStatus } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -179,9 +180,15 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
+    const statusParam = searchParams.get('status');
 
-    const where = status ? { status } : {};
+    // FIXED: Validate status parameter against OrderStatus enum
+    const validStatuses: OrderStatus[] = ['PENDING', 'PREPARING', 'READY', 'SERVED', 'CANCELLED'];
+    
+    let where = {};
+    if (statusParam && validStatuses.includes(statusParam as OrderStatus)) {
+      where = { status: statusParam as OrderStatus };
+    }
 
     const orders = await prisma.order.findMany({
       where,

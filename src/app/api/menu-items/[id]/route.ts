@@ -1,6 +1,7 @@
-// app/api/menu-items/[id]/route.ts
+// app/api/menu-items/[id]/route.ts - FIXED TYPE ERROR
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { MenuCategory } from '@prisma/client';
 
 export async function GET(
   request: NextRequest,
@@ -39,12 +40,31 @@ export async function PATCH(
     const body = await request.json();
     const { name, description, category, price, image, isAvailable } = body;
 
+    // Validate category if provided
+    if (category) {
+      const validCategories: MenuCategory[] = [
+        'APPETIZER',
+        'MAIN_COURSE',
+        'DESSERT',
+        'BEVERAGE',
+        'COCKTAIL',
+        'WINE'
+      ];
+
+      if (!validCategories.includes(category as MenuCategory)) {
+        return NextResponse.json(
+          { error: 'Invalid category' },
+          { status: 400 }
+        );
+      }
+    }
+
     const menuItem = await prisma.menuItem.update({
       where: { id },
       data: {
         ...(name && { name }),
         ...(description !== undefined && { description }),
-        ...(category && { category }),
+        ...(category && { category: category as MenuCategory }),
         ...(price !== undefined && { price: parseFloat(price) }),
         ...(image !== undefined && { image }),
         ...(isAvailable !== undefined && { isAvailable }),

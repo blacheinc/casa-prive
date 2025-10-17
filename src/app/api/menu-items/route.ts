@@ -1,6 +1,7 @@
-// app/api/menu-items/route.ts
+// app/api/menu-items/route.ts - FIXED TYPE ERROR
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { MenuCategory } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,11 +15,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate category
+    const validCategories: MenuCategory[] = [
+      'APPETIZER',
+      'MAIN_COURSE', 
+      'DESSERT',
+      'BEVERAGE',
+      'COCKTAIL',
+      'WINE'
+    ];
+
+    if (!validCategories.includes(category as MenuCategory)) {
+      return NextResponse.json(
+        { error: 'Invalid category' },
+        { status: 400 }
+      );
+    }
+
     const menuItem = await prisma.menuItem.create({
       data: {
         name,
         description: description || null,
-        category,
+        category: category as MenuCategory,
         price: parseFloat(price),
         image: image || null,
         isAvailable: isAvailable ?? true,
@@ -38,9 +56,22 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
+    const categoryParam = searchParams.get('category');
 
-    const where = category ? { category } : {};
+    // FIXED: Validate category parameter against MenuCategory enum
+    const validCategories: MenuCategory[] = [
+      'APPETIZER',
+      'MAIN_COURSE',
+      'DESSERT',
+      'BEVERAGE',
+      'COCKTAIL',
+      'WINE'
+    ];
+
+    let where = {};
+    if (categoryParam && validCategories.includes(categoryParam as MenuCategory)) {
+      where = { category: categoryParam as MenuCategory };
+    }
 
     const menuItems = await prisma.menuItem.findMany({
       where,

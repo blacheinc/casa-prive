@@ -1,7 +1,8 @@
-// app/api/bookings/[id]/route.ts
+// app/api/bookings/[id]/route.ts - FIXED FOR NEXT.JS 15+ AND TYPE VALIDATION
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { rateLimit } from '@/lib/rate-limit';
+import { BookingStatus } from '@prisma/client';
 
 const limiter = rateLimit({
   interval: 60 * 1000,
@@ -35,7 +36,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params; // FIXED: Await params
+    const { id } = await params;
     
     const booking = await prisma.booking.findUnique({
       where: { id },
@@ -66,14 +67,25 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params; // FIXED: Await params
+    const { id } = await params;
     const body = await request.json();
     const { status, tableNumber } = body;
+
+    // Validate status if provided
+    if (status) {
+      const validStatuses: BookingStatus[] = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'];
+      if (!validStatuses.includes(status as BookingStatus)) {
+        return NextResponse.json(
+          { error: 'Invalid status' },
+          { status: 400 }
+        );
+      }
+    }
 
     const booking = await prisma.booking.update({
       where: { id },
       data: {
-        ...(status && { status }),
+        ...(status && { status: status as BookingStatus }),
         ...(tableNumber && { tableNumber: parseInt(tableNumber) }),
       },
       include: {

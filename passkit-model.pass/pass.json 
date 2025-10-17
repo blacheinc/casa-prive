@@ -1,0 +1,24 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.com.casaprive.membership",
+  "teamIdentifier": "64PS3B42A3",
+  "organizationName": "Casa Privé",
+  "description": "Casa Privé Membership Card",
+  "logoText": "CASA PRIVÉ",
+  "foregroundColor": "rgb(212, 175, 55)",
+  "backgroundColor": "rgb(4, 99, 72)",
+  "labelColor": "rgb(255, 255, 255)",
+  "storeCard": {
+    "primaryFields": [],
+    "secondaryFields": [],
+    "auxiliaryFields": [],
+    "backFields": []
+  },
+  "barcodes": [
+    {
+      "format": "PKBarcodeFormatQR",
+      "message": "",
+      "messageEncoding": "iso-8859-1"
+    }
+  ]
+}

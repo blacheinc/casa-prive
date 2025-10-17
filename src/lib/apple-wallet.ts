@@ -12,34 +12,37 @@ export interface MemberPassData {
   expiresAt?: string;
 }
 
-/** Get certificate folder path */
-function getCertPath(): string {
-  return path.join(process.cwd(), "certificates");
-}
-
-/** Get pass model folder path */
-function getModelPath(): string {
-  return path.join(process.cwd(), "passkit-model.pass");
-}
-
 /** Generate Apple Wallet pass */
 export async function generateAppleWalletPass(
   member: MemberPassData
 ): Promise<Buffer> {
-  const certPath = getCertPath();
-  const modelPath = getModelPath();
+  const certPath = path.join(process.cwd(), "certificates");
+  const modelPath = path.join(process.cwd(), "passkit-model.pass");
+
+  console.log("Certificate path:", certPath);
+  console.log("Model path:", modelPath);
+
+  // Verify model folder exists
+  try {
+    await fs.access(modelPath);
+  } catch (error) {
+    throw new Error(`Model folder not found at: ${modelPath}`);
+  }
 
   // Load certificates
   const wwdr = process.env.APPLE_WWDR_CERT
     ? Buffer.from(process.env.APPLE_WWDR_CERT.replace(/\\n/g, "\n"))
     : await fs.readFile(path.join(certPath, "wwdr.pem"));
+  
   const signerCert = process.env.APPLE_SIGNER_CERT
     ? Buffer.from(process.env.APPLE_SIGNER_CERT.replace(/\\n/g, "\n"))
     : await fs.readFile(path.join(certPath, "signerCert.pem"));
+  
   const signerKey = process.env.APPLE_SIGNER_KEY
     ? Buffer.from(process.env.APPLE_SIGNER_KEY.replace(/\\n/g, "\n"))
     : await fs.readFile(path.join(certPath, "signerKey.pem"));
-  const signerKeyPassphrase = process.env.PASS_CERT_PASSPHRASE;
+  
+  const signerKeyPassphrase = process.env.PASS_CERT_PASSPHRASE || "";
 
   // Determine membership tier
   const joinedDate = new Date(member.joinedAt);
@@ -50,6 +53,7 @@ export async function generateAppleWalletPass(
 
   let tierName = "Member";
   let tierColor = "rgb(212, 175, 55)"; // gold
+
   if (monthsSince >= 12) {
     tierName = "Elite Member";
     tierColor = "rgb(229, 228, 226)"; // silver
@@ -59,113 +63,123 @@ export async function generateAppleWalletPass(
     tierColor = "rgb(255, 215, 0)"; // bright gold
   }
 
-  // Create the pass with all required fields
-  const pass = await PKPass.from(
-    {
-      model: modelPath,
-      certificates: { wwdr, signerCert, signerKey, signerKeyPassphrase },
-    },
-    {
-      // Required fields
-      passTypeIdentifier: process.env.PASS_TYPE_IDENTIFIER || "pass.com.casaprive.membership",
-      teamIdentifier: process.env.TEAM_IDENTIFIER || "64PS3B42A3",
-      serialNumber: member.membershipCode,
-      description: "Casa Privé Exclusive Membership Card",
-      organizationName: "Casa Privé",
-      
-      // Visual styling
-      logoText: "CASA PRIVÉ",
-      foregroundColor: tierColor,
-      backgroundColor: "rgb(4, 99, 72)",
-      labelColor: "rgb(255, 255, 255)",
-    }
-  );
+  try {
+    // Create the pass
+    const pass = await PKPass.from(
+      {
+        model: modelPath,
+        certificates: {
+          wwdr,
+          signerCert,
+          signerKey,
+          signerKeyPassphrase,
+        },
+      },
+      {
+        // Override pass.json values
+        serialNumber: member.membershipCode,
+        description: "Casa Privé Exclusive Membership Card",
+        logoText: "CASA PRIVÉ",
+        foregroundColor: tierColor,
+        backgroundColor: "rgb(4, 99, 72)",
+        labelColor: "rgb(255, 255, 255)",
+      }
+    );
 
-  // Set the pass structure type
-  pass.type = "storeCard";
+    console.log("Pass created successfully");
 
-  // Set barcode after pass creation
-  pass.setBarcodes({
-    message: member.membershipCode,
-    format: "PKBarcodeFormatQR",
-    messageEncoding: "iso-8859-1",
-  });
-
-  // Add primary field (member name)
-  pass.primaryFields.push({
-    key: "member",
-    label: tierName.toUpperCase(),
-    value: member.fullName,
-    textAlignment: "PKTextAlignmentCenter",
-  });
-
-  // Add secondary fields
-  pass.secondaryFields.push({
-    key: "code",
-    label: "MEMBERSHIP CODE",
-    value: member.membershipCode,
-  });
-
-  if (member.status) {
-    pass.secondaryFields.push({
-      key: "status",
-      label: "STATUS",
-      value: member.status,
+    // Set barcode
+    pass.setBarcodes({
+      message: member.membershipCode,
+      format: "PKBarcodeFormatQR",
+      messageEncoding: "iso-8859-1",
     });
-  }
 
-  // Add auxiliary fields
-  pass.auxiliaryFields.push({
-    key: "joined",
-    label: "MEMBER SINCE",
-    value: joinedDate.toLocaleDateString("en-US", {
-      month: "short",
-      year: "numeric",
-    }),
-  });
+    // Add primary field (member name)
+    pass.primaryFields.push({
+      key: "member",
+      label: tierName.toUpperCase(),
+      value: member.fullName,
+      textAlignment: "PKTextAlignmentCenter",
+    });
 
-  if (member.expiresAt) {
+    // Add secondary fields
+    pass.secondaryFields.push({
+      key: "code",
+      label: "MEMBERSHIP CODE",
+      value: member.membershipCode,
+    });
+
+    if (member.status) {
+      pass.secondaryFields.push({
+        key: "status",
+        label: "STATUS",
+        value: member.status,
+      });
+    }
+
+    // Add auxiliary fields
     pass.auxiliaryFields.push({
-      key: "expires",
-      label: "VALID UNTIL",
-      value: new Date(member.expiresAt).toLocaleDateString("en-US", {
+      key: "joined",
+      label: "MEMBER SINCE",
+      value: joinedDate.toLocaleDateString("en-US", {
         month: "short",
         year: "numeric",
       }),
     });
-  }
 
-  // Add back fields
-  pass.backFields.push(
-    {
-      key: "welcome",
-      label: "Welcome",
-      value: `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events.`,
-    },
-    {
-      key: "email",
-      label: "Email",
-      value: member.email,
-    },
-    {
-      key: "membershipDetails",
-      label: "Membership Benefits",
-      value:
-        "• Priority table reservations\n• Exclusive event access\n• Special member pricing\n• VIP concierge service\n• Complimentary amenities",
-    },
-    {
-      key: "contact",
-      label: "Contact Us",
-      value:
-        "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX",
-    },
-    {
-      key: "terms",
-      label: "Terms & Conditions",
-      value:
-        "This membership card is non-transferable. Visit casaprive.com/terms for full terms",
+    if (member.expiresAt) {
+      pass.auxiliaryFields.push({
+        key: "expires",
+        label: "VALID UNTIL",
+        value: new Date(member.expiresAt).toLocaleDateString("en-US", {
+          month: "short",
+          year: "numeric",
+        }),
+      });
     }
-  );
 
-  return pass.getAsBuffer();
+    // Add back fields
+    pass.backFields.push(
+      {
+        key: "welcome",
+        label: "Welcome",
+        value: `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events.`,
+      },
+      {
+        key: "email",
+        label: "Email",
+        value: member.email,
+      },
+      {
+        key: "membershipDetails",
+        label: "Membership Benefits",
+        value:
+          "• Priority table reservations\n• Exclusive event access\n• Special member pricing\n• VIP concierge service\n• Complimentary amenities",
+      },
+      {
+        key: "contact",
+        label: "Contact Us",
+        value:
+          "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX",
+      },
+      {
+        key: "terms",
+        label: "Terms & Conditions",
+        value:
+          "This membership card is non-transferable. Visit casaprive.com/terms for full terms and conditions.",
+      }
+    );
+
+    console.log("Pass fields configured");
+
+    // Generate the pass buffer
+    const buffer = pass.getAsBuffer();
+    console.log("Pass buffer generated, size:", buffer.length, "bytes");
+
+    return buffer;
+  } catch (error) {
+    console.error("Error creating pass:", error);
+    throw new Error(`Failed to create pass: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 }

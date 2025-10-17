@@ -1,7 +1,7 @@
-// app/booking/success/page.tsx
+// app/booking/success/page.tsx - FIXED WITH SUSPENSE
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle, Calendar, Mail, Download } from 'lucide-react';
 import Link from 'next/link';
@@ -19,7 +19,7 @@ interface Booking {
   };
 }
 
-export default function BookingSuccessPage() {
+function BookingSuccessContent() {
   const searchParams = useSearchParams();
   const bookingId = searchParams.get('id');
   const [booking, setBooking] = useState<Booking | null>(null);
@@ -177,5 +177,26 @@ export default function BookingSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading fallback
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+        <p className="text-gray-300">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+// Main component with Suspense wrapper
+export default function BookingSuccessPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <BookingSuccessContent />
+    </Suspense>
   );
 }

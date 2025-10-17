@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-// lib/auth.ts
+// lib/auth.ts - FIXED ESLINT WARNING
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
@@ -37,7 +37,8 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, SECRET_KEY);
     return payload as unknown as TokenPayload;
-  } catch (error) {
+  } catch {
+    // FIXED: Removed unused 'error' variable
     return null;
   }
 }
@@ -85,7 +86,6 @@ export async function verifyAdminCredentials(
   console.log("DEBUG verifyAdminCredentials:", { username, passwordMatch, isValid });
   return isValid;
 }
-
 
 // Check if user is authenticated (server-side)
 export async function isAuthenticated(): Promise<boolean> {

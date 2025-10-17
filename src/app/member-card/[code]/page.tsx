@@ -1,10 +1,10 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
-// app/member-card/[code]/page.tsx - PRODUCTION
+// app/member-card/[code]/page.tsx - FIXED WITH SUSPENSE
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { Crown, Download, Calendar, Mail, Phone, CheckCircle } from 'lucide-react';
 
@@ -20,7 +20,7 @@ interface Member {
   expiresAt?: string;
 }
 
-export default function MemberCardPage() {
+function MemberCardContent() {
   const params = useParams();
   const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,7 +51,6 @@ export default function MemberCardPage() {
   const downloadQRCode = () => {
     if (!member || !qrRef.current) return;
 
-    // Create a canvas to draw the QR code
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const img = qrRef.current;
@@ -62,7 +61,6 @@ export default function MemberCardPage() {
     if (ctx) {
       ctx.drawImage(img, 0, 0);
       
-      // Convert to blob and download
       canvas.toBlob((blob) => {
         if (blob) {
           const url = URL.createObjectURL(blob);
@@ -79,7 +77,6 @@ export default function MemberCardPage() {
   };
 
   const downloadMemberCard = () => {
-    // For full card screenshot, user can use browser's print/screenshot
     window.print();
   };
 
@@ -280,5 +277,26 @@ export default function MemberCardPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading fallback
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 flex items-center justify-center">
+      <div className="text-center">
+        <Crown className="w-16 h-16 text-yellow-500 mx-auto mb-4 animate-pulse" />
+        <p className="text-gray-300 font-light text-sm">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+// Main component with Suspense wrapper
+export default function MemberCardPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <MemberCardContent />
+    </Suspense>
   );
 }

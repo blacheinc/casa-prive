@@ -75,6 +75,7 @@ model Order {
   // Order Information
   customerName      String
   tableNumberOrName String
+  email             String?       // Email for receipt (optional)
   
   // Payment
   paymentMethod     PaymentMethod

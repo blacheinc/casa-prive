@@ -101,7 +101,7 @@ export default function MenuPage() {
     }
 
     setLoading(true);
-    setMessage('');
+    setMessage('Processing your order...');
 
     try {
       const response = await fetch('/api/orders', {
@@ -120,6 +120,7 @@ export default function MenuPage() {
       }
 
       if (data.paymentUrl) {
+        setMessage('Redirecting to payment...');
         window.location.href = data.paymentUrl;
       } else {
         // Redirect to success page (using 'id' param to match your existing page)
@@ -127,7 +128,6 @@ export default function MenuPage() {
       }
     } catch (error: any) {
       setMessage(error.message || 'Failed to place order');
-    } finally {
       setLoading(false);
     }
   };
@@ -321,7 +321,11 @@ export default function MenuPage() {
               </div>
 
               {message && (
-                <div className={`p-4 rounded mb-4 text-sm ${message.includes('success') ? 'bg-emerald-900/50 text-emerald-300' : 'bg-red-900/50 text-red-300'}`}>
+                <div className={`p-4 rounded mb-4 text-sm ${
+                  message.includes('success') || message.includes('Processing') || message.includes('Redirecting')
+                    ? 'bg-emerald-900/50 text-emerald-300' 
+                    : 'bg-red-900/50 text-red-300'
+                }`}>
                   {message}
                 </div>
               )}

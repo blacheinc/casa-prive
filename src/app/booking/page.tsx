@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Crown } from 'lucide-react';
+import { Calendar, Crown, Upload } from 'lucide-react';
 
 interface TablePackage {
   id: string;
@@ -27,6 +27,7 @@ export default function BookingPage() {
     paymentMethod: 'PAYSTACK',
   });
   const [proofFile, setProofFile] = useState<File | null>(null);
+  const [uploadingProof, setUploadingProof] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fetchingPackages, setFetchingPackages] = useState(true);
   const [message, setMessage] = useState('');
@@ -61,16 +62,53 @@ export default function BookingPage() {
     setTablesAvailable(true);
   };
 
+  const uploadProofToCloudinary = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to upload file');
+    }
+
+    const data = await response.json();
+    return data.url;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
+    setMessage('Processing your booking...');
 
     try {
       let proofUrl = '';
       
-      if (formData.paymentMethod === 'BANK_TRANSFER' && proofFile) {
-        proofUrl = 'uploaded-proof-url';
+      if (formData.paymentMethod === 'BANK_TRANSFER') {
+        if (!proofFile) {
+          setMessage('Please upload proof of payment');
+          setLoading(false);
+          return;
+        }
+
+        setMessage('Uploading proof of payment...');
+        setUploadingProof(true);
+        
+        try {
+          proofUrl = await uploadProofToCloudinary(proofFile);
+        } catch (uploadError: any) {
+          setMessage(uploadError.message || 'Failed to upload proof of payment');
+          setLoading(false);
+          setUploadingProof(false);
+          return;
+        }
+        
+        setUploadingProof(false);
+        setMessage('Processing your booking...');
       }
 
       const response = await fetch('/api/bookings', {
@@ -90,15 +128,15 @@ export default function BookingPage() {
       }
 
       if (data.paymentUrl) {
+        setMessage('Redirecting to payment...');
         window.location.href = data.paymentUrl;
       } else {
-        // Redirect to success page (using 'id' param to match your existing page)
         window.location.href = `/booking/success?id=${data.booking.id}`;
       }
     } catch (error: any) {
       setMessage(error.message || 'Failed to create booking');
-    } finally {
       setLoading(false);
+      setUploadingProof(false);
     }
   };
 
@@ -278,13 +316,24 @@ export default function BookingPage() {
                       <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé Ltd</p>
                       <p className="text-gray-300 text-xs mb-4 font-light">Account Number: 1234567890</p>
                       
-                      <label className="block text-gray-300 mb-2 text-sm font-light">Upload Proof of Payment</label>
-                      <input
-                        type="file"
-                        accept="image/*,.pdf"
-                        onChange={(e) => setProofFile(e.target.files?.[0] || null)}
-                        className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600"
-                      />
+                      <label className="block text-gray-300 mb-2 text-sm font-light">
+                        Upload Proof of Payment * (JPG, PNG, or PDF - Max 5MB)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="file"
+                          required
+                          accept="image/jpeg,image/png,image/jpg,.pdf"
+                          onChange={(e) => setProofFile(e.target.files?.[0] || null)}
+                          className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-light file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 file:cursor-pointer"
+                        />
+                        {proofFile && (
+                          <div className="mt-2 flex items-center gap-2 text-emerald-400 text-xs">
+                            <Upload className="w-4 h-4" />
+                            <span>{proofFile.name}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -300,17 +349,27 @@ export default function BookingPage() {
                   </div>
 
                   {message && (
-                    <div className={`p-4 rounded text-sm ${message.includes('success') ? 'bg-emerald-900/50 text-emerald-300' : 'bg-red-900/50 text-red-300'}`}>
-                      {message}
+                    <div className={`p-4 rounded text-sm ${
+                      message.includes('success') || message.includes('Uploading') || message.includes('Processing')
+                        ? 'bg-emerald-900/50 text-emerald-300' 
+                        : 'bg-red-900/50 text-red-300'
+                    }`}>
+                      {uploadingProof && (
+                        <div className="flex items-center gap-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-emerald-400 border-t-transparent"></div>
+                          <span>{message}</span>
+                        </div>
+                      )}
+                      {!uploadingProof && message}
                     </div>
                   )}
 
                   <button
                     type="submit"
-                    disabled={loading || !selectedPackage}
+                    disabled={loading || !selectedPackage || uploadingProof}
                     className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-sm font-light tracking-wider rounded hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:scale-105"
                   >
-                    {loading ? 'PROCESSING...' : 'CONFIRM BOOKING'}
+                    {uploadingProof ? 'UPLOADING...' : loading ? 'PROCESSING...' : 'CONFIRM BOOKING'}
                   </button>
                 </form>
               </div>

@@ -99,7 +99,7 @@ export default function Footer() {
                                 </li>
                                 <li className="flex items-start gap-2 text-gray-400 text-xs">
                                     <MapPin size={14} className="text-yellow-500 mt-0.5 flex-shrink-0" />
-                                    <span className="font-light">Kumasi, Ashanti Region, Ghana</span>
+                                    <span className="font-light">Accra, Ghana</span>
                                 </li>
                             </ul>
                         </div>

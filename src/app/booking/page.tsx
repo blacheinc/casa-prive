@@ -92,7 +92,8 @@ export default function BookingPage() {
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else {
-        setMessage('Booking submitted successfully! We will confirm once payment is verified.');
+        // Redirect to success page (using 'id' param to match your existing page)
+        window.location.href = `/booking/success?id=${data.booking.id}`;
       }
     } catch (error: any) {
       setMessage(error.message || 'Failed to create booking');

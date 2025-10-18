@@ -1,4 +1,4 @@
-// app/api/bookings/route.ts - FIXED TYPE ERROR
+// app/api/bookings/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { paystack } from '@/lib/paystack';
@@ -88,8 +88,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // If Paystack, initialize payment
+    // If Paystack, initialize payment with callback URL
     if (paymentMethod === 'PAYSTACK') {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+      const callbackUrl = `${baseUrl}/api/payment/callback`;
+
       const paymentResponse = await paystack.initializeTransaction(
         email,
         tablePackage.price,
@@ -98,6 +101,7 @@ export async function POST(request: NextRequest) {
           bookingId: booking.id,
           fullName,
           type: 'booking',
+          callback_url: callbackUrl,
         }
       );
 
@@ -179,7 +183,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const statusParam = searchParams.get('status');
 
-    // FIXED: Validate status parameter against BookingStatus enum
+    // Validate status parameter against BookingStatus enum
     const validStatuses: BookingStatus[] = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'];
     
     let where = {};

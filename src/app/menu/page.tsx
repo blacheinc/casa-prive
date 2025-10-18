@@ -122,9 +122,8 @@ export default function MenuPage() {
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else {
-        setMessage('Order placed successfully!');
-        setCart([]);
-        setShowCheckout(false);
+        // Redirect to success page (using 'id' param to match your existing page)
+        window.location.href = `/order/success?id=${data.order.id}`;
       }
     } catch (error: any) {
       setMessage(error.message || 'Failed to place order');

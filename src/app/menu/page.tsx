@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/menu/page.tsx - PRODUCTION: DRINKS MENU ONLY
+// app/menu/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -30,53 +30,42 @@ export default function MenuPage() {
   });
   const [showCheckout, setShowCheckout] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [fetchingMenu, setFetchingMenu] = useState(true);
   const [message, setMessage] = useState('');
 
   const categories = ['ALL', 'COCKTAIL', 'WHISKEY', 'WINE', 'CHAMPAGNE', 'GIN', 'VODKA', 'RUM', 'BEER'];
 
   useEffect(() => {
-    setMenuItems([
-      // Cocktails
-      { id: '1', name: 'Casa Privé Signature', description: 'House special with premium gin, elderflower, and champagne', category: 'COCKTAIL', price: 95 },
-      { id: '2', name: 'Old Fashioned', description: 'Classic bourbon cocktail with bitters and orange', category: 'COCKTAIL', price: 85 },
-      { id: '3', name: 'Espresso Martini', description: 'Vodka, coffee liqueur, and fresh espresso', category: 'COCKTAIL', price: 90 },
-      { id: '4', name: 'Mojito Premium', description: 'White rum, fresh mint, lime, and sparkling water', category: 'COCKTAIL', price: 80 },
-      
-      // Whiskey
-      { id: '5', name: 'Macallan 18', description: 'Single malt Scotch whisky, 18 years aged', category: 'WHISKEY', price: 450 },
-      { id: '6', name: 'Glenfiddich 21', description: 'Grand reserve, Caribbean rum cask finish', category: 'WHISKEY', price: 380 },
-      { id: '7', name: 'Johnnie Walker Blue', description: 'Rare casks, exceptionally smooth blend', category: 'WHISKEY', price: 320 },
-      { id: '8', name: 'Buffalo Trace Bourbon', description: 'Kentucky straight bourbon whiskey', category: 'WHISKEY', price: 120 },
-      
-      // Wine
-      { id: '9', name: 'Dom Pérignon 2012', description: 'Vintage champagne, prestigious house', category: 'WINE', price: 1200 },
-      { id: '10', name: 'Château Margaux 2015', description: 'Bordeaux red wine, premier grand cru', category: 'WINE', price: 980 },
-      { id: '11', name: 'Cloudy Bay Sauvignon', description: 'New Zealand white wine, crisp and elegant', category: 'WINE', price: 180 },
-      { id: '12', name: 'Tignanello 2018', description: 'Super Tuscan red wine, full-bodied', category: 'WINE', price: 450 },
-      
-      // Champagne
-      { id: '13', name: 'Moët & Chandon Impérial', description: 'Classic champagne, golden bottle', category: 'CHAMPAGNE', price: 280 },
-      { id: '14', name: 'Veuve Clicquot Yellow', description: 'Rich and toasty champagne', category: 'CHAMPAGNE', price: 320 },
-      { id: '15', name: 'Krug Grande Cuvée', description: 'Prestige champagne, complex blend', category: 'CHAMPAGNE', price: 850 },
-      
-      // Gin
-      { id: '16', name: 'Hendrick\'s Gin & Tonic', description: 'Scottish gin with cucumber and rose', category: 'GIN', price: 75 },
-      { id: '17', name: 'Tanqueray No. Ten', description: 'Premium London dry gin with citrus', category: 'GIN', price: 85 },
-      { id: '18', name: 'Bombay Sapphire', description: 'Classic gin with botanicals', category: 'GIN', price: 70 },
-      
-      // Vodka
-      { id: '19', name: 'Grey Goose', description: 'French premium vodka, smooth finish', category: 'VODKA', price: 90 },
-      { id: '20', name: 'Belvedere', description: 'Polish rye vodka, pure and crisp', category: 'VODKA', price: 95 },
-      
-      // Rum
-      { id: '21', name: 'Zacapa 23', description: 'Guatemalan aged rum, rich and complex', category: 'RUM', price: 150 },
-      { id: '22', name: 'Diplomatico Reserva', description: 'Venezuelan rum, smooth and sweet', category: 'RUM', price: 120 },
-      
-      // Beer
-      { id: '23', name: 'Heineken', description: 'Premium lager beer, imported', category: 'BEER', price: 30 },
-      { id: '24', name: 'Corona Extra', description: 'Mexican lager with lime', category: 'BEER', price: 35 },
-    ]);
+    fetchMenuItems();
   }, []);
+
+  const fetchMenuItems = async () => {
+    try {
+      setFetchingMenu(true);
+      const response = await fetch('/api/menu-items');
+      const data = await response.json();
+
+      if (response.ok) {
+        // Map database items to match the component interface
+        const items = data.menuItems.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description || '',
+          category: item.category,
+          price: item.price,
+        }));
+        setMenuItems(items);
+      } else {
+        console.error('Failed to fetch menu items:', data.error);
+        setMessage('Failed to load menu items. Please refresh the page.');
+      }
+    } catch (error) {
+      console.error('Error fetching menu items:', error);
+      setMessage('Failed to load menu items. Please refresh the page.');
+    } finally {
+      setFetchingMenu(false);
+    }
+  };
 
   const filteredItems = selectedCategory === 'ALL' ? menuItems : menuItems.filter(item => item.category === selectedCategory);
 
@@ -167,47 +156,65 @@ export default function MenuPage() {
           </div>
         </div>
 
-        {/* Categories */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-2 rounded text-xs font-light tracking-wider transition ${
-                selectedCategory === category
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-slate-800/50 border border-emerald-700/30 text-gray-300 hover:bg-slate-700'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
+        {/* Loading State */}
+        {fetchingMenu && (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent"></div>
+            <p className="text-gray-300 mt-4 font-light">Loading menu...</p>
+          </div>
+        )}
 
-        {/* Drinks Items */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {filteredItems.map((item) => (
-            <div key={item.id} className="bg-slate-800/50 border border-emerald-700/30 p-6 rounded hover:border-yellow-500/50 transition">
-              <div className="mb-4">
-                <span className="inline-block px-3 py-1 bg-emerald-900/50 text-emerald-400 text-xs rounded-full mb-2 font-light">
-                  {item.category}
-                </span>
-                <h3 className="text-lg font-light text-yellow-500 mb-2">{item.name}</h3>
-                <p className="text-gray-400 text-xs mb-4 font-light">{item.description}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xl font-light text-emerald-400">GHS {item.price}</span>
-                  <button
-                    onClick={() => addToCart(item)}
-                    className="px-4 py-2 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-500 transition flex items-center gap-2 font-light"
-                  >
-                    <Plus size={14} />
-                    ADD
-                  </button>
-                </div>
-              </div>
+        {/* Categories */}
+        {!fetchingMenu && (
+          <>
+            <div className="flex flex-wrap justify-center gap-3 mb-12">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-6 py-2 rounded text-xs font-light tracking-wider transition ${
+                    selectedCategory === category
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-slate-800/50 border border-emerald-700/30 text-gray-300 hover:bg-slate-700'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
+
+            {/* Drinks Items */}
+            {filteredItems.length > 0 ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                {filteredItems.map((item) => (
+                  <div key={item.id} className="bg-slate-800/50 border border-emerald-700/30 p-6 rounded hover:border-yellow-500/50 transition">
+                    <div className="mb-4">
+                      <span className="inline-block px-3 py-1 bg-emerald-900/50 text-emerald-400 text-xs rounded-full mb-2 font-light">
+                        {item.category}
+                      </span>
+                      <h3 className="text-lg font-light text-yellow-500 mb-2">{item.name}</h3>
+                      <p className="text-gray-400 text-xs mb-4 font-light">{item.description}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xl font-light text-emerald-400">GHS {item.price}</span>
+                        <button
+                          onClick={() => addToCart(item)}
+                          className="px-4 py-2 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-500 transition flex items-center gap-2 font-light"
+                        >
+                          <Plus size={14} />
+                          ADD
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-400 font-light">No items found in this category.</p>
+              </div>
+            )}
+          </>
+        )}
 
         {/* Cart Summary */}
         {cart.length > 0 && (

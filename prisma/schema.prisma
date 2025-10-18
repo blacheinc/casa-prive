@@ -179,12 +179,21 @@ enum OrderStatus {
 }
 
 enum MenuCategory {
+  // Food Categories
   APPETIZER
   MAIN_COURSE
   DESSERT
-  BEVERAGE
-  COCKTAIL
-  WINE
+  
+  // Drink Categories
+  BEVERAGE      // General beverages (coffee, juice, etc.)
+  COCKTAIL      // Mixed drinks & cocktails
+  WINE          // Red, white, rosé wines
+  WHISKEY       // Whiskey, bourbon, scotch
+  CHAMPAGNE     // Champagne & sparkling wines
+  GIN           // Gin & gin-based drinks
+  VODKA         // Vodka & vodka-based drinks
+  RUM           // Rum & rum-based drinks
+  BEER          // Beer & lager
 }
 
 enum MemberStatus {

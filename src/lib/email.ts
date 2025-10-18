@@ -4,8 +4,8 @@ import path from 'path';
 
 /**
  * Email Service for Casa Privé
- * Handles all transactional emails with luxury design
- * Optimized for both light and dark mode email clients
+ * Handles all transactional emails with luxury emerald & gold design
+ * Matching the Casa Privé brand identity
  */
 export class EmailService {
   private transporter;
@@ -26,7 +26,7 @@ export class EmailService {
   }
 
   /**
-   * Get premium email styles optimized for dark mode
+   * Get premium email styles with emerald & gold theme
    */
   private getEmailStyles(): string {
     return `
@@ -41,14 +41,16 @@ export class EmailService {
         font-family: 'Georgia', 'Times New Roman', serif;
         line-height: 1.8;
         color: #1a1a1a;
-        background: #0f0f0f;
+        background: #0f172a;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        font-weight: 300;
+        letter-spacing: 0.015em;
       }
 
       /* Email Wrapper */
       .email-wrapper {
-        background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+        background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%);
         padding: 50px 20px;
       }
 
@@ -59,14 +61,25 @@ export class EmailService {
         background: #ffffff;
         border-radius: 0;
         overflow: hidden;
-        box-shadow: 0 25px 70px rgba(212, 175, 55, 0.2);
+        box-shadow: 0 25px 70px rgba(16, 185, 129, 0.3);
       }
 
       /* Header Section */
       .header {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         padding: 50px 40px;
-        border-bottom: 3px solid #d4af37;
+        border-bottom: 3px solid #10b981;
+        position: relative;
+      }
+
+      .header::after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #10b981 0%, #d4af37 100%);
       }
 
       .logo-section {
@@ -81,6 +94,7 @@ export class EmailService {
         height: 65px;
         margin-right: 20px;
         object-fit: contain;
+        filter: drop-shadow(0 4px 6px rgba(16, 185, 129, 0.3));
       }
 
       .brand-container {
@@ -90,8 +104,11 @@ export class EmailService {
       .brand-name {
         font-size: 34px;
         font-weight: 300;
-        letter-spacing: 4px;
-        color: #d4af37;
+        letter-spacing: 5px;
+        background: linear-gradient(135deg, #10b981 0%, #d4af37 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         text-transform: uppercase;
         font-family: 'Garamond', 'Georgia', serif;
         margin-bottom: 8px;
@@ -100,7 +117,7 @@ export class EmailService {
       .subtitle {
         font-size: 11px;
         letter-spacing: 2.5px;
-        color: #c0c0c0;
+        color: #94a3b8;
         text-transform: uppercase;
         font-family: 'Arial', sans-serif;
         font-weight: 300;
@@ -115,59 +132,65 @@ export class EmailService {
 
       .greeting {
         font-size: 32px;
-        color: #2a2a2a;
+        color: #0f172a;
         margin-bottom: 30px;
         font-weight: 300;
-        letter-spacing: 1.5px;
+        letter-spacing: 2px;
         line-height: 1.4;
       }
 
       .intro-text {
         font-size: 16px;
-        color: #333333;
+        color: #334155;
         margin-bottom: 35px;
         line-height: 1.9;
+        font-weight: 300;
       }
 
       /* Divider */
       .divider {
         height: 2px;
-        background: linear-gradient(to right, transparent, #d4af37, transparent);
+        background: linear-gradient(to right, transparent, #10b981, #d4af37, transparent);
         margin: 40px 0;
       }
 
       /* Details Card */
       .details-card {
-        background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
         padding: 40px;
         margin: 35px 0;
-        border-left: 5px solid #d4af37;
+        border-left: 5px solid #10b981;
         border-radius: 0;
+        box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1);
       }
 
       .details-title {
         font-size: 22px;
-        color: #d4af37;
+        background: linear-gradient(135deg, #10b981 0%, #d4af37 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin-bottom: 35px;
-        letter-spacing: 1.5px;
+        letter-spacing: 2px;
         text-transform: uppercase;
         font-weight: 300;
       }
 
       /* Info Box */
       .info-box {
-        background: linear-gradient(135deg, #fffdf7 0%, #fff9e6 100%);
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
         border: 2px solid #d4af37;
         padding: 35px;
         margin: 35px 0;
         border-radius: 0;
+        box-shadow: 0 4px 6px -1px rgba(212, 175, 55, 0.1);
       }
 
       .info-title {
         font-size: 17px;
-        color: #d4af37;
+        color: #b8923b;
         margin-bottom: 25px;
-        letter-spacing: 1.5px;
+        letter-spacing: 2px;
         text-transform: uppercase;
         font-family: 'Arial', sans-serif;
         font-weight: 500;
@@ -183,17 +206,17 @@ export class EmailService {
         padding: 12px 0;
         padding-left: 30px;
         position: relative;
-        color: #333333;
+        color: #64748b;
         font-size: 15px;
         line-height: 1.7;
-        font-weight: 400;
+        font-weight: 300;
       }
 
       .info-list li:before {
         content: '◆';
         position: absolute;
         left: 0;
-        color: #d4af37;
+        color: #10b981;
         font-size: 11px;
         top: 13px;
       }
@@ -202,18 +225,19 @@ export class EmailService {
       .cta-button {
         display: inline-block;
         padding: 20px 55px;
-        background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
-        color: #1a1a1a;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff;
         text-decoration: none;
         text-transform: uppercase;
-        letter-spacing: 2.5px;
+        letter-spacing: 3px;
         font-size: 13px;
-        font-weight: 700;
+        font-weight: 300;
         border-radius: 0;
         margin: 30px 0;
         font-family: 'Arial', sans-serif;
-        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
         transition: all 0.3s ease;
+        border: 1px solid rgba(212, 175, 55, 0.3);
       }
 
       /* Item List (for orders) */
@@ -225,7 +249,7 @@ export class EmailService {
 
       .item-list li {
         padding: 18px 0;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid #e2e8f0;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -242,49 +266,60 @@ export class EmailService {
 
       .item-name {
         font-size: 16px;
-        color: #2a2a2a;
+        color: #64748b;
         font-weight: 600;
         margin-bottom: 6px;
+        letter-spacing: 0.5px;
       }
 
       .item-details {
         font-size: 14px;
-        color: #666666;
+        color: #64748b;
         margin-top: 6px;
-        font-weight: 400;
+        font-weight: 300;
       }
 
       .item-price {
         font-size: 16px;
-        color: #d4af37;
-        font-weight: 600;
+        background: linear-gradient(135deg, #10b981 0%, #d4af37 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 500;
         margin-left: 20px;
       }
 
       .total-amount {
         font-size: 26px;
-        color: #d4af37;
+        background: linear-gradient(135deg, #10b981 0%, #d4af37 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         font-weight: 300;
-        letter-spacing: 1.5px;
+        letter-spacing: 2px;
         text-align: right;
         margin-top: 25px;
         padding-top: 25px;
-        border-top: 2px solid #d4af37;
+        border-top: 2px solid;
+        border-image: linear-gradient(90deg, #10b981, #d4af37) 1;
       }
 
       /* Footer */
       .footer {
-        background: #1a1a1a;
-        color: #c0c0c0;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #94a3b8;
         padding: 45px 40px;
         text-align: center;
-        border-top: 1px solid #333;
+        border-top: 1px solid #334155;
       }
 
       .footer-brand {
         font-size: 20px;
-        color: #d4af37;
-        letter-spacing: 3px;
+        background: linear-gradient(135deg, #10b981 0%, #d4af37 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: 4px;
         margin-bottom: 15px;
         text-transform: uppercase;
         font-weight: 300;
@@ -292,15 +327,15 @@ export class EmailService {
 
       .accent-line {
         height: 1px;
-        background: linear-gradient(to right, transparent, #d4af37, transparent);
+        background: linear-gradient(to right, transparent, #10b981, #d4af37, transparent);
         margin: 20px auto;
         width: 220px;
       }
 
       .footer-tagline {
         font-size: 12px;
-        letter-spacing: 1.5px;
-        color: #a8a8a8;
+        letter-spacing: 2px;
+        color: #64748b;
         margin: 18px 0;
         text-transform: uppercase;
         font-style: italic;
@@ -309,9 +344,10 @@ export class EmailService {
 
       .footer-text {
         font-size: 13px;
-        color: #999;
+        color: #475569;
         margin: 8px 0;
         line-height: 1.6;
+        font-weight: 300;
       }
 
       /* Responsive */
@@ -437,7 +473,7 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Confirmation No.</div>
-                          <div class="item-details">${booking.id.slice(-4).toUpperCase()}</div>
+                          <div class="item-details">${booking.id.slice(-8).toUpperCase()}</div>
                         </div>
                       </li>
                       
@@ -616,7 +652,7 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Order No.</div>
-                          <div class="item-details">${order.id.slice(-4).toUpperCase()}</div>
+                          <div class="item-details">${order.id.slice(-8).toUpperCase()}</div>
                         </div>
                       </li>
                       

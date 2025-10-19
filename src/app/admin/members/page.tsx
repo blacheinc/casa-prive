@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Crown, Search, Mail, Phone, QrCode } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 interface Member {
@@ -18,6 +19,7 @@ interface Member {
 export default function AdminMembers() {
     const [members, setMembers] = useState<Member[]>([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
     const [search, setSearch] = useState('');
     const [showCardModal, setShowCardModal] = useState(false);
     const [selectedMember, setSelectedMember] = useState<Member | null>(null);
@@ -65,10 +67,10 @@ export default function AdminMembers() {
                     <p className="text-gray-400">Manage Casa Privé members</p>
                 </div>
                 <button
-                    onClick={fetchMembers}
+                    onClick={() => router.push('/membership')}
                     className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition"
                 >
-                    Refresh
+                    Add Member
                 </button>
             </div>
 

@@ -87,8 +87,8 @@ export default function Footer() {
                             <ul className="space-y-3">
                                 <li className="flex items-center gap-2 text-gray-400 text-xs">
                                     <Mail size={14} className="text-yellow-500 flex-shrink-0" />
-                                    <a href="mailto:info@casaprive.com" className="hover:text-emerald-400 font-light">
-                                        info@casaprive.com
+                                    <a href="mailto:casaprive2025@gmail.com" className="hover:text-emerald-400 font-light">
+                                        casaprive2025@gmail.com
                                     </a>
                                 </li>
                                 <li className="flex items-center gap-2 text-gray-400 text-xs">

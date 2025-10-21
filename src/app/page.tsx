@@ -134,7 +134,7 @@ export default function HomePage() {
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                 style={{
-                  backgroundImage: `url('https://images.unsplash.com/photo-1560508177-38d89e931096?q=80&w=2070&auto=format&fit=crop')`,
+                  backgroundImage: `url('https://images.unsplash.com/photo-1635547018520-043b6f0e1a36?q=80&w=2670&auto=format&fit=crop')`,
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent" />

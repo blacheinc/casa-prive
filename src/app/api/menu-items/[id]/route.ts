@@ -43,17 +43,12 @@ export async function PATCH(
     // Validate category if provided
     if (category) {
       const validCategories: MenuCategory[] = [
-        "BEER",
         "CHAMPAGNE",
         "COCKTAIL",
         "COGNAC",
-        "GIN",
-        "RUM",
         "TEQUILA",
-        "VODKA",
-        "WHISKEY",
       ];
-      
+
       if (!validCategories.includes(category as MenuCategory)) {
         return NextResponse.json(
           { error: "Invalid category" },

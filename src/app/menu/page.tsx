@@ -33,7 +33,7 @@ export default function MenuPage() {
   const [fetchingMenu, setFetchingMenu] = useState(true);
   const [message, setMessage] = useState('');
 
-  const categories = ['ALL', 'BEER', 'CHAMPAGNE', 'COCKTAIL', 'COGNAC', 'GIN', 'RUM', 'TEQUILA', 'VODKA', 'WHISKEY'];
+  const categories = ['ALL', 'CHAMPAGNE', 'COCKTAIL', 'COGNAC','TEQUILA'];
 
   useEffect(() => {
     fetchMenuItems();

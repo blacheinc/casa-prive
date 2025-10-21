@@ -17,15 +17,10 @@ interface MenuItem {
 
 const CATEGORIES = [
   'ALL',
-  'BEER',
   'CHAMPAGNE',
   'COCKTAIL',
   'COGNAC',
-  'GIN',
-  'RUM',
   'TEQUILA',
-  'VODKA',
-  'WHISKEY',
 ];
 
 export default function AdminMenuItems() {
@@ -310,15 +305,10 @@ export default function AdminMenuItems() {
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
                   >
-                    <option value="BEER">Beer</option>
                     <option value="CHAMPAGNE">Champagne</option>
                     <option value="COCKTAIL">Cocktail</option>
                     <option value="COGNAC">Cognac</option>
-                    <option value="GIN">Gin</option>
-                    <option value="RUM">Rum</option>
                     <option value="TEQUILA">Tequila</option>
-                    <option value="VODKA">Vodka</option>
-                    <option value="WHISKEY">Whiskey</option>
                   </select>
                 </div>
 

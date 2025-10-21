@@ -17,15 +17,10 @@ export async function POST(request: NextRequest) {
 
     // Validate category
     const validCategories: MenuCategory[] = [
-      "BEER",
       "CHAMPAGNE",
       "COCKTAIL",
       "COGNAC",
-      "GIN",
-      "RUM",
       "TEQUILA",
-      "VODKA",
-      "WHISKEY",
     ];
 
     if (!validCategories.includes(category as MenuCategory)) {
@@ -60,15 +55,10 @@ export async function GET(request: NextRequest) {
 
     // FIXED: Validate category parameter against MenuCategory enum
     const validCategories: MenuCategory[] = [
-      "BEER",
       "CHAMPAGNE",
       "COCKTAIL",
       "COGNAC",
-      "GIN",
-      "RUM",
       "TEQUILA",
-      "VODKA",
-      "WHISKEY",
     ];
 
     let where = {};

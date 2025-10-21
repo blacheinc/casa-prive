@@ -21,15 +21,10 @@ export const ORDER_STATUS = {
 } as const;
 
 export const MENU_CATEGORIES = {
-  BEER: 'Beer',
   CHAMPAGNE: 'Champagne',
   COCKTAIL: 'Cocktail',
   COGNAC: 'Cognac',
-  GIN: 'Gin',
-  RUM: 'Rum',
   TEQUILA: 'Tequila',
-  VODKA: 'Vodka',
-  WHISKEY: 'Whiskey',
 } as const;
 
 export const FEEDBACK_CATEGORIES = {

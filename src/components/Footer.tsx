@@ -1,6 +1,6 @@
-// components/Footer.tsx - BOXED DESIGN
+// components/Footer.tsx - UPDATED WITH WORKING LINKS
 import Link from 'next/link';
-import { Crown, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 import Image from 'next/image';
 
 export default function Footer() {
@@ -41,11 +41,6 @@ export default function Footer() {
                                         View Menu
                                     </Link>
                                 </li>
-                                {/* <li>
-                                    <Link href="/membership" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
-                                        Membership
-                                    </Link>
-                                </li> */}
                                 <li>
                                     <Link href="/rules" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
                                         Event Guidelines
@@ -69,14 +64,14 @@ export default function Footer() {
                                     </Link>
                                 </li>
                                 <li>
-                                    <a href="#" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
+                                    <Link href="/faq" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
                                         FAQs
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <a href="#" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
+                                    <Link href="/privacy" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
                                         Privacy Policy
-                                    </a>
+                                    </Link>
                                 </li>
                             </ul>
                         </div>

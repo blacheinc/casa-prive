@@ -15,7 +15,8 @@ import {
     Settings,
     Menu,
     X,
-    LogOut
+    LogOut,
+    Table
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -60,6 +61,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { name: 'Bookings', href: '/admin/bookings', icon: Calendar },
         { name: 'Orders', href: '/admin/orders', icon: ShoppingBag },
         { name: 'Members', href: '/admin/members', icon: Crown },
+        { name: 'Tables', href: '/admin/packages', icon: Table },
+        { name: 'Menu', href: '/admin/menu-items', icon: Menu },
         { name: 'Waitlist', href: '/admin/waitlist', icon: Clock },
         { name: 'Feedback', href: '/admin/feedback', icon: MessageSquare },
         { name: 'Settings', href: '/admin/settings', icon: Settings },

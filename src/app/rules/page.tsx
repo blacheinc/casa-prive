@@ -17,24 +17,87 @@ export default function RulesPage() {
           <div className="h-px w-24 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mx-auto mt-6" />
         </div>
 
-        {/* Entry & Dress Code */}
+        {/* Dress Code - Featured */}
+        <div className="mb-12">
+          <div className="bg-gradient-to-br from-slate-800/80 to-emerald-900/30 border-2 border-yellow-500/50 p-8 rounded">
+            <div className="flex items-center gap-3 mb-6">
+              <Shirt className="w-8 h-8 text-yellow-500" />
+              <h2 className="text-3xl font-light text-yellow-500">
+                Dress Code: Refined Luxury Attire
+              </h2>
+            </div>
+            
+            <p className="text-gray-200 mb-6 text-sm leading-relaxed font-light">
+              To preserve the prestige and exclusivity of Casa Privé, every guest is expected to embody 
+              sophistication, confidence, and effortless elegance. Our environment reflects refined luxury — 
+              your style should too.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              {/* Gentlemen */}
+              <div className="bg-slate-900/50 p-6 rounded border border-emerald-700/30">
+                <h3 className="text-xl font-light text-emerald-400 mb-4">Gentlemen</h3>
+                <ul className="space-y-3 text-gray-300 text-sm font-light">
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-1">✓</span>
+                    <span>Tailored or well-fitted shirts, linen or silk tops, elegant trousers, or dress jeans</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-1">✓</span>
+                    <span>Designer polos or turtlenecks when styled with refinement</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-1">✓</span>
+                    <span>Loafers, Chelsea boots, or luxury sneakers in immaculate condition</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-400 mt-1">✗</span>
+                    <span><strong>Strictly no</strong> flip-flops, shorts, athletic wear, or distressed clothing</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Ladies */}
+              <div className="bg-slate-900/50 p-6 rounded border border-emerald-700/30">
+                <h3 className="text-xl font-light text-emerald-400 mb-4">Ladies</h3>
+                <ul className="space-y-3 text-gray-300 text-sm font-light">
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-1">✓</span>
+                    <span>Elegant evening wear, cocktail dresses, or chic tailored sets with glamour</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-1">✓</span>
+                    <span><strong>Heels are mandatory.</strong> No flats, slippers, or casual sandals</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-1">✓</span>
+                    <span>Tasteful accessories, polished hair, and refined makeup encouraged</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="bg-red-900/20 border border-red-500/40 rounded p-4">
+              <p className="text-red-300 text-sm font-light text-center">
+                <strong>Casa Privé represents modern opulence and timeless class.</strong> Guests not meeting 
+                the required dress code will be respectfully denied entry to maintain the ambiance of exclusivity.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Entry Requirements */}
         <div className="mb-12">
           <h2 className="text-2xl font-light text-emerald-400 mb-6 flex items-center gap-3">
-            <Shirt className="w-6 h-6" />
-            Entry & Dress Code
+            <Shield className="w-6 h-6" />
+            Entry Requirements
           </h2>
 
           <div className="space-y-6">
             <RuleCard
-              icon={<Shirt className="w-5 h-5" />}
-              title="Dress to Party"
-              description="Look good, feel good! Smart casual or stylish attire recommended. No torn clothing or offensive graphics. Dress to impress and have a good time."
-            />
-
-            <RuleCard
               icon={<Clock className="w-5 h-5" />}
               title="Age Requirement"
-              description="18+ only. Valid ID required at the door. No exceptions."
+              description="21+ only. Valid ID required at the door. No exceptions."
               critical
             />
 
@@ -114,9 +177,13 @@ export default function RulesPage() {
             <ul className="space-y-3 text-gray-300 text-sm font-light">
               <li className="flex items-start gap-2">
                 <span className="text-red-400 mt-1">•</span>
-                <span><strong>No refunds</strong></span>
+                <span><strong>No-shows:</strong> No refund</span>
               </li>
               {/* <li className="flex items-start gap-2">
+                <span className="text-red-400 mt-1">•</span>
+                <span><strong>48+ hours before event:</strong> Full refund minus 10% processing fee</span>
+              </li>
+              <li className="flex items-start gap-2">
                 <span className="text-red-400 mt-1">•</span>
                 <span><strong>24-48 hours before event:</strong> 50% refund</span>
               </li>

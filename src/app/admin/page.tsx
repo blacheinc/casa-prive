@@ -262,7 +262,7 @@ export default function AdminDashboard() {
               <p className="text-gray-400 text-sm">Manage payments</p>
             </a>
             <a
-              href={`https://docs.google.com/spreadsheets/d/${process.env.GOOGLE_SHEET_ID}`}
+              href={`https://docs.google.com/spreadsheets/d/1K4cxRLZJ4UvdEejBJxzQSy-KKNq_vba1LbR1qyLcdkU`}
               target="_blank"
               className="bg-slate-800 p-6 rounded-lg border border-yellow-700/30 hover:border-yellow-500/50 transition text-center"
             >

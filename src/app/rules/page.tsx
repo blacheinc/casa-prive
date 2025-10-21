@@ -114,9 +114,9 @@ export default function RulesPage() {
             <ul className="space-y-3 text-gray-300 text-sm font-light">
               <li className="flex items-start gap-2">
                 <span className="text-red-400 mt-1">•</span>
-                <span><strong>48+ hours before event:</strong> Full refund minus 10% processing fee</span>
+                <span><strong>No refunds</strong></span>
               </li>
-              <li className="flex items-start gap-2">
+              {/* <li className="flex items-start gap-2">
                 <span className="text-red-400 mt-1">•</span>
                 <span><strong>24-48 hours before event:</strong> 50% refund</span>
               </li>
@@ -127,7 +127,7 @@ export default function RulesPage() {
               <li className="flex items-start gap-2">
                 <span className="text-red-400 mt-1">•</span>
                 <span><strong>No-shows:</strong> No refund</span>
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>

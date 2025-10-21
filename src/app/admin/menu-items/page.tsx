@@ -17,12 +17,15 @@ interface MenuItem {
 
 const CATEGORIES = [
   'ALL',
-  'APPETIZER',
-  'MAIN_COURSE',
-  'DESSERT',
-  'BEVERAGE',
+  'BEER',
+  'CHAMPAGNE',
   'COCKTAIL',
-  'WINE',
+  'COGNAC',
+  'GIN',
+  'RUM',
+  'TEQUILA',
+  'VODKA',
+  'WHISKEY',
 ];
 
 export default function AdminMenuItems() {
@@ -60,11 +63,11 @@ export default function AdminMenuItems() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       const url = editingItem ? `/api/menu-items/${editingItem.id}` : '/api/menu-items';
       const method = editingItem ? 'PATCH' : 'POST';
-      
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -189,11 +192,10 @@ export default function AdminMenuItems() {
               <button
                 key={category}
                 onClick={() => setFilter(category)}
-                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${
-                  filter === category
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${filter === category
                     ? 'bg-emerald-600 text-white'
                     : 'bg-slate-700 text-gray-400 hover:bg-slate-600'
-                }`}
+                  }`}
               >
                 {category.replace('_', ' ')}
               </button>
@@ -207,11 +209,10 @@ export default function AdminMenuItems() {
         {filteredItems.map((item) => (
           <div key={item.id} className="bg-slate-800 rounded-lg p-6 border border-emerald-700/30">
             <div className="flex items-start justify-between mb-4">
-              <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                item.isAvailable
+              <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${item.isAvailable
                   ? 'bg-emerald-900/50 text-emerald-400'
                   : 'bg-red-900/50 text-red-400'
-              }`}>
+                }`}>
                 {item.category.replace('_', ' ')}
               </span>
               <div className="flex gap-2">
@@ -309,12 +310,15 @@ export default function AdminMenuItems() {
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
                   >
-                    <option value="APPETIZER">Appetizer</option>
-                    <option value="MAIN_COURSE">Main Course</option>
-                    <option value="DESSERT">Dessert</option>
-                    <option value="BEVERAGE">Beverage</option>
+                    <option value="BEER">Beer</option>
+                    <option value="CHAMPAGNE">Champagne</option>
                     <option value="COCKTAIL">Cocktail</option>
-                    <option value="WINE">Wine</option>
+                    <option value="COGNAC">Cognac</option>
+                    <option value="GIN">Gin</option>
+                    <option value="RUM">Rum</option>
+                    <option value="TEQUILA">Tequila</option>
+                    <option value="VODKA">Vodka</option>
+                    <option value="WHISKEY">Whiskey</option>
                   </select>
                 </div>
 

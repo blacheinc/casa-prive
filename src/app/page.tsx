@@ -1,4 +1,4 @@
-// app/page.tsx - UPDATED WITH LOGO
+// app/page.tsx - UPDATED WITHOUT WINE
 import Link from 'next/link';
 import { Calendar, Users, Sparkles, Shield, Wine, ArrowRight, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
@@ -40,7 +40,7 @@ export default function HomePage() {
           </p>
 
           <p className="text-base md:text-lg text-gray-200 mb-12 max-w-2xl leading-relaxed font-light animate-fade-in-up animation-delay-400">
-            Immerse yourself in an evening of premium cocktails, rare spirits, and world-class wines.
+            Immerse yourself in an evening of premium cocktails, rare spirits, and luxury champagne.
             A sophisticated sanctuary for discerning palates.
           </p>
 
@@ -72,7 +72,7 @@ export default function HomePage() {
           <div className="text-center mb-12">
             <Wine className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
             <h2 className="text-3xl md:text-4xl font-light mb-4">
-              Artisanal <span className="text-yellow-500">Libations</span>
+              Premium <span className="text-yellow-500">Spirits</span>
             </h2>
             <p className="text-gray-300 font-light text-sm max-w-2xl mx-auto">
               Master mixologists craft extraordinary cocktails using rare spirits and the finest ingredients
@@ -94,7 +94,7 @@ export default function HomePage() {
                 <div className="h-px w-20 bg-yellow-500 mb-4 mx-auto" />
                 <h3 className="text-3xl md:text-4xl font-light mb-3 text-white">Premium Spirits & Cocktails</h3>
                 <p className="text-gray-200 font-light text-base">
-                  From signature cocktails to rare whiskeys, every pour is an experience crafted to perfection
+                  From signature cocktails to rare tequilas and cognacs, every pour is an experience crafted to perfection
                 </p>
               </div>
             </div>
@@ -113,7 +113,7 @@ export default function HomePage() {
               <div className="absolute bottom-0 left-0 p-8">
                 <div className="h-px w-16 bg-yellow-500 mb-4" />
                 <h3 className="text-2xl md:text-3xl font-light text-white mb-2">Fine Spirits</h3>
-                <p className="text-gray-200 font-light text-sm">Curated collection of premium whiskeys and cognacs</p>
+                <p className="text-gray-200 font-light text-sm">Premium tequilas, cognacs, and rare spirits</p>
               </div>
             </div>
 
@@ -134,12 +134,12 @@ export default function HomePage() {
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                 style={{
-                  backgroundImage: `url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=2070&auto=format&fit=crop')`,
+                  backgroundImage: `url('https://images.unsplash.com/photo-1560508177-38d89e931096?q=80&w=2070&auto=format&fit=crop')`,
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 p-6">
-                <h4 className="text-lg font-light text-white">Premium Wines</h4>
+                <h4 className="text-lg font-light text-white">Premium Tequila</h4>
               </div>
             </div>
 
@@ -173,7 +173,7 @@ export default function HomePage() {
             <BenefitCard
               icon={<Wine className="w-10 h-10" />}
               title="Premium Selection"
-              description="Curated collection of rare spirits, craft cocktails, and world-class wines."
+              description="Curated collection of rare spirits, craft cocktails, and luxury champagne."
             />
             <BenefitCard
               icon={<Users className="w-10 h-10" />}

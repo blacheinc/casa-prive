@@ -1,7 +1,7 @@
 // app/api/menu-items/route.ts - FIXED TYPE ERROR
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { MenuCategory } from '@prisma/client';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { MenuCategory } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,26 +10,26 @@ export async function POST(request: NextRequest) {
 
     if (!name || !category || price === undefined) {
       return NextResponse.json(
-        { error: 'Name, category, and price are required' },
+        { error: "Name, category, and price are required" },
         { status: 400 }
       );
     }
 
     // Validate category
     const validCategories: MenuCategory[] = [
-      'APPETIZER',
-      'MAIN_COURSE', 
-      'DESSERT',
-      'BEVERAGE',
-      'COCKTAIL',
-      'WINE'
+      "BEER",
+      "CHAMPAGNE",
+      "COCKTAIL",
+      "COGNAC",
+      "GIN",
+      "RUM",
+      "TEQUILA",
+      "VODKA",
+      "WHISKEY",
     ];
 
     if (!validCategories.includes(category as MenuCategory)) {
-      return NextResponse.json(
-        { error: 'Invalid category' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid category" }, { status: 400 });
     }
 
     const menuItem = await prisma.menuItem.create({
@@ -45,9 +45,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ menuItem }, { status: 201 });
   } catch (error) {
-    console.error('Create menu item error:', error);
+    console.error("Create menu item error:", error);
     return NextResponse.json(
-      { error: 'Failed to create menu item' },
+      { error: "Failed to create menu item" },
       { status: 500 }
     );
   }
@@ -56,36 +56,39 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const categoryParam = searchParams.get('category');
+    const categoryParam = searchParams.get("category");
 
     // FIXED: Validate category parameter against MenuCategory enum
     const validCategories: MenuCategory[] = [
-      'APPETIZER',
-      'MAIN_COURSE',
-      'DESSERT',
-      'BEVERAGE',
-      'COCKTAIL',
-      'WINE'
+      "BEER",
+      "CHAMPAGNE",
+      "COCKTAIL",
+      "COGNAC",
+      "GIN",
+      "RUM",
+      "TEQUILA",
+      "VODKA",
+      "WHISKEY",
     ];
 
     let where = {};
-    if (categoryParam && validCategories.includes(categoryParam as MenuCategory)) {
+    if (
+      categoryParam &&
+      validCategories.includes(categoryParam as MenuCategory)
+    ) {
       where = { category: categoryParam as MenuCategory };
     }
 
     const menuItems = await prisma.menuItem.findMany({
       where,
-      orderBy: [
-        { category: 'asc' },
-        { name: 'asc' }
-      ],
+      orderBy: [{ category: "asc" }, { name: "asc" }],
     });
 
     return NextResponse.json({ menuItems });
   } catch (error) {
-    console.error('Get menu items error:', error);
+    console.error("Get menu items error:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch menu items' },
+      { error: "Failed to fetch menu items" },
       { status: 500 }
     );
   }

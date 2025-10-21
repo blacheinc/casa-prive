@@ -150,7 +150,7 @@ export default function MenuPage() {
               Drinks Menu
             </h1>
             <p className="text-gray-200 font-light text-sm max-w-xl">
-              Premium spirits, craft cocktails, and world-class wines
+              Premium spirits, craft cocktails, and world-class cognacs
             </p>
           </div>
         </div>

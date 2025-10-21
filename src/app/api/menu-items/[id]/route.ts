@@ -1,7 +1,7 @@
 // app/api/menu-items/[id]/route.ts - FIXED TYPE ERROR
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { MenuCategory } from '@prisma/client';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { MenuCategory } from "@prisma/client";
 
 export async function GET(
   request: NextRequest,
@@ -9,23 +9,23 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    
+
     const menuItem = await prisma.menuItem.findUnique({
       where: { id },
     });
 
     if (!menuItem) {
       return NextResponse.json(
-        { error: 'Menu item not found' },
+        { error: "Menu item not found" },
         { status: 404 }
       );
     }
 
     return NextResponse.json({ menuItem });
   } catch (error) {
-    console.error('Get menu item error:', error);
+    console.error("Get menu item error:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch menu item' },
+      { error: "Failed to fetch menu item" },
       { status: 500 }
     );
   }
@@ -43,17 +43,20 @@ export async function PATCH(
     // Validate category if provided
     if (category) {
       const validCategories: MenuCategory[] = [
-        'APPETIZER',
-        'MAIN_COURSE',
-        'DESSERT',
-        'BEVERAGE',
-        'COCKTAIL',
-        'WINE'
+        "BEER",
+        "CHAMPAGNE",
+        "COCKTAIL",
+        "COGNAC",
+        "GIN",
+        "RUM",
+        "TEQUILA",
+        "VODKA",
+        "WHISKEY",
       ];
-
+      
       if (!validCategories.includes(category as MenuCategory)) {
         return NextResponse.json(
-          { error: 'Invalid category' },
+          { error: "Invalid category" },
           { status: 400 }
         );
       }
@@ -73,9 +76,9 @@ export async function PATCH(
 
     return NextResponse.json({ menuItem });
   } catch (error) {
-    console.error('Update menu item error:', error);
+    console.error("Update menu item error:", error);
     return NextResponse.json(
-      { error: 'Failed to update menu item' },
+      { error: "Failed to update menu item" },
       { status: 500 }
     );
   }
@@ -87,16 +90,16 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    
+
     await prisma.menuItem.delete({
       where: { id },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Delete menu item error:', error);
+    console.error("Delete menu item error:", error);
     return NextResponse.json(
-      { error: 'Failed to delete menu item' },
+      { error: "Failed to delete menu item" },
       { status: 500 }
     );
   }

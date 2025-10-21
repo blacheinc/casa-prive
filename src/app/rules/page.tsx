@@ -1,5 +1,5 @@
-// app/rules/page.tsx - PRODUCTION
-import { Shield, Users, Clock, Shirt, Wine, Camera, Phone, AlertCircle } from 'lucide-react';
+// app/rules/page.tsx - NIGHTCLUB VERSION
+import { Shield, Users, Clock, Shirt, Wine, Camera, AlertCircle, Music } from 'lucide-react';
 
 export default function RulesPage() {
   return (
@@ -7,59 +7,42 @@ export default function RulesPage() {
       <div className="max-w-5xl mx-auto px-4">
         {/* Hero */}
         <div className="text-center mb-12">
-          <Shield className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+          <Music className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
           <h1 className="text-4xl md:text-5xl font-light mb-4 text-white">
-            Event Guidelines
+            House Rules
           </h1>
           <p className="text-gray-300 font-light text-sm">
-            Ensuring an exceptional experience for all members
+            Let&apos;s party responsibly and keep the vibes right
           </p>
           <div className="h-px w-24 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mx-auto mt-6" />
         </div>
 
-        {/* Event Rules */}
+        {/* Entry & Dress Code */}
         <div className="mb-12">
           <h2 className="text-2xl font-light text-emerald-400 mb-6 flex items-center gap-3">
-            <Shield className="w-6 h-6" />
-            Event Rules
+            <Shirt className="w-6 h-6" />
+            Entry & Dress Code
           </h2>
 
           <div className="space-y-6">
             <RuleCard
               icon={<Shirt className="w-5 h-5" />}
-              title="Dress to Impress"
-              description="Elegant attire is required for all events. Business formal, cocktail attire, or evening wear is expected. No casual wear, sportswear, or sneakers."
-              critical
+              title="Dress to Party"
+              description="Look good, feel good! Smart casual or stylish attire recommended. No torn clothing or offensive graphics. Dress to impress and have a good time."
             />
 
             <RuleCard
               icon={<Clock className="w-5 h-5" />}
-              title="Punctuality"
-              description="Please arrive 15 minutes before the event starts. Late arrivals may not be accommodated depending on the event type."
-            />
-
-            <RuleCard
-              icon={<Camera className="w-5 h-5" />}
-              title="Photography & Privacy"
-              description="Photography is permitted for personal use only. However, respect other guests' privacy. No unauthorized commercial photography or videography."
-            />
-
-            <RuleCard
-              icon={<Phone className="w-5 h-5" />}
-              title="Mobile Devices"
-              description="Please keep mobile devices on silent during performances and presentations. Business calls should be taken outside the main event areas."
-            />
-
-            <RuleCard
-              icon={<Wine className="w-5 h-5" />}
-              title="Alcohol Consumption"
-              description="Drink responsibly. Casa Privé reserves the right to refuse service to intoxicated guests. Valid ID required for alcohol service."
+              title="Age Requirement"
+              description="21+ only. Valid ID required at the door. No exceptions."
+              critical
             />
 
             <RuleCard
               icon={<Shield className="w-5 h-5" />}
-              title="Security & Safety"
-              description="All guests may be subject to security screening. Prohibited items include weapons, illegal substances, and outside food/beverages."
+              title="Security Check"
+              description="All guests are subject to security screening at entry. Prohibited items include weapons, drugs, and outside food/beverages. Management reserves the right to refuse entry."
+              critical
             />
           </div>
         </div>
@@ -68,27 +51,55 @@ export default function RulesPage() {
         <div className="mb-12">
           <h2 className="text-2xl font-light text-yellow-500 mb-6 flex items-center gap-3">
             <Users className="w-6 h-6" />
-            Table Booking Rules
+            Table Bookings
           </h2>
 
           <div className="space-y-6">
             <RuleCard
               icon={<Users className="w-5 h-5" />}
               title="Maximum 6 Guests Per Table"
-              description="Each table accommodates a maximum of 6 guests. This limit is strictly enforced to ensure comfort and maintain the intimate atmosphere."
+              description="Each table accommodates up to 6 guests. This ensures everyone has space to vibe and enjoy the night."
               critical
             />
 
             <RuleCard
-              icon={<AlertCircle className="w-5 h-5" />}
-              title="Minimum Spend Requirements"
-              description="Some packages may have minimum spend requirements. Please review package details before booking."
+              icon={<Clock className="w-5 h-5" />}
+              title="Table Duration"
+              description="Your table is reserved for the entire night. Arrive when you want, stay as long as you like until closing."
             />
 
             <RuleCard
-              icon={<Clock className="w-5 h-5" />}
-              title="Reservation Duration"
-              description="Table reservations are for the entire event duration. Early departures do not qualify for refunds."
+              icon={<Wine className="w-5 h-5" />}
+              title="Bottle Service"
+              description="Table packages include premium bottles and mixers. Additional orders can be placed with your server throughout the night."
+            />
+          </div>
+        </div>
+
+        {/* Party Guidelines */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-light text-emerald-400 mb-6 flex items-center gap-3">
+            <Music className="w-6 h-6" />
+            Party Guidelines
+          </h2>
+
+          <div className="space-y-6">
+            <RuleCard
+              icon={<Wine className="w-5 h-5" />}
+              title="Drink Responsibly"
+              description="Enjoy the premium drinks, but know your limits. We reserve the right to cut off service to overly intoxicated guests for everyone's safety."
+            />
+
+            <RuleCard
+              icon={<Users className="w-5 h-5" />}
+              title="Respect the Vibe"
+              description="Dance, celebrate, and have fun! But respect other guests' space. No fighting, harassment, or aggressive behavior. Keep it classy."
+            />
+
+            <RuleCard
+              icon={<Camera className="w-5 h-5" />}
+              title="Photos & Videos"
+              description="Capture the memories! Personal photos and videos are welcome. Just be respectful of others who may not want to be in your shots."
             />
           </div>
         </div>
@@ -115,54 +126,96 @@ export default function RulesPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-red-400 mt-1">•</span>
-                <span><strong>No-shows:</strong> No refund and may affect future booking privileges</span>
+                <span><strong>No-shows:</strong> No refund</span>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Code of Conduct */}
+        {/* What Gets You Kicked Out */}
         <div className="mb-12">
-          <div className="bg-slate-800/50 border border-emerald-700/30 p-8 rounded">
-            <h3 className="text-xl font-light text-emerald-400 mb-4">Code of Conduct</h3>
+          <div className="bg-slate-800/50 border border-red-500/30 p-8 rounded">
+            <h3 className="text-xl font-light text-red-400 mb-4 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              What Gets You Kicked Out
+            </h3>
             <p className="text-gray-300 mb-4 text-sm leading-relaxed font-light">
-              Casa Privé is committed to providing a safe, respectful, and enjoyable environment for all members and guests. We expect all attendees to:
+              We want everyone to have an amazing time, but certain behaviors won&apos;t be tolerated:
             </p>
             <ul className="space-y-2 text-gray-300 text-sm font-light">
               <li className="flex items-start gap-2">
-                <span className="text-emerald-500">✓</span>
-                <span>Treat all staff, members, and guests with respect and courtesy</span>
+                <span className="text-red-400">✗</span>
+                <span>Fighting, violence, or aggressive behavior</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-emerald-500">✓</span>
-                <span>Respect the privacy and personal space of others</span>
+                <span className="text-red-400">✗</span>
+                <span>Sexual harassment or inappropriate touching</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-emerald-500">✓</span>
-                <span>Refrain from disruptive, offensive, or inappropriate behavior</span>
+                <span className="text-red-400">✗</span>
+                <span>Drug use or possession</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-emerald-500">✓</span>
-                <span>Follow instructions from Casa Privé staff and security</span>
+                <span className="text-red-400">✗</span>
+                <span>Damaging property or equipment</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-emerald-500">✓</span>
-                <span>Report any concerns or incidents to staff immediately</span>
+                <span className="text-red-400">✗</span>
+                <span>Refusing to follow staff instructions</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-400">✗</span>
+                <span>Being overly intoxicated or disruptive</span>
               </li>
             </ul>
-            <div className="mt-6 p-4 bg-yellow-900/20 border border-yellow-500/30 rounded">
-              <p className="text-yellow-400 text-xs font-light">
-                <strong>Note:</strong> Violation of these rules may result in removal from the event without refund and potential suspension or termination of membership privileges.
+            <div className="mt-6 p-4 bg-red-900/20 border border-red-500/30 rounded">
+              <p className="text-red-400 text-xs font-light">
+                <strong>Note:</strong> Violation of these rules will result in immediate removal without refund. Serious violations may result in a permanent ban.
               </p>
             </div>
           </div>
         </div>
 
+        {/* The Good Vibes Code */}
+        <div className="mb-12">
+          <div className="bg-slate-800/50 border border-emerald-700/30 p-8 rounded">
+            <h3 className="text-xl font-light text-emerald-400 mb-4 flex items-center gap-2">
+              <Music className="w-5 h-5" />
+              The Good Vibes Code
+            </h3>
+            <p className="text-gray-300 mb-4 text-sm leading-relaxed font-light">
+              Casa Privé is all about creating unforgettable nights. Help us keep the energy right:
+            </p>
+            <ul className="space-y-2 text-gray-300 text-sm font-light">
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-500">✓</span>
+                <span>Come ready to dance and have a great time</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-500">✓</span>
+                <span>Treat staff, security, and other guests with respect</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-500">✓</span>
+                <span>Keep the dance floor alive with your energy</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-500">✓</span>
+                <span>Look out for your friends and party safely</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-500">✓</span>
+                <span>Tip your servers - they work hard to keep your night flowing</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
         {/* Contact */}
         <div className="text-center bg-slate-800/50 border border-yellow-700/30 p-8 rounded">
-          <h3 className="text-xl font-light text-white mb-4">Questions About Our Guidelines?</h3>
+          <h3 className="text-xl font-light text-white mb-4">Questions?</h3>
           <p className="text-gray-300 mb-6 text-sm font-light">
-            Our team is here to help ensure you have the best experience at Casa Privé
+            Hit us up if you need anything or have concerns
           </p>
           <a
             href="/feedback"
@@ -200,7 +253,7 @@ function RuleCard({
         <div className="flex-1">
           <h3 className={`text-lg font-light mb-2 ${critical ? 'text-red-400' : 'text-white'}`}>
             {title}
-            {critical && <span className="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded">MANDATORY</span>}
+            {critical && <span className="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded">REQUIRED</span>}
           </h3>
           <p className="text-gray-300 leading-relaxed text-sm font-light">{description}</p>
         </div>

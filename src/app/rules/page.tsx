@@ -34,7 +34,7 @@ export default function RulesPage() {
             <RuleCard
               icon={<Clock className="w-5 h-5" />}
               title="Age Requirement"
-              description="21+ only. Valid ID required at the door. No exceptions."
+              description="18+ only. Valid ID required at the door. No exceptions."
               critical
             />
 

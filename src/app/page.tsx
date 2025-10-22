@@ -5,11 +5,11 @@ import Image from 'next/image';
 
 export default function HomePage() {
   return (
-    <div className="bg-slate-900">
+    <div className="bg-emerald-950">
       {/* 1. HERO SECTION */}
       <section className="relative h-screen overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-bottom"
           style={{
             backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.65), rgba(6, 78, 59, 0.75)), url('https://images.unsplash.com/photo-1656150008539-5f12b51dbfd3?q=80&w=2074&auto=format&fit=crop')`,
           }}
@@ -54,7 +54,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/menu"
-              className="px-8 py-3 border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-slate-900 text-sm font-light tracking-widest transition-all duration-300"
+              className="px-8 py-3 border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-emerald-900 text-sm font-light tracking-widest transition-all duration-300"
             >
               VIEW DRINKS MENU
             </Link>
@@ -67,7 +67,7 @@ export default function HomePage() {
       </section>
 
       {/* 2. DRINKS SHOWCASE */}
-      <section className="py-20 px-4 bg-slate-900">
+      <section className="py-20 px-4 bg-emerald-950">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <Wine className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
@@ -88,7 +88,7 @@ export default function HomePage() {
                 backgroundImage: `url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop')`,
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/30" />
+            <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-transparent to-emerald-950/30" />
             <div className="absolute bottom-0 left-0 right-0 p-12 text-center">
               <div className="max-w-3xl mx-auto">
                 <div className="h-px w-20 bg-yellow-500 mb-4 mx-auto" />
@@ -109,7 +109,7 @@ export default function HomePage() {
                   backgroundImage: `url('https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=2187&auto=format&fit=crop')`,
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 p-8">
                 <div className="h-px w-16 bg-yellow-500 mb-4" />
                 <h3 className="text-2xl md:text-3xl font-light text-white mb-2">Fine Spirits</h3>
@@ -124,7 +124,7 @@ export default function HomePage() {
                   backgroundImage: `url('https://images.unsplash.com/photo-1572116469696-31de0f17cc34?q=80&w=2070&auto=format&fit=crop')`,
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 p-6">
                 <h4 className="text-lg font-light text-white">Signature Cocktails</h4>
               </div>
@@ -137,7 +137,7 @@ export default function HomePage() {
                   backgroundImage: `url('https://images.unsplash.com/photo-1635547018520-043b6f0e1a36?q=80&w=2670&auto=format&fit=crop')`,
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 p-6">
                 <h4 className="text-lg font-light text-white">Premium Tequila</h4>
               </div>
@@ -150,7 +150,7 @@ export default function HomePage() {
                   backgroundImage: `url('https://images.unsplash.com/photo-1566737236500-c8ac43014a67?q=80&w=2070&auto=format&fit=crop')`,
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 p-6">
                 <h4 className="text-lg font-light text-white">Champagne Bar</h4>
               </div>
@@ -160,7 +160,7 @@ export default function HomePage() {
       </section>
 
       {/* 3. BENEFITS SECTION */}
-      <section className="py-20 px-4 bg-slate-800">
+      <section className="py-20 px-4 bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-950">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-light mb-4">
@@ -205,7 +205,7 @@ export default function HomePage() {
 
           {/* Vision Quote */}
           <div className="max-w-4xl mx-auto">
-            <div className="bg-slate-900/50 border border-yellow-700/20 p-8 md:p-12 text-center">
+            <div className="bg-emerald-950/50 border border-yellow-700/20 p-8 md:p-12 text-center">
               <blockquote className="text-xl md:text-2xl font-light leading-relaxed mb-4 text-white">
                 &quot;Where exceptional drinks meet extraordinary company. An exclusive sanctuary for those
                 who appreciate{' '}
@@ -227,10 +227,10 @@ export default function HomePage() {
             backgroundImage: `url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop')`,
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-emerald-950/90 to-slate-900/95" />
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/95 via-emerald-950/90 to-emerald-950/95" />
 
         <div className="max-w-4xl mx-auto relative z-10">
-          <div className="bg-slate-900/60 backdrop-blur-sm border border-emerald-700/30 p-8 md:p-12 text-center">
+          <div className="bg-emerald-950/60 backdrop-blur-sm border border-emerald-700/30 p-8 md:p-12 text-center">
             <Image
               src="/logo.png"
               alt="Casa Privé"
@@ -268,7 +268,7 @@ export default function HomePage() {
 
 function BenefitCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="bg-slate-900/50 p-6 border border-emerald-700/30 hover:border-yellow-500/50 transition-all duration-500 h-full group">
+    <div className="bg-emerald-950/50 p-6 border border-emerald-700/30 hover:border-yellow-500/50 transition-all duration-500 h-full group">
       <div className="text-yellow-500 mb-4 group-hover:scale-110 transition-transform duration-300">
         {icon}
       </div>

@@ -24,7 +24,8 @@ export default function BookingPage() {
     numberOfGuests: 1,
     specialRequests: '',
     eventDate: '',
-    paymentMethod: 'PAYSTACK',
+    // CHANGED: Default to BANK_TRANSFER since Paystack is commented out
+    paymentMethod: 'BANK_TRANSFER',
   });
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [uploadingProof, setUploadingProof] = useState(false);
@@ -88,6 +89,7 @@ export default function BookingPage() {
     try {
       let proofUrl = '';
       
+      // Bank transfer is now the only payment method
       if (formData.paymentMethod === 'BANK_TRANSFER') {
         if (!proofFile) {
           setMessage('Please upload proof of payment');
@@ -127,12 +129,16 @@ export default function BookingPage() {
         throw new Error(data.error || 'Booking failed');
       }
 
-      if (data.paymentUrl) {
-        setMessage('Redirecting to payment...');
-        window.location.href = data.paymentUrl;
-      } else {
-        window.location.href = `/booking/success?id=${data.booking.id}`;
-      }
+      // COMMENTED OUT: Paystack redirect logic
+      // if (data.paymentUrl) {
+      //   setMessage('Redirecting to payment...');
+      //   window.location.href = data.paymentUrl;
+      // } else {
+      //   window.location.href = `/booking/success?id=${data.booking.id}`;
+      // }
+
+      // Bank transfer always goes to success page
+      window.location.href = `/booking/success?id=${data.booking.id}`;
     } catch (error: any) {
       setMessage(error.message || 'Failed to create booking');
       setLoading(false);
@@ -186,13 +192,11 @@ export default function BookingPage() {
 
         {/* Loading State */}
         {fetchingPackages && (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent"></div>
-            <p className="text-gray-300 mt-4 font-light">Loading packages...</p>
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent"></div>
           </div>
         )}
 
-        {/* Packages */}
         {!fetchingPackages && (
           <>
             {packages.length > 0 ? (
@@ -296,7 +300,8 @@ export default function BookingPage() {
                       />
                     </div>
 
-                    <div>
+                    {/* COMMENTED OUT: Payment method selector since only bank transfer is available */}
+                    {/* <div>
                       <label className="block text-gray-300 mb-2 text-sm font-light">Payment Method *</label>
                       <select
                         value={formData.paymentMethod}
@@ -306,36 +311,43 @@ export default function BookingPage() {
                         <option value="PAYSTACK">Pay Online (Paystack)</option>
                         <option value="BANK_TRANSFER">Bank Transfer</option>
                       </select>
+                    </div> */}
+
+                    {/* ADDED: Display payment method as read-only */}
+                    <div>
+                      <label className="block text-gray-300 mb-2 text-sm font-light">Payment Method</label>
+                      <div className="w-full px-4 py-3 bg-slate-700/50 text-gray-400 text-sm rounded border border-slate-600">
+                        Bank Transfer Only
+                      </div>
                     </div>
                   </div>
 
-                  {formData.paymentMethod === 'BANK_TRANSFER' && (
-                    <div className="bg-yellow-900/20 border border-yellow-500/30 rounded p-4">
-                      <h4 className="text-yellow-500 font-light text-sm mb-2">Bank Transfer Details:</h4>
-                      <p className="text-gray-300 text-xs mb-1 font-light">Bank: ABC Bank</p>
-                      <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé Ltd</p>
-                      <p className="text-gray-300 text-xs mb-4 font-light">Account Number: 1234567890</p>
-                      
-                      <label className="block text-gray-300 mb-2 text-sm font-light">
-                        Upload Proof of Payment * (JPG, PNG, or PDF - Max 5MB)
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="file"
-                          required
-                          accept="image/jpeg,image/png,image/jpg,.pdf"
-                          onChange={(e) => setProofFile(e.target.files?.[0] || null)}
-                          className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-light file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 file:cursor-pointer"
-                        />
-                        {proofFile && (
-                          <div className="mt-2 flex items-center gap-2 text-emerald-400 text-xs">
-                            <Upload className="w-4 h-4" />
-                            <span>{proofFile.name}</span>
-                          </div>
-                        )}
-                      </div>
+                  {/* Bank Transfer Details - Always shown now */}
+                  <div className="bg-yellow-900/20 border border-yellow-500/30 rounded p-4">
+                    <h4 className="text-yellow-500 font-light text-sm mb-2">Bank Transfer Details:</h4>
+                    <p className="text-gray-300 text-xs mb-1 font-light">Bank: ABC Bank</p>
+                    <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé Ltd</p>
+                    <p className="text-gray-300 text-xs mb-4 font-light">Account Number: 1234567890</p>
+                    
+                    <label className="block text-gray-300 mb-2 text-sm font-light">
+                      Upload Proof of Payment * (JPG, PNG, or PDF - Max 5MB)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        required
+                        accept="image/jpeg,image/png,image/jpg,.pdf"
+                        onChange={(e) => setProofFile(e.target.files?.[0] || null)}
+                        className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-light file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 file:cursor-pointer"
+                      />
+                      {proofFile && (
+                        <div className="mt-2 flex items-center gap-2 text-emerald-400 text-xs">
+                          <Upload className="w-4 h-4" />
+                          <span>{proofFile.name}</span>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
 
                   <div>
                     <label className="block text-gray-300 mb-2 text-sm font-light">Special Requests</label>

@@ -11,9 +11,11 @@ export default function HomePage() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.65), rgba(6, 78, 59, 0.75)), url('https://images.unsplash.com/photo-1620551172652-3cb211f80dc3?q=80&w=2074&auto=format&fit=crop')`,
+            backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.65), rgba(6, 78, 59, 0.75)), url('https://images.unsplash.com/photo-1630395822970-acd6a691d97e?q=80&w=2074&auto=format&fit=crop')`,
           }}
         />
+
+        {/* https://images.unsplash.com/photo-1620551172652-3cb211f80dc3?q=80&w=2074&auto=format&fit=crop */}
 
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url('/grid.svg')` }} />
 
@@ -121,7 +123,7 @@ export default function HomePage() {
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                 style={{
-                  backgroundImage: `url('https://images.unsplash.com/photo-1572116469696-31de0f17cc34?q=80&w=2070&auto=format&fit=crop')`,
+                  backgroundImage: `url('/uploads/cocktail.jpg')`,
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
@@ -147,7 +149,7 @@ export default function HomePage() {
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                 style={{
-                  backgroundImage: `url('https://images.unsplash.com/photo-1566737236500-c8ac43014a67?q=80&w=2070&auto=format&fit=crop')`,
+                  backgroundImage: `url('/uploads/champagne.jpg')`,
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-transparent to-transparent" />

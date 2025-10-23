@@ -9,9 +9,9 @@ export default function HomePage() {
       {/* 1. HERO SECTION */}
       <section className="relative h-screen overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-bottom"
+          className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.65), rgba(6, 78, 59, 0.75)), url('https://images.unsplash.com/photo-1656150008539-5f12b51dbfd3?q=80&w=2074&auto=format&fit=crop')`,
+            backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.65), rgba(6, 78, 59, 0.75)), url('https://images.unsplash.com/photo-1620551172652-3cb211f80dc3?q=80&w=2074&auto=format&fit=crop')`,
           }}
         />
 

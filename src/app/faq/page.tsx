@@ -25,7 +25,7 @@ export default function FAQPage() {
         },
         {
           q: 'Can I modify my booking after confirmation?',
-          a: 'Yes, you can modify your booking up to 48 hours before the event. Contact us via email at casaprive2025@gmail.com or call +233 12 345 6789 to make changes.',
+          a: 'Yes, you can modify your booking up to 48 hours before the event. Contact us via email at info@casaprivé.com or call +233 12 345 6789 to make changes.',
         },
       ],
     },
@@ -160,7 +160,7 @@ export default function FAQPage() {
               CONTACT US
             </a>
             <a
-              href="mailto:casaprive2025@gmail.com"
+              href="mailto:info@casaprivé.com"
               className="px-6 py-3 border-2 border-emerald-600 text-emerald-400 text-sm font-light tracking-wider rounded hover:bg-emerald-600 hover:text-white transition"
             >
               EMAIL SUPPORT

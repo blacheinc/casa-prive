@@ -245,8 +245,8 @@ export default function PrivacyPage() {
               <ul className="space-y-2 text-gray-300 text-sm font-light">
                 <li>
                   <strong>Email:</strong>{' '}
-                  <a href="mailto:casaprive2025@gmail.com" className="text-emerald-400 hover:text-emerald-300">
-                    casaprive2025@gmail.com
+                  <a href="mailto:info@casaprivé.com" className="text-emerald-400 hover:text-emerald-300">
+                    info@casaprivé.com
                   </a>
                 </li>
                 <li>

@@ -108,7 +108,7 @@ export default function HomePage() {
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                 style={{
-                  backgroundImage: `url('https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=2187&auto=format&fit=crop')`,
+                  backgroundImage: `url('/uploads/spirit.png')`,
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />

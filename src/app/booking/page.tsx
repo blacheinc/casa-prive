@@ -24,7 +24,7 @@ export default function BookingPage() {
     numberOfGuests: 1,
     specialRequests: '',
     eventDate: '',
-    // CHANGED: Default to BANK_TRANSFER since Paystack is commented out
+    // CHANGED: Default to BANK_TRANSFER (Mobile Money) since Paystack is commented out
     paymentMethod: 'BANK_TRANSFER',
   });
   const [proofFile, setProofFile] = useState<File | null>(null);
@@ -89,7 +89,7 @@ export default function BookingPage() {
     try {
       let proofUrl = '';
       
-      // Bank transfer is now the only payment method
+      // Mobile Money is now the only payment method
       if (formData.paymentMethod === 'BANK_TRANSFER') {
         if (!proofFile) {
           setMessage('Please upload proof of payment');
@@ -317,17 +317,17 @@ export default function BookingPage() {
                     <div>
                       <label className="block text-gray-300 mb-2 text-sm font-light">Payment Method</label>
                       <div className="w-full px-4 py-3 bg-slate-700/50 text-gray-400 text-sm rounded border border-slate-600">
-                        Bank Transfer Only
+                        Mobile Money Only
                       </div>
                     </div>
                   </div>
 
-                  {/* Bank Transfer Details - Always shown now */}
+                  {/* Mobile Money Details - Always shown now */}
                   <div className="bg-yellow-900/20 border border-yellow-500/30 rounded p-4">
-                    <h4 className="text-yellow-500 font-light text-sm mb-2">Bank Transfer Details:</h4>
-                    <p className="text-gray-300 text-xs mb-1 font-light">Bank: ABC Bank</p>
-                    <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé Ltd</p>
-                    <p className="text-gray-300 text-xs mb-4 font-light">Account Number: 1234567890</p>
+                    <h4 className="text-yellow-500 font-light text-sm mb-2">Mobile Money Details:</h4>
+                    <p className="text-gray-300 text-xs mb-1 font-light">Network: MTN Mobile Money</p>
+                    <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Gloria Adoma Mensah</p>
+                    <p className="text-gray-300 text-xs mb-4 font-light">Number: 0244963777</p>
                     
                     <label className="block text-gray-300 mb-2 text-sm font-light">
                       Upload Proof of Payment * (JPG, PNG, or PDF - Max 5MB)

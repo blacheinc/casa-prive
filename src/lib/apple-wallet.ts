@@ -141,7 +141,7 @@ export async function generateAppleWalletPass(
           {
             key: "contact",
             label: "Contact Us",
-            value: "Visit casaprive.com\nEmail: members@casaprive.com\nPhone: +233 XX XXX XXXX"
+            value: "Visit casaprive.com\nEmail: info@casaprivé.com\nPhone: +233 24 496 3777"
           },
           {
             key: "terms",

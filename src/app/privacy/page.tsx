@@ -251,8 +251,8 @@ export default function PrivacyPage() {
                 </li>
                 <li>
                   <strong>Phone:</strong>{' '}
-                  <a href="tel:+233123456789" className="text-emerald-400 hover:text-emerald-300">
-                    +233 12 345 6789
+                  <a href="tel:+233244963777" className="text-emerald-400 hover:text-emerald-300">
+                    +233 24 496 3777
                   </a>
                 </li>
                 <li>

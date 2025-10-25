@@ -89,7 +89,7 @@ export default function BookingPage() {
     try {
       let proofUrl = '';
       
-      // Mobile Money is now the only payment method
+      // Mobile Money or Bank Transfer - both require proof of payment
       if (formData.paymentMethod === 'BANK_TRANSFER') {
         if (!proofFile) {
           setMessage('Please upload proof of payment');
@@ -317,17 +317,30 @@ export default function BookingPage() {
                     <div>
                       <label className="block text-gray-300 mb-2 text-sm font-light">Payment Method</label>
                       <div className="w-full px-4 py-3 bg-slate-700/50 text-gray-400 text-sm rounded border border-slate-600">
-                        Mobile Money Only
+                        Mobile Money or Bank Transfer
                       </div>
                     </div>
                   </div>
 
-                  {/* Mobile Money Details - Always shown now */}
+                  {/* Payment Details - Both Mobile Money and Bank Transfer */}
                   <div className="bg-yellow-900/20 border border-yellow-500/30 rounded p-4">
-                    <h4 className="text-yellow-500 font-light text-sm mb-2">Mobile Money Details:</h4>
-                    <p className="text-gray-300 text-xs mb-1 font-light">Network: MTN Mobile Money</p>
-                    <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Gloria Adoma Mensah</p>
-                    <p className="text-gray-300 text-xs mb-4 font-light">Number: 0244963777</p>
+                    <h4 className="text-yellow-500 font-light text-sm mb-3">Payment Details:</h4>
+                    
+                    {/* Mobile Money Option */}
+                    <div className="mb-4">
+                      <p className="text-gray-200 text-sm mb-2 font-medium">Option 1: Mobile Money</p>
+                      <p className="text-gray-300 text-xs mb-1 font-light">Network: MTN Mobile Money</p>
+                      <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Gloria Adoma Mensah</p>
+                      <p className="text-gray-300 text-xs font-light">Number: 0244963777</p>
+                    </div>
+
+                    {/* Bank Transfer Option */}
+                    <div className="mb-4 pt-4 border-t border-yellow-500/20">
+                      <p className="text-gray-200 text-sm mb-2 font-medium">Option 2: Bank Transfer</p>
+                      <p className="text-gray-300 text-xs mb-1 font-light">Bank: ABC Bank</p>
+                      <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé Ltd</p>
+                      <p className="text-gray-300 text-xs font-light">Account Number: 1234567890</p>
+                    </div>
                     
                     <label className="block text-gray-300 mb-2 text-sm font-light">
                       Upload Proof of Payment * (JPG, PNG, or PDF - Max 5MB)

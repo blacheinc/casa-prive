@@ -330,8 +330,8 @@ export default function BookingPage() {
                     <div className="mb-4">
                       <p className="text-gray-200 text-sm mb-2 font-medium">Option 1: Mobile Money</p>
                       <p className="text-gray-300 text-xs mb-1 font-light">Network: MTN Mobile Money</p>
-                      <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Gloria Adoma Mensah</p>
-                      <p className="text-gray-300 text-xs font-light">Number: 0244963777</p>
+                      <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé LTD</p>
+                      <p className="text-gray-300 text-xs font-light">Number: 0541476632</p>
                     </div>
 
                     {/* Bank Transfer Option */}

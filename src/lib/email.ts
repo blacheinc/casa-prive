@@ -1,31 +1,106 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // lib/email.ts
-import nodemailer from "nodemailer";
-import path from "path";
+import nodemailer from 'nodemailer';
+import path from 'path';
 
 /**
  * Email Service for Casa Privé
  * Handles all transactional emails with luxury emerald & gold design
- * Matching the Casa Privé brand identity
+ * Enhanced with connection testing and graceful error handling
  */
 export class EmailService {
-  private transporter;
+  private transporter: any;
   private baseUrl: string;
+  private enabled: boolean = false;
+  private connectionTested: boolean = false;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT || "587"),
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
+    this.baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    
+    // Check if email is configured
+    const emailHost = process.env.EMAIL_HOST;
+    const emailUser = process.env.EMAIL_USER;
+    const emailPass = process.env.EMAIL_PASSWORD;
 
-    this.baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      "http://localhost:3000";
+    if (!emailHost || !emailUser || !emailPass) {
+      console.warn('⚠️  Email not configured. Set EMAIL_HOST, EMAIL_USER, and EMAIL_PASSWORD in .env');
+      console.warn('⚠️  Email notifications will be skipped until configured.');
+      this.enabled = false;
+      return;
+    }
+
+    try {
+      const port = parseInt(process.env.EMAIL_PORT || '587');
+      
+      // Determine if we should use secure connection
+      const secure = port === 465;
+      
+      this.transporter = nodemailer.createTransport({
+        host: emailHost,
+        port: port,
+        secure: secure, // true for 465, false for other ports
+        auth: {
+          user: emailUser,
+          pass: emailPass,
+        },
+        // Add timeout and connection settings
+        connectionTimeout: 10000, // 10 seconds
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
+        // Disable TLS verification in development (remove in production)
+        tls: {
+          rejectUnauthorized: process.env.NODE_ENV === 'production',
+        },
+      });
+
+      this.enabled = true;
+      
+      console.log('✓ Email service initialized');
+      console.log(`  Host: ${emailHost}`);
+      console.log(`  Port: ${port}`);
+      console.log(`  Secure: ${secure}`);
+      console.log(`  User: ${emailUser.substring(0, 5)}***`);
+    } catch (error) {
+      console.error('Failed to initialize email service:', error);
+      this.enabled = false;
+    }
+  }
+
+  /**
+   * Test email connection
+   */
+  async testConnection(): Promise<boolean> {
+    if (!this.enabled) {
+      console.log('⚠️  Email service not enabled - skipping connection test');
+      return false;
+    }
+
+    if (this.connectionTested) {
+      return true; // Already tested successfully
+    }
+
+    try {
+      console.log('Testing email connection...');
+      await this.transporter.verify();
+      console.log('✓ Email connection test successful');
+      this.connectionTested = true;
+      return true;
+    } catch (error: any) {
+      console.error('✗ Email connection test failed:', error.message);
+      
+      // Provide helpful error messages
+      if (error.code === 'ETIMEDOUT' || error.code === 'ECONNECTION') {
+        console.error('  → Check if EMAIL_HOST and EMAIL_PORT are correct');
+        console.error('  → Verify firewall allows connections on port', process.env.EMAIL_PORT);
+        console.error('  → For Gmail, ensure "Less secure app access" is enabled or use App Password');
+      } else if (error.code === 'EAUTH') {
+        console.error('  → Check if EMAIL_USER and EMAIL_PASSWORD are correct');
+        console.error('  → For Gmail, you need an App Password (not your regular password)');
+      }
+      
+      this.enabled = false; // Disable to prevent future attempts
+      return false;
+    }
   }
 
   /**
@@ -410,21 +485,32 @@ export class EmailService {
    * Get logo path
    */
   private getLogoPath(): string {
-    return path.join(process.cwd(), "public", "logo.png");
+    return path.join(process.cwd(), 'public', 'logo.png');
   }
 
   /**
    * Send member welcome email with membership card link
    */
-  async sendMemberWelcome(
-    to: string,
-    member: {
-      fullName: string;
-      membershipCode: string;
-      email: string;
-      phone?: string;
+  async sendMemberWelcome(to: string, member: {
+    fullName: string;
+    membershipCode: string;
+    email: string;
+    phone?: string;
+  }): Promise<void> {
+    if (!this.enabled) {
+      console.log('⚠️  Email service not enabled - skipping member welcome email');
+      return;
     }
-  ): Promise<void> {
+
+    // Test connection first (only once)
+    if (!this.connectionTested) {
+      const connected = await this.testConnection();
+      if (!connected) {
+        console.log('⚠️  Email connection failed - skipping member welcome email');
+        return;
+      }
+    }
+
     try {
       const logoPath = this.getLogoPath();
       const memberCardUrl = `${this.baseUrl}/member-card/${member.membershipCode}`;
@@ -485,9 +571,7 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Membership ID</div>
-                          <div class="item-details">${
-                            member.membershipCode
-                          }</div>
+                          <div class="item-details">${member.membershipCode}</div>
                         </div>
                       </li>
                       
@@ -565,13 +649,7 @@ export class EmailService {
 
                   <p class="intro-text">
                     Should you require any assistance or wish to make a reservation, our concierge team is 
-                    available at <strong>${
-                      process.env.ADMIN_EMAIL || "concierge@casaprive.com"
-                    }</strong>${
-        member.phone
-          ? ` or via WhatsApp at <strong>${member.phone}</strong>`
-          : ""
-      }.
+                    available at <strong>${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}</strong>${member.phone ? ` or via WhatsApp at <strong>${member.phone}</strong>` : ''}.
                   </p>
 
                   <p class="intro-text" style="margin-bottom: 0;">
@@ -605,39 +683,49 @@ export class EmailService {
       await this.transporter.sendMail({
         from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
         to,
-        subject: "🎉 Welcome to Casa Privé - Your Exclusive Membership Awaits",
+        subject: '🎉 Welcome to Casa Privé - Your Exclusive Membership Awaits',
         html,
         attachments: [
           {
-            filename: "logo.png",
+            filename: 'logo.png',
             path: logoPath,
-            cid: "logo",
+            cid: 'logo',
           },
         ],
       });
 
       console.log(`✓ Member welcome email sent to ${to}`);
-    } catch (error) {
-      console.error("Failed to send member welcome email:", error);
-      throw error;
+    } catch (error: any) {
+      console.error('Failed to send member welcome email:', error.message);
+      // Don't throw - we don't want email failures to break member creation
     }
   }
 
   /**
    * Send booking confirmation email
    */
-  async sendBookingConfirmation(
-    to: string,
-    booking: {
-      id: string;
-      fullName: string;
-      packageName: string;
-      numberOfGuests: number;
-      eventDate: string;
-      tableNumber: number | null;
-      amount: number;
+  async sendBookingConfirmation(to: string, booking: {
+    id: string;
+    fullName: string;
+    packageName: string;
+    numberOfGuests: number;
+    eventDate: string;
+    tableNumber: number | null;
+    amount: number;
+  }): Promise<void> {
+    if (!this.enabled) {
+      console.log('⚠️  Email service not enabled - skipping booking confirmation');
+      return;
     }
-  ): Promise<void> {
+
+    if (!this.connectionTested) {
+      const connected = await this.testConnection();
+      if (!connected) {
+        console.log('⚠️  Email connection failed - skipping booking confirmation');
+        return;
+      }
+    }
+
     try {
       const logoPath = this.getLogoPath();
 
@@ -689,9 +777,7 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Confirmation No.</div>
-                          <div class="item-details">${booking.id
-                            .slice(-8)
-                            .toUpperCase()}</div>
+                          <div class="item-details">${booking.id.slice(-8).toUpperCase()}</div>
                         </div>
                       </li>
                       
@@ -712,31 +798,23 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Party Size</div>
-                          <div class="item-details">${
-                            booking.numberOfGuests
-                          } Guest${booking.numberOfGuests > 1 ? "s" : ""}</div>
+                          <div class="item-details">${booking.numberOfGuests} Guest${booking.numberOfGuests > 1 ? 's' : ''}</div>
                         </div>
                       </li>
                       
-                      ${
-                        booking.tableNumber
-                          ? `
+                      ${booking.tableNumber ? `
                         <li>
                           <div class="item-info">
                             <div class="item-name">Table Number</div>
                             <div class="item-details">Table ${booking.tableNumber}</div>
                           </div>
                         </li>
-                      `
-                          : ""
-                      }
+                      ` : ''}
                       
                       <li>
                         <div class="item-info">
                           <div class="item-name">Total Investment</div>
-                          <div class="item-details">GHS ${booking.amount.toFixed(
-                            2
-                          )}</div>
+                          <div class="item-details">GHS ${booking.amount.toFixed(2)}</div>
                         </div>
                       </li>
                     </ul>
@@ -758,9 +836,7 @@ export class EmailService {
 
                   <p class="intro-text">
                     Should you require any special arrangements or have inquiries, our concierge team 
-                    is at your service at <strong>${
-                      process.env.ADMIN_EMAIL || "concierge@casaprive.com"
-                    }</strong>
+                    is at your service at <strong>${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}</strong>
                   </p>
 
                   <p class="intro-text" style="margin-bottom: 0;">
@@ -789,55 +865,60 @@ export class EmailService {
       await this.transporter.sendMail({
         from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
         to,
-        subject: "Casa Privé - Your Exclusive Reservation is Confirmed",
+        subject: 'Casa Privé - Your Exclusive Reservation is Confirmed',
         html,
         attachments: [
           {
-            filename: "logo.png",
+            filename: 'logo.png',
             path: logoPath,
-            cid: "logo",
+            cid: 'logo',
           },
         ],
       });
 
       console.log(`✓ Booking confirmation sent to ${to}`);
     } catch (error) {
-      console.error("Failed to send booking confirmation:", error);
-      throw error;
+      console.error('Failed to send booking confirmation:', error);
     }
   }
 
   /**
    * Send order confirmation email
    */
-  async sendOrderConfirmation(
-    to: string,
-    order: {
-      id: string;
-      customerName: string;
-      tableNumberOrName: string;
-      items: Array<{ name: string; quantity: number; price: number }>;
-      totalAmount: number;
+  async sendOrderConfirmation(to: string, order: {
+    id: string;
+    customerName: string;
+    tableNumberOrName: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+    totalAmount: number;
+  }): Promise<void> {
+    if (!this.enabled) {
+      console.log('⚠️  Email service not enabled - skipping order confirmation');
+      return;
     }
-  ): Promise<void> {
+
+    if (!this.connectionTested) {
+      const connected = await this.testConnection();
+      if (!connected) {
+        console.log('⚠️  Email connection failed - skipping order confirmation');
+        return;
+      }
+    }
+
     try {
       const logoPath = this.getLogoPath();
 
       const itemsList = order.items
-        .map(
-          (item) => `
+        .map((item) => `
           <li>
             <div class="item-info">
               <div class="item-name">${item.name}</div>
               <div class="item-details">Quantity: ${item.quantity}</div>
             </div>
-            <div class="item-price">GHS ${(item.price * item.quantity).toFixed(
-              2
-            )}</div>
+            <div class="item-price">GHS ${(item.price * item.quantity).toFixed(2)}</div>
           </li>
-        `
-        )
-        .join("");
+        `)
+        .join('');
 
       const html = `
         <!DOCTYPE html>
@@ -887,18 +968,14 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Order No.</div>
-                          <div class="item-details">${order.id
-                            .slice(-8)
-                            .toUpperCase()}</div>
+                          <div class="item-details">${order.id.slice(-8).toUpperCase()}</div>
                         </div>
                       </li>
                       
                       <li>
                         <div class="item-info">
                           <div class="item-name">Table</div>
-                          <div class="item-details">${
-                            order.tableNumberOrName
-                          }</div>
+                          <div class="item-details">${order.tableNumberOrName}</div>
                         </div>
                       </li>
                     </ul>
@@ -954,21 +1031,20 @@ export class EmailService {
       await this.transporter.sendMail({
         from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
         to,
-        subject: "Casa Privé - Your Order Has Been Received",
+        subject: 'Casa Privé - Your Order Has Been Received',
         html,
         attachments: [
           {
-            filename: "logo.png",
+            filename: 'logo.png',
             path: logoPath,
-            cid: "logo",
+            cid: 'logo',
           },
         ],
       });
 
       console.log(`✓ Order confirmation sent to ${to}`);
     } catch (error) {
-      console.error("Failed to send order confirmation:", error);
-      throw error;
+      console.error('Failed to send order confirmation:', error);
     }
   }
 
@@ -976,16 +1052,27 @@ export class EmailService {
    * Send admin notification
    */
   async sendAdminNotification(subject: string, content: string): Promise<void> {
-    try {
-      const logoPath = this.getLogoPath();
-      const adminEmail = process.env.ADMIN_EMAIL;
+    if (!this.enabled) {
+      console.log('⚠️  Email service not enabled - skipping admin notification');
+      return;
+    }
 
-      if (!adminEmail) {
-        console.warn(
-          "⚠ ADMIN_EMAIL not configured, skipping admin notification"
-        );
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (!adminEmail) {
+      console.warn('⚠️  ADMIN_EMAIL not configured - skipping admin notification');
+      return;
+    }
+
+    if (!this.connectionTested) {
+      const connected = await this.testConnection();
+      if (!connected) {
+        console.log('⚠️  Email connection failed - skipping admin notification');
         return;
       }
+    }
+
+    try {
+      const logoPath = this.getLogoPath();
 
       const html = `
         <!DOCTYPE html>
@@ -1038,31 +1125,40 @@ export class EmailService {
         html,
         attachments: [
           {
-            filename: "logo.png",
+            filename: 'logo.png',
             path: logoPath,
-            cid: "logo",
+            cid: 'logo',
           },
         ],
       });
 
       console.log(`✓ Admin notification sent: ${subject}`);
     } catch (error) {
-      console.error("Failed to send admin notification:", error);
-      throw error;
+      console.error('Failed to send admin notification:', error);
     }
   }
 
   /**
    * Send waitlist confirmation email
    */
-  async sendWaitlistConfirmation(
-    to: string,
-    waitlist: {
-      fullName: string;
-      preferredDate: string;
-      numberOfGuests: number;
+  async sendWaitlistConfirmation(to: string, waitlist: {
+    fullName: string;
+    preferredDate: string;
+    numberOfGuests: number;
+  }): Promise<void> {
+    if (!this.enabled) {
+      console.log('⚠️  Email service not enabled - skipping waitlist confirmation');
+      return;
     }
-  ): Promise<void> {
+
+    if (!this.connectionTested) {
+      const connected = await this.testConnection();
+      if (!connected) {
+        console.log('⚠️  Email connection failed - skipping waitlist confirmation');
+        return;
+      }
+    }
+
     try {
       const logoPath = this.getLogoPath();
 
@@ -1114,18 +1210,14 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Preferred Date</div>
-                          <div class="item-details">${
-                            waitlist.preferredDate
-                          }</div>
+                          <div class="item-details">${waitlist.preferredDate}</div>
                         </div>
                       </li>
                       
                       <li>
                         <div class="item-info">
                           <div class="item-name">Party Size</div>
-                          <div class="item-details">${
-                            waitlist.numberOfGuests
-                          } Guest${waitlist.numberOfGuests > 1 ? "s" : ""}</div>
+                          <div class="item-details">${waitlist.numberOfGuests} Guest${waitlist.numberOfGuests > 1 ? 's' : ''}</div>
                         </div>
                       </li>
                     </ul>
@@ -1170,36 +1262,45 @@ export class EmailService {
       await this.transporter.sendMail({
         from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
         to,
-        subject: "Casa Privé - Exclusive Waitlist Confirmation",
+        subject: 'Casa Privé - Exclusive Waitlist Confirmation',
         html,
         attachments: [
           {
-            filename: "logo.png",
+            filename: 'logo.png',
             path: logoPath,
-            cid: "logo",
+            cid: 'logo',
           },
         ],
       });
 
       console.log(`✓ Waitlist confirmation sent to ${to}`);
     } catch (error) {
-      console.error("Failed to send waitlist confirmation:", error);
-      throw error;
+      console.error('Failed to send waitlist confirmation:', error);
     }
   }
 
   /**
    * Send table available notification to waitlist member
    */
-  async sendTableAvailableNotification(
-    to: string,
-    details: {
-      fullName: string;
-      preferredDate: string;
-      numberOfGuests: number;
-      responseDeadline: string;
+  async sendTableAvailableNotification(to: string, details: {
+    fullName: string;
+    preferredDate: string;
+    numberOfGuests: number;
+    responseDeadline: string;
+  }): Promise<void> {
+    if (!this.enabled) {
+      console.log('⚠️  Email service not enabled - skipping table available notification');
+      return;
     }
-  ): Promise<void> {
+
+    if (!this.connectionTested) {
+      const connected = await this.testConnection();
+      if (!connected) {
+        console.log('⚠️  Email connection failed - skipping table available notification');
+        return;
+      }
+    }
+
     try {
       const logoPath = this.getLogoPath();
 
@@ -1251,27 +1352,21 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Available Date</div>
-                          <div class="item-details">${
-                            details.preferredDate
-                          }</div>
+                          <div class="item-details">${details.preferredDate}</div>
                         </div>
                       </li>
                       
                       <li>
                         <div class="item-info">
                           <div class="item-name">Party Size</div>
-                          <div class="item-details">${
-                            details.numberOfGuests
-                          } Guest${details.numberOfGuests > 1 ? "s" : ""}</div>
+                          <div class="item-details">${details.numberOfGuests} Guest${details.numberOfGuests > 1 ? 's' : ''}</div>
                         </div>
                       </li>
                       
                       <li>
                         <div class="item-info">
                           <div class="item-name">Response Deadline</div>
-                          <div class="item-details">${
-                            details.responseDeadline
-                          }</div>
+                          <div class="item-details">${details.responseDeadline}</div>
                         </div>
                       </li>
                     </ul>
@@ -1303,9 +1398,7 @@ export class EmailService {
                   
                   <p class="intro-text" style="margin-top: 10px; margin-bottom: 0;">
                     <em>The Casa Privé Concierge Team</em><br>
-                    <strong>${
-                      process.env.ADMIN_EMAIL || "concierge@casaprive.com"
-                    }</strong>
+                    <strong>${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}</strong>
                   </p>
                 </div>
 
@@ -1326,22 +1419,20 @@ export class EmailService {
       await this.transporter.sendMail({
         from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
         to,
-        subject:
-          "🎉 Casa Privé - Exclusive Table Now Available for Your Preferred Date",
+        subject: '🎉 Casa Privé - Exclusive Table Now Available for Your Preferred Date',
         html,
         attachments: [
           {
-            filename: "logo.png",
+            filename: 'logo.png',
             path: logoPath,
-            cid: "logo",
+            cid: 'logo',
           },
         ],
       });
 
       console.log(`✓ Table available notification sent to ${to}`);
     } catch (error) {
-      console.error("Failed to send table available notification:", error);
-      throw error;
+      console.error('Failed to send table available notification:', error);
     }
   }
 }

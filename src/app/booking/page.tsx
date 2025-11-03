@@ -337,9 +337,9 @@ export default function BookingPage() {
                     {/* Bank Transfer Option */}
                     <div className="mb-4 pt-4 border-t border-yellow-500/20">
                       <p className="text-gray-200 text-sm mb-2 font-medium">Option 2: Bank Transfer</p>
-                      <p className="text-gray-300 text-xs mb-1 font-light">Bank: ABC Bank</p>
+                      <p className="text-gray-300 text-xs mb-1 font-light">Bank: First Atlantic Bank</p>
                       <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé Ltd</p>
-                      <p className="text-gray-300 text-xs font-light">Account Number: 1234567890</p>
+                      <p className="text-gray-300 text-xs font-light">Account Number: 2464702751014</p>
                     </div>
                     
                     <label className="block text-gray-300 mb-2 text-sm font-light">

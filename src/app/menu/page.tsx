@@ -314,7 +314,8 @@ export default function MenuPage() {
                     onChange={(e) => setCustomerInfo({ ...customerInfo, paymentMethod: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
                   >
-                    <option value="PAYSTACK">Pay Online (Paystack)</option>
+                    {/* <option value="PAYSTACK">Pay Online (Paystack)</option> */}
+                    <option value="POS">Pay with POS</option>
                     <option value="CASH">Pay with Cash</option>
                   </select>
                 </div>

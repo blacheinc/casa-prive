@@ -1,5 +1,6 @@
 // lib/email.ts
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+import fs from 'fs';
 import path from 'path';
 
 /**
@@ -8,21 +9,20 @@ import path from 'path';
  * Matching the Casa Privé brand identity
  */
 export class EmailService {
-  private transporter;
+  private resend: Resend;
   private baseUrl: string;
+  private fromEmail: string;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT || '587'),
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
+    const apiKey = process.env.RESEND_API_KEY;
+    
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY is not configured in environment variables');
+    }
 
+    this.resend = new Resend(apiKey);
     this.baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    this.fromEmail = process.env.EMAIL_FROM || 'Casa Privé <noreply@casaprive.com>';
   }
 
   /**
@@ -404,10 +404,211 @@ export class EmailService {
   }
 
   /**
-   * Get logo path
+   * Get logo as base64 or URL
    */
-  private getLogoPath(): string {
-    return path.join(process.cwd(), 'public', 'logo.png');
+  private getLogoBase64(): string {
+    try {
+      const logoPath = path.join(process.cwd(), 'public', 'logo.png');
+      const logoBuffer = fs.readFileSync(logoPath);
+      const base64Logo = logoBuffer.toString('base64');
+      return `data:image/png;base64,${base64Logo}`;
+    } catch (error) {
+      console.warn('⚠ Logo file not found, using placeholder');
+      // Return a placeholder or your hosted logo URL
+      return `${this.baseUrl}/logo.png`;
+    }
+  }
+
+  /**
+   * Send member welcome email with membership card link
+   */
+  async sendMemberWelcome(to: string, member: {
+    fullName: string;
+    membershipCode: string;
+    email: string;
+    phone?: string;
+  }): Promise<void> {
+    try {
+      const logoSrc = this.getLogoBase64();
+      const memberCardUrl = `${this.baseUrl}/member-card/${member.membershipCode}`;
+
+      const html = `
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="color-scheme" content="light">
+            <meta name="supported-color-schemes" content="light">
+            <title>Welcome to Casa Privé - Your Exclusive Membership</title>
+            <style>${this.getEmailStyles()}</style>
+          </head>
+          <body>
+            <div class="email-wrapper">
+              <div class="container">
+                <!-- Header -->
+                <div class="header">
+                  <div class="logo-section">
+                    <img src="${logoSrc}" alt="Casa Privé Logo" class="logo" />
+                    <div class="brand-container">
+                      <div class="brand-name">CASA PRIVÉ</div>
+                      <div class="subtitle">Exclusive Membership</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Content -->
+                <div class="content">
+                  <h1 class="greeting">Welcome to the Circle</h1>
+                  
+                  <p class="intro-text">
+                    Dear ${member.fullName},
+                  </p>
+                  
+                  <p class="intro-text">
+                    Congratulations! You are now a distinguished member of Casa Privé, Ghana's most exclusive 
+                    private members club. Your membership grants you access to our world of luxury, sophistication, 
+                    and unforgettable experiences.
+                  </p>
+
+                  <div class="divider"></div>
+
+                  <!-- Membership Details -->
+                  <div class="details-card">
+                    <h2 class="details-title">Your Membership</h2>
+                    
+                    <ul class="item-list">
+                      <li>
+                        <div class="item-info">
+                          <div class="item-name">Member Name</div>
+                          <div class="item-details">${member.fullName}</div>
+                        </div>
+                      </li>
+                      
+                      <li>
+                        <div class="item-info">
+                          <div class="item-name">Membership ID</div>
+                          <div class="item-details">${member.membershipCode}</div>
+                        </div>
+                      </li>
+                      
+                      <li>
+                        <div class="item-info">
+                          <div class="item-name">Status</div>
+                          <div class="item-details">Active - Premium Member</div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <!-- Digital Card CTA -->
+                  <div style="text-align: center; margin: 45px 0;">
+                    <p class="intro-text" style="margin-bottom: 20px; font-size: 18px;">
+                      Your Digital Membership Card
+                    </p>
+                    <a href="${memberCardUrl}" class="cta-button">
+                      VIEW YOUR MEMBERSHIP CARD
+                    </a>
+                    <p class="intro-text" style="margin-top: 20px; font-size: 13px; color: #64748b;">
+                      Save this link or add to your home screen for quick access
+                    </p>
+                  </div>
+
+                  <!-- Member Benefits -->
+                  <div class="info-box">
+                    <h3 class="info-title">Exclusive Member Benefits</h3>
+                    <ul class="info-list">
+                      <li>Priority access to all Casa Privé signature events</li>
+                      <li>Complimentary guest privileges for select occasions</li>
+                      <li>Dedicated concierge service for reservations</li>
+                      <li>Access to members-only experiences and venues</li>
+                      <li>Preferential booking for private dining and VIP tables</li>
+                      <li>Invitations to exclusive networking events</li>
+                      <li>Special member pricing on premium packages</li>
+                    </ul>
+                  </div>
+
+                  <div class="divider"></div>
+
+                  <!-- Next Steps -->
+                  <div class="details-card">
+                    <h2 class="details-title">Getting Started</h2>
+                    
+                    <p class="intro-text" style="margin-bottom: 25px;">
+                      To ensure you make the most of your membership, here's what you need to know:
+                    </p>
+
+                    <ul class="item-list">
+                      <li>
+                        <div class="item-info">
+                          <div class="item-name">1. Save Your Digital Card</div>
+                          <div class="item-details">Click the button above to access your digital membership card. Save it to your phone for entry to events.</div>
+                        </div>
+                      </li>
+                      
+                      <li>
+                        <div class="item-info">
+                          <div class="item-name">2. Stay Connected</div>
+                          <div class="item-details">Follow us on social media and check your email regularly for exclusive event invitations.</div>
+                        </div>
+                      </li>
+                      
+                      <li>
+                        <div class="item-info">
+                          <div class="item-name">3. Make Reservations</div>
+                          <div class="item-details">Contact our concierge team to book your first experience with priority member access.</div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="divider"></div>
+
+                  <p class="intro-text">
+                    Should you require any assistance or wish to make a reservation, our concierge team is 
+                    available at <strong>${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}</strong>${member.phone ? ` or via WhatsApp at <strong>${member.phone}</strong>` : ''}.
+                  </p>
+
+                  <p class="intro-text" style="margin-bottom: 0;">
+                    Welcome to a world where luxury meets exclusivity.
+                  </p>
+                  
+                  <p class="intro-text" style="margin-top: 10px; margin-bottom: 0;">
+                    <em>The Casa Privé Team</em>
+                  </p>
+                </div>
+
+                <!-- Footer -->
+                <div class="footer">
+                  <div class="footer-brand">CASA PRIVÉ</div>
+                  <div class="accent-line"></div>
+                  <p class="footer-tagline">The Epitome of Luxury & Bespoke Entertainment</p>
+                  <p class="footer-text">© ${new Date().getFullYear()} Casa Privé. All Rights Reserved.</p>
+                  <p class="footer-text">Accra, Ghana</p>
+                  <div style="margin-top: 25px;">
+                    <p class="footer-text" style="font-size: 11px;">
+                      Your membership card: <a href="${memberCardUrl}" style="color: #10b981; text-decoration: none;">${memberCardUrl}</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+
+      await this.resend.emails.send({
+        from: this.fromEmail,
+        to,
+        subject: '🎉 Welcome to Casa Privé - Your Exclusive Membership Awaits',
+        html,
+      });
+
+      console.log(`✓ Member welcome email sent to ${to}`);
+    } catch (error) {
+      console.error('Failed to send member welcome email:', error);
+      throw error;
+    }
   }
 
   /**
@@ -423,7 +624,7 @@ export class EmailService {
     amount: number;
   }): Promise<void> {
     try {
-      const logoPath = this.getLogoPath();
+      const logoSrc = this.getLogoBase64();
 
       const html = `
         <!DOCTYPE html>
@@ -442,7 +643,7 @@ export class EmailService {
                 <!-- Header -->
                 <div class="header">
                   <div class="logo-section">
-                    <img src="cid:logo" alt="Casa Privé Logo" class="logo" />
+                    <img src="${logoSrc}" alt="Casa Privé Logo" class="logo" />
                     <div class="brand-container">
                       <div class="brand-name">CASA PRIVÉ</div>
                       <div class="subtitle">Exclusive Events</div>
@@ -558,18 +759,11 @@ export class EmailService {
         </html>
       `;
 
-      await this.transporter.sendMail({
-        from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
+      await this.resend.emails.send({
+        from: this.fromEmail,
         to,
         subject: 'Casa Privé - Your Exclusive Reservation is Confirmed',
         html,
-        attachments: [
-          {
-            filename: 'logo.png',
-            path: logoPath,
-            cid: 'logo',
-          },
-        ],
       });
 
       console.log(`✓ Booking confirmation sent to ${to}`);
@@ -590,7 +784,7 @@ export class EmailService {
     totalAmount: number;
   }): Promise<void> {
     try {
-      const logoPath = this.getLogoPath();
+      const logoSrc = this.getLogoBase64();
 
       const itemsList = order.items
         .map((item) => `
@@ -621,7 +815,7 @@ export class EmailService {
                 <!-- Header -->
                 <div class="header">
                   <div class="logo-section">
-                    <img src="cid:logo" alt="Casa Privé Logo" class="logo" />
+                    <img src="${logoSrc}" alt="Casa Privé Logo" class="logo" />
                     <div class="brand-container">
                       <div class="brand-name">CASA PRIVÉ</div>
                       <div class="subtitle">Premium Beverages</div>
@@ -712,18 +906,11 @@ export class EmailService {
         </html>
       `;
 
-      await this.transporter.sendMail({
-        from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
+      await this.resend.emails.send({
+        from: this.fromEmail,
         to,
         subject: 'Casa Privé - Your Order Has Been Received',
         html,
-        attachments: [
-          {
-            filename: 'logo.png',
-            path: logoPath,
-            cid: 'logo',
-          },
-        ],
       });
 
       console.log(`✓ Order confirmation sent to ${to}`);
@@ -738,7 +925,7 @@ export class EmailService {
    */
   async sendAdminNotification(subject: string, content: string): Promise<void> {
     try {
-      const logoPath = this.getLogoPath();
+      const logoSrc = this.getLogoBase64();
       const adminEmail = process.env.ADMIN_EMAIL;
 
       if (!adminEmail) {
@@ -763,7 +950,7 @@ export class EmailService {
                 <!-- Header -->
                 <div class="header">
                   <div class="logo-section">
-                    <img src="cid:logo" alt="Casa Privé Logo" class="logo" />
+                    <img src="${logoSrc}" alt="Casa Privé Logo" class="logo" />
                     <div class="brand-container">
                       <div class="brand-name">CASA PRIVÉ</div>
                       <div class="subtitle">Admin Dashboard</div>
@@ -790,18 +977,11 @@ export class EmailService {
         </html>
       `;
 
-      await this.transporter.sendMail({
-        from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
+      await this.resend.emails.send({
+        from: this.fromEmail,
         to: adminEmail,
         subject: `[Casa Privé Admin] ${subject}`,
         html,
-        attachments: [
-          {
-            filename: 'logo.png',
-            path: logoPath,
-            cid: 'logo',
-          },
-        ],
       });
 
       console.log(`✓ Admin notification sent: ${subject}`);
@@ -820,7 +1000,7 @@ export class EmailService {
     numberOfGuests: number;
   }): Promise<void> {
     try {
-      const logoPath = this.getLogoPath();
+      const logoSrc = this.getLogoBase64();
 
       const html = `
         <!DOCTYPE html>
@@ -839,7 +1019,7 @@ export class EmailService {
                 <!-- Header -->
                 <div class="header">
                   <div class="logo-section">
-                    <img src="cid:logo" alt="Casa Privé Logo" class="logo" />
+                    <img src="${logoSrc}" alt="Casa Privé Logo" class="logo" />
                     <div class="brand-container">
                       <div class="brand-name">CASA PRIVÉ</div>
                       <div class="subtitle">Exclusive Waitlist</div>
@@ -919,18 +1099,11 @@ export class EmailService {
         </html>
       `;
 
-      await this.transporter.sendMail({
-        from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
+      await this.resend.emails.send({
+        from: this.fromEmail,
         to,
         subject: 'Casa Privé - Exclusive Waitlist Confirmation',
         html,
-        attachments: [
-          {
-            filename: 'logo.png',
-            path: logoPath,
-            cid: 'logo',
-          },
-        ],
       });
 
       console.log(`✓ Waitlist confirmation sent to ${to}`);
@@ -950,7 +1123,7 @@ export class EmailService {
     responseDeadline: string;
   }): Promise<void> {
     try {
-      const logoPath = this.getLogoPath();
+      const logoSrc = this.getLogoBase64();
 
       const html = `
         <!DOCTYPE html>
@@ -969,7 +1142,7 @@ export class EmailService {
                 <!-- Header -->
                 <div class="header">
                   <div class="logo-section">
-                    <img src="cid:logo" alt="Casa Privé Logo" class="logo" />
+                    <img src="${logoSrc}" alt="Casa Privé Logo" class="logo" />
                     <div class="brand-container">
                       <div class="brand-name">CASA PRIVÉ</div>
                       <div class="subtitle">Priority Notification</div>
@@ -1064,18 +1237,11 @@ export class EmailService {
         </html>
       `;
 
-      await this.transporter.sendMail({
-        from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
+      await this.resend.emails.send({
+        from: this.fromEmail,
         to,
         subject: '🎉 Casa Privé - Exclusive Table Now Available for Your Preferred Date',
         html,
-        attachments: [
-          {
-            filename: 'logo.png',
-            path: logoPath,
-            cid: 'logo',
-          },
-        ],
       });
 
       console.log(`✓ Table available notification sent to ${to}`);

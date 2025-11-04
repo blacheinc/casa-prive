@@ -1,6 +1,6 @@
 // lib/email.ts
-import nodemailer from "nodemailer";
-import path from "path";
+import nodemailer from 'nodemailer';
+import path from 'path';
 
 /**
  * Email Service for Casa Privé
@@ -14,7 +14,7 @@ export class EmailService {
   constructor() {
     this.transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT || "587"),
+      port: parseInt(process.env.EMAIL_PORT || '587'),
       secure: false,
       auth: {
         user: process.env.EMAIL_USER,
@@ -22,10 +22,7 @@ export class EmailService {
       },
     });
 
-    this.baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      "http://localhost:3000";
+    this.baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   }
 
   /**
@@ -410,234 +407,21 @@ export class EmailService {
    * Get logo path
    */
   private getLogoPath(): string {
-    return path.join(process.cwd(), "public", "logo.png");
-  }
-
-  /**
-   * Send member welcome email with membership card link
-   */
-  async sendMemberWelcome(
-    to: string,
-    member: {
-      fullName: string;
-      membershipCode: string;
-      email: string;
-      phone?: string;
-    }
-  ): Promise<void> {
-    try {
-      const logoPath = this.getLogoPath();
-      const memberCardUrl = `${this.baseUrl}/member-card/${member.membershipCode}`;
-
-      const html = `
-        <!DOCTYPE html>
-        <html lang="en">
-          <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta name="color-scheme" content="light">
-            <meta name="supported-color-schemes" content="light">
-            <title>Welcome to Casa Privé - Your Exclusive Membership</title>
-            <style>${this.getEmailStyles()}</style>
-          </head>
-          <body>
-            <div class="email-wrapper">
-              <div class="container">
-                <!-- Header -->
-                <div class="header">
-                  <div class="logo-section">
-                    <img src="cid:logo" alt="Casa Privé Logo" class="logo" />
-                    <div class="brand-container">
-                      <div class="brand-name">CASA PRIVÉ</div>
-                      <div class="subtitle">Exclusive Membership</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- Content -->
-                <div class="content">
-                  <h1 class="greeting">Welcome to the Circle</h1>
-                  
-                  <p class="intro-text">
-                    Dear ${member.fullName},
-                  </p>
-                  
-                  <p class="intro-text">
-                    Congratulations! You are now a distinguished member of Casa Privé, Ghana's most exclusive 
-                    private members club. Your membership grants you access to our world of luxury, sophistication, 
-                    and unforgettable experiences.
-                  </p>
-
-                  <div class="divider"></div>
-
-                  <!-- Membership Details -->
-                  <div class="details-card">
-                    <h2 class="details-title">Your Membership</h2>
-                    
-                    <ul class="item-list">
-                      <li>
-                        <div class="item-info">
-                          <div class="item-name">Member Name</div>
-                          <div class="item-details">${member.fullName}</div>
-                        </div>
-                      </li>
-                      
-                      <li>
-                        <div class="item-info">
-                          <div class="item-name">Membership ID</div>
-                          <div class="item-details">${
-                            member.membershipCode
-                          }</div>
-                        </div>
-                      </li>
-                      
-                      <li>
-                        <div class="item-info">
-                          <div class="item-name">Status</div>
-                          <div class="item-details">Active - Premium Member</div>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <!-- Digital Card CTA -->
-                  <div style="text-align: center; margin: 45px 0;">
-                    <p class="intro-text" style="margin-bottom: 20px; font-size: 18px;">
-                      Your Digital Membership Card
-                    </p>
-                    <a href="${memberCardUrl}" class="cta-button">
-                      VIEW YOUR MEMBERSHIP CARD
-                    </a>
-                    <p class="intro-text" style="margin-top: 20px; font-size: 13px; color: #64748b;">
-                      Save this link or add to your home screen for quick access
-                    </p>
-                  </div>
-
-                  <!-- Member Benefits -->
-                  <div class="info-box">
-                    <h3 class="info-title">Exclusive Member Benefits</h3>
-                    <ul class="info-list">
-                      <li>Priority access to all Casa Privé signature events</li>
-                      <li>Complimentary guest privileges for select occasions</li>
-                      <li>Dedicated concierge service for reservations</li>
-                      <li>Access to members-only experiences and venues</li>
-                      <li>Preferential booking for private dining and VIP tables</li>
-                      <li>Invitations to exclusive networking events</li>
-                      <li>Special member pricing on premium packages</li>
-                    </ul>
-                  </div>
-
-                  <div class="divider"></div>
-
-                  <!-- Next Steps -->
-                  <div class="details-card">
-                    <h2 class="details-title">Getting Started</h2>
-                    
-                    <p class="intro-text" style="margin-bottom: 25px;">
-                      To ensure you make the most of your membership, here's what you need to know:
-                    </p>
-
-                    <ul class="item-list">
-                      <li>
-                        <div class="item-info">
-                          <div class="item-name">1. Save Your Digital Card</div>
-                          <div class="item-details">Click the button above to access your digital membership card. Save it to your phone for entry to events.</div>
-                        </div>
-                      </li>
-                      
-                      <li>
-                        <div class="item-info">
-                          <div class="item-name">2. Stay Connected</div>
-                          <div class="item-details">Follow us on social media and check your email regularly for exclusive event invitations.</div>
-                        </div>
-                      </li>
-                      
-                      <li>
-                        <div class="item-info">
-                          <div class="item-name">3. Make Reservations</div>
-                          <div class="item-details">Contact our concierge team to book your first experience with priority member access.</div>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div class="divider"></div>
-
-                  <p class="intro-text">
-                    Should you require any assistance or wish to make a reservation, our concierge team is 
-                    available at <strong>${
-                      process.env.ADMIN_EMAIL || "concierge@casaprive.com"
-                    }</strong>${
-        member.phone
-          ? ` or via WhatsApp at <strong>${member.phone}</strong>`
-          : ""
-      }.
-                  </p>
-
-                  <p class="intro-text" style="margin-bottom: 0;">
-                    Welcome to a world where luxury meets exclusivity.
-                  </p>
-                  
-                  <p class="intro-text" style="margin-top: 10px; margin-bottom: 0;">
-                    <em>The Casa Privé Team</em>
-                  </p>
-                </div>
-
-                <!-- Footer -->
-                <div class="footer">
-                  <div class="footer-brand">CASA PRIVÉ</div>
-                  <div class="accent-line"></div>
-                  <p class="footer-tagline">The Epitome of Luxury & Bespoke Entertainment</p>
-                  <p class="footer-text">© ${new Date().getFullYear()} Casa Privé. All Rights Reserved.</p>
-                  <p class="footer-text">Accra, Ghana</p>
-                  <div style="margin-top: 25px;">
-                    <p class="footer-text" style="font-size: 11px;">
-                      Your membership card: <a href="${memberCardUrl}" style="color: #10b981; text-decoration: none;">${memberCardUrl}</a>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </body>
-        </html>
-      `;
-
-      await this.transporter.sendMail({
-        from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
-        to,
-        subject: "🎉 Welcome to Casa Privé - Your Exclusive Membership Awaits",
-        html,
-        attachments: [
-          {
-            filename: "logo.png",
-            path: logoPath,
-            cid: "logo",
-          },
-        ],
-      });
-
-      console.log(`✓ Member welcome email sent to ${to}`);
-    } catch (error) {
-      console.error("Failed to send member welcome email:", error);
-      throw error;
-    }
+    return path.join(process.cwd(), 'public', 'logo.png');
   }
 
   /**
    * Send booking confirmation email
    */
-  async sendBookingConfirmation(
-    to: string,
-    booking: {
-      id: string;
-      fullName: string;
-      packageName: string;
-      numberOfGuests: number;
-      eventDate: string;
-      tableNumber: number | null;
-      amount: number;
-    }
-  ): Promise<void> {
+  async sendBookingConfirmation(to: string, booking: {
+    id: string;
+    fullName: string;
+    packageName: string;
+    numberOfGuests: number;
+    eventDate: string;
+    tableNumber: number | null;
+    amount: number;
+  }): Promise<void> {
     try {
       const logoPath = this.getLogoPath();
 
@@ -689,9 +473,7 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Confirmation No.</div>
-                          <div class="item-details">${booking.id
-                            .slice(-8)
-                            .toUpperCase()}</div>
+                          <div class="item-details">${booking.id.slice(-8).toUpperCase()}</div>
                         </div>
                       </li>
                       
@@ -712,31 +494,23 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Party Size</div>
-                          <div class="item-details">${
-                            booking.numberOfGuests
-                          } Guest${booking.numberOfGuests > 1 ? "s" : ""}</div>
+                          <div class="item-details">${booking.numberOfGuests} Guest${booking.numberOfGuests > 1 ? 's' : ''}</div>
                         </div>
                       </li>
                       
-                      ${
-                        booking.tableNumber
-                          ? `
+                      ${booking.tableNumber ? `
                         <li>
                           <div class="item-info">
                             <div class="item-name">Table Number</div>
                             <div class="item-details">Table ${booking.tableNumber}</div>
                           </div>
                         </li>
-                      `
-                          : ""
-                      }
+                      ` : ''}
                       
                       <li>
                         <div class="item-info">
                           <div class="item-name">Total Investment</div>
-                          <div class="item-details">GHS ${booking.amount.toFixed(
-                            2
-                          )}</div>
+                          <div class="item-details">GHS ${booking.amount.toFixed(2)}</div>
                         </div>
                       </li>
                     </ul>
@@ -758,9 +532,7 @@ export class EmailService {
 
                   <p class="intro-text">
                     Should you require any special arrangements or have inquiries, our concierge team 
-                    is at your service at <strong>${
-                      process.env.ADMIN_EMAIL || "concierge@casaprive.com"
-                    }</strong>
+                    is at your service at <strong>${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}</strong>
                   </p>
 
                   <p class="intro-text" style="margin-bottom: 0;">
@@ -789,20 +561,20 @@ export class EmailService {
       await this.transporter.sendMail({
         from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
         to,
-        subject: "Casa Privé - Your Exclusive Reservation is Confirmed",
+        subject: 'Casa Privé - Your Exclusive Reservation is Confirmed',
         html,
         attachments: [
           {
-            filename: "logo.png",
+            filename: 'logo.png',
             path: logoPath,
-            cid: "logo",
+            cid: 'logo',
           },
         ],
       });
 
       console.log(`✓ Booking confirmation sent to ${to}`);
     } catch (error) {
-      console.error("Failed to send booking confirmation:", error);
+      console.error('Failed to send booking confirmation:', error);
       throw error;
     }
   }
@@ -810,34 +582,27 @@ export class EmailService {
   /**
    * Send order confirmation email
    */
-  async sendOrderConfirmation(
-    to: string,
-    order: {
-      id: string;
-      customerName: string;
-      tableNumberOrName: string;
-      items: Array<{ name: string; quantity: number; price: number }>;
-      totalAmount: number;
-    }
-  ): Promise<void> {
+  async sendOrderConfirmation(to: string, order: {
+    id: string;
+    customerName: string;
+    tableNumberOrName: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+    totalAmount: number;
+  }): Promise<void> {
     try {
       const logoPath = this.getLogoPath();
 
       const itemsList = order.items
-        .map(
-          (item) => `
+        .map((item) => `
           <li>
             <div class="item-info">
               <div class="item-name">${item.name}</div>
               <div class="item-details">Quantity: ${item.quantity}</div>
             </div>
-            <div class="item-price">GHS ${(item.price * item.quantity).toFixed(
-              2
-            )}</div>
+            <div class="item-price">GHS ${(item.price * item.quantity).toFixed(2)}</div>
           </li>
-        `
-        )
-        .join("");
+        `)
+        .join('');
 
       const html = `
         <!DOCTYPE html>
@@ -887,18 +652,14 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Order No.</div>
-                          <div class="item-details">${order.id
-                            .slice(-8)
-                            .toUpperCase()}</div>
+                          <div class="item-details">${order.id.slice(-8).toUpperCase()}</div>
                         </div>
                       </li>
                       
                       <li>
                         <div class="item-info">
                           <div class="item-name">Table</div>
-                          <div class="item-details">${
-                            order.tableNumberOrName
-                          }</div>
+                          <div class="item-details">${order.tableNumberOrName}</div>
                         </div>
                       </li>
                     </ul>
@@ -954,20 +715,20 @@ export class EmailService {
       await this.transporter.sendMail({
         from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
         to,
-        subject: "Casa Privé - Your Order Has Been Received",
+        subject: 'Casa Privé - Your Order Has Been Received',
         html,
         attachments: [
           {
-            filename: "logo.png",
+            filename: 'logo.png',
             path: logoPath,
-            cid: "logo",
+            cid: 'logo',
           },
         ],
       });
 
       console.log(`✓ Order confirmation sent to ${to}`);
     } catch (error) {
-      console.error("Failed to send order confirmation:", error);
+      console.error('Failed to send order confirmation:', error);
       throw error;
     }
   }
@@ -981,9 +742,7 @@ export class EmailService {
       const adminEmail = process.env.ADMIN_EMAIL;
 
       if (!adminEmail) {
-        console.warn(
-          "⚠ ADMIN_EMAIL not configured, skipping admin notification"
-        );
+        console.warn('⚠ ADMIN_EMAIL not configured, skipping admin notification');
         return;
       }
 
@@ -1038,16 +797,16 @@ export class EmailService {
         html,
         attachments: [
           {
-            filename: "logo.png",
+            filename: 'logo.png',
             path: logoPath,
-            cid: "logo",
+            cid: 'logo',
           },
         ],
       });
 
       console.log(`✓ Admin notification sent: ${subject}`);
     } catch (error) {
-      console.error("Failed to send admin notification:", error);
+      console.error('Failed to send admin notification:', error);
       throw error;
     }
   }
@@ -1055,14 +814,11 @@ export class EmailService {
   /**
    * Send waitlist confirmation email
    */
-  async sendWaitlistConfirmation(
-    to: string,
-    waitlist: {
-      fullName: string;
-      preferredDate: string;
-      numberOfGuests: number;
-    }
-  ): Promise<void> {
+  async sendWaitlistConfirmation(to: string, waitlist: {
+    fullName: string;
+    preferredDate: string;
+    numberOfGuests: number;
+  }): Promise<void> {
     try {
       const logoPath = this.getLogoPath();
 
@@ -1114,18 +870,14 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Preferred Date</div>
-                          <div class="item-details">${
-                            waitlist.preferredDate
-                          }</div>
+                          <div class="item-details">${waitlist.preferredDate}</div>
                         </div>
                       </li>
                       
                       <li>
                         <div class="item-info">
                           <div class="item-name">Party Size</div>
-                          <div class="item-details">${
-                            waitlist.numberOfGuests
-                          } Guest${waitlist.numberOfGuests > 1 ? "s" : ""}</div>
+                          <div class="item-details">${waitlist.numberOfGuests} Guest${waitlist.numberOfGuests > 1 ? 's' : ''}</div>
                         </div>
                       </li>
                     </ul>
@@ -1170,20 +922,20 @@ export class EmailService {
       await this.transporter.sendMail({
         from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
         to,
-        subject: "Casa Privé - Exclusive Waitlist Confirmation",
+        subject: 'Casa Privé - Exclusive Waitlist Confirmation',
         html,
         attachments: [
           {
-            filename: "logo.png",
+            filename: 'logo.png',
             path: logoPath,
-            cid: "logo",
+            cid: 'logo',
           },
         ],
       });
 
       console.log(`✓ Waitlist confirmation sent to ${to}`);
     } catch (error) {
-      console.error("Failed to send waitlist confirmation:", error);
+      console.error('Failed to send waitlist confirmation:', error);
       throw error;
     }
   }
@@ -1191,15 +943,12 @@ export class EmailService {
   /**
    * Send table available notification to waitlist member
    */
-  async sendTableAvailableNotification(
-    to: string,
-    details: {
-      fullName: string;
-      preferredDate: string;
-      numberOfGuests: number;
-      responseDeadline: string;
-    }
-  ): Promise<void> {
+  async sendTableAvailableNotification(to: string, details: {
+    fullName: string;
+    preferredDate: string;
+    numberOfGuests: number;
+    responseDeadline: string;
+  }): Promise<void> {
     try {
       const logoPath = this.getLogoPath();
 
@@ -1251,27 +1000,21 @@ export class EmailService {
                       <li>
                         <div class="item-info">
                           <div class="item-name">Available Date</div>
-                          <div class="item-details">${
-                            details.preferredDate
-                          }</div>
+                          <div class="item-details">${details.preferredDate}</div>
                         </div>
                       </li>
                       
                       <li>
                         <div class="item-info">
                           <div class="item-name">Party Size</div>
-                          <div class="item-details">${
-                            details.numberOfGuests
-                          } Guest${details.numberOfGuests > 1 ? "s" : ""}</div>
+                          <div class="item-details">${details.numberOfGuests} Guest${details.numberOfGuests > 1 ? 's' : ''}</div>
                         </div>
                       </li>
                       
                       <li>
                         <div class="item-info">
                           <div class="item-name">Response Deadline</div>
-                          <div class="item-details">${
-                            details.responseDeadline
-                          }</div>
+                          <div class="item-details">${details.responseDeadline}</div>
                         </div>
                       </li>
                     </ul>
@@ -1303,9 +1046,7 @@ export class EmailService {
                   
                   <p class="intro-text" style="margin-top: 10px; margin-bottom: 0;">
                     <em>The Casa Privé Concierge Team</em><br>
-                    <strong>${
-                      process.env.ADMIN_EMAIL || "concierge@casaprive.com"
-                    }</strong>
+                    <strong>${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}</strong>
                   </p>
                 </div>
 
@@ -1326,21 +1067,20 @@ export class EmailService {
       await this.transporter.sendMail({
         from: process.env.EMAIL_FROM || '"Casa Privé" <noreply@casaprive.com>',
         to,
-        subject:
-          "🎉 Casa Privé - Exclusive Table Now Available for Your Preferred Date",
+        subject: '🎉 Casa Privé - Exclusive Table Now Available for Your Preferred Date',
         html,
         attachments: [
           {
-            filename: "logo.png",
+            filename: 'logo.png',
             path: logoPath,
-            cid: "logo",
+            cid: 'logo',
           },
         ],
       });
 
       console.log(`✓ Table available notification sent to ${to}`);
     } catch (error) {
-      console.error("Failed to send table available notification:", error);
+      console.error('Failed to send table available notification:', error);
       throw error;
     }
   }

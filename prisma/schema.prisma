@@ -169,6 +169,7 @@ enum PaymentMethod {
   PAYSTACK
   BANK_TRANSFER
   CASH
+  POS
 }
 
 enum PaymentStatus {

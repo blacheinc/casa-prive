@@ -26,7 +26,7 @@ export default function MenuPage() {
     customerName: '',
     tableNumberOrName: '',
     email: '',
-    paymentMethod: 'PAYSTACK',
+    paymentMethod: 'POS',
   });
   const [showCheckout, setShowCheckout] = useState(false);
   const [loading, setLoading] = useState(false);

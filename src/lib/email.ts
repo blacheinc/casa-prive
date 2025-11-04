@@ -290,7 +290,7 @@ ${this.baseUrl}
 
                   <p class="intro-text">
                     Should you require any assistance or wish to make a reservation, our concierge team is 
-                    available at <strong>${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}</strong>${member.phone ? ` or via WhatsApp at <strong>${member.phone}</strong>` : ''}.
+                    available at <strong>${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}</strong>${process.env.ADMIN_PHONE ? ` or via WhatsApp at <strong>${process.env.ADMIN_PHONE || '+233244963777'}</strong>` : ''}.
                   </p>
 
                   <p class="intro-text" style="margin-bottom: 0;">
@@ -346,7 +346,7 @@ Getting Started:
 2. Stay Connected - Follow us on social media for exclusive updates
 3. Make Reservations - Contact our concierge team for priority access
 
-${member.phone ? `Contact us at ${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'} or via WhatsApp at ${member.phone}` : `Contact us at ${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}`}`,
+${process.env.ADMIN_PHONE ? `Contact us at ${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'} or via WhatsApp at ${process.env.ADMIN_PHONE || '+233244963777'}` : `Contact us at ${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}`}`,
         callToAction: `View your digital membership card: ${memberCardUrl}`,
         footer: 'Welcome to a world where luxury meets exclusivity.\n\nThe Casa Privé Team'
       });

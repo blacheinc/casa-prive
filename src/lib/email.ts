@@ -1,12 +1,18 @@
 // lib/email.ts
+// OPTIMIZED Resend Email Service - Fixes spam and Gmail clipping issues
 import { Resend } from 'resend';
-import fs from 'fs';
-import path from 'path';
+import crypto from 'crypto';
 
 /**
- * Email Service for Casa Privé
- * Handles all transactional emails with luxury emerald & gold design
- * Matching the Casa Privé brand identity
+ * Email Service for Casa Privé using Resend
+ * OPTIMIZED VERSION: Prevents Gmail clipping and improves deliverability
+ * 
+ * Key optimizations:
+ * - Uses hosted images instead of base64 (reduces size by ~50KB per email)
+ * - Includes plain text versions (improves spam score)
+ * - Adds proper headers (reduces spam filtering)
+ * - Minified CSS (reduces overall size)
+ * - Email size monitoring (alerts if > 102KB)
  */
 export class EmailService {
   private resend: Resend;
@@ -15,7 +21,6 @@ export class EmailService {
 
   constructor() {
     const apiKey = process.env.RESEND_API_KEY;
-    
     if (!apiKey) {
       throw new Error('RESEND_API_KEY is not configured in environment variables');
     }
@@ -23,400 +28,119 @@ export class EmailService {
     this.resend = new Resend(apiKey);
     this.baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     this.fromEmail = process.env.EMAIL_FROM || 'Casa Privé <noreply@casaprive.com>';
+    
+    console.log('✓ Resend email service initialized (optimized for deliverability)');
   }
 
   /**
-   * Get premium email styles with emerald & gold theme
+   * Use hosted logo URL instead of base64 to reduce email size by ~50KB
+   * This prevents Gmail from clipping emails over 102KB
+   */
+  private getLogoUrl(): string {
+    // Logo must be publicly accessible at this URL
+    // Make sure public/logo.png exists and is served by your Next.js app
+    return `${this.baseUrl}/logo.png`;
+    
+    // Alternative options:
+    // return 'https://your-cdn.com/casa-prive-logo.png';
+    // return 'https://res.cloudinary.com/your-account/image/upload/v1/logo.png';
+  }
+
+  /**
+   * Minified CSS to reduce email size (under 102KB to avoid Gmail clipping)
+   * All unnecessary whitespace removed
    */
   private getEmailStyles(): string {
     return `
-      /* Reset & Base Styles */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: 'Georgia', 'Times New Roman', serif;
-        line-height: 1.8;
-        color: #1a1a1a;
-        background: #0f172a;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        font-weight: 300;
-        letter-spacing: 0.015em;
-      }
-
-      /* Email Wrapper */
-      .email-wrapper {
-        background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%);
-        padding: 50px 20px;
-      }
-
-      /* Main Container */
-      .container {
-        max-width: 650px;
-        margin: 0 auto;
-        background: #ffffff;
-        border-radius: 0;
-        overflow: hidden;
-        box-shadow: 0 25px 70px rgba(16, 185, 129, 0.3);
-      }
-
-      /* Header Section */
-      .header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        padding: 50px 40px;
-        border-bottom: 3px solid #10b981;
-        position: relative;
-      }
-
-      .header::after {
-        content: '';
-        position: absolute;
-        bottom: -3px;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #10b981 0%, #d4af37 100%);
-      }
-
-      .logo-section {
-        display: flex;
-        align-items: center;
-        gap: 30px;
-        margin-bottom: 25px;
-      }
-
-      .logo {
-        width: 65px;
-        height: 65px;
-        margin-right: 20px;
-        object-fit: contain;
-        filter: drop-shadow(0 4px 6px rgba(16, 185, 129, 0.3));
-      }
-
-      .brand-container {
-        flex: 1;
-      }
-
-      .brand-name {
-        font-size: 34px;
-        font-weight: 300;
-        letter-spacing: 5px;
-        background: linear-gradient(135deg, #10b981 0%, #d4af37 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-transform: uppercase;
-        font-family: 'Garamond', 'Georgia', serif;
-        margin-bottom: 8px;
-      }
-
-      .subtitle {
-        font-size: 11px;
-        letter-spacing: 2.5px;
-        color: #94a3b8;
-        text-transform: uppercase;
-        font-family: 'Arial', sans-serif;
-        font-weight: 300;
-        margin-bottom: 25px;
-      }
-
-      /* Content Section */
-      .content {
-        padding: 55px 45px;
-        background: #ffffff;
-      }
-
-      .greeting {
-        font-size: 32px;
-        color: #0f172a;
-        margin-bottom: 30px;
-        font-weight: 300;
-        letter-spacing: 2px;
-        line-height: 1.4;
-      }
-
-      .intro-text {
-        font-size: 16px;
-        color: #334155;
-        margin-bottom: 35px;
-        line-height: 1.9;
-        font-weight: 300;
-      }
-
-      /* Divider */
-      .divider {
-        height: 2px;
-        background: linear-gradient(to right, transparent, #10b981, #d4af37, transparent);
-        margin: 40px 0;
-      }
-
-      /* Details Card */
-      .details-card {
-        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-        padding: 40px;
-        margin: 35px 0;
-        border-left: 5px solid #10b981;
-        border-radius: 0;
-        box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1);
-      }
-
-      .details-title {
-        font-size: 22px;
-        background: linear-gradient(135deg, #10b981 0%, #d4af37 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 35px;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        font-weight: 300;
-      }
-
-      /* Info Box */
-      .info-box {
-        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-        border: 2px solid #d4af37;
-        padding: 35px;
-        margin: 35px 0;
-        border-radius: 0;
-        box-shadow: 0 4px 6px -1px rgba(212, 175, 55, 0.1);
-      }
-
-      .info-title {
-        font-size: 17px;
-        color: #b8923b;
-        margin-bottom: 25px;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        font-family: 'Arial', sans-serif;
-        font-weight: 500;
-      }
-
-      .info-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-
-      .info-list li {
-        padding: 12px 0;
-        padding-left: 30px;
-        position: relative;
-        color: #64748b;
-        font-size: 15px;
-        line-height: 1.7;
-        font-weight: 300;
-      }
-
-      .info-list li:before {
-        content: '◆';
-        position: absolute;
-        left: 0;
-        color: #10b981;
-        font-size: 11px;
-        top: 13px;
-      }
-
-      /* CTA Button */
-      .cta-button {
-        display: inline-block;
-        padding: 20px 55px;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: #ffffff;
-        text-decoration: none;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        font-size: 13px;
-        font-weight: 300;
-        border-radius: 0;
-        margin: 30px 0;
-        font-family: 'Arial', sans-serif;
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-        transition: all 0.3s ease;
-        border: 1px solid rgba(212, 175, 55, 0.3);
-      }
-
-      /* Item List (for orders) */
-      .item-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-
-      .item-list li {
-        padding: 18px 0;
-        border-bottom: 1px solid #e2e8f0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 25px;
-      }
-
-      .item-list li:last-child {
-        border-bottom: none;
-      }
-
-      .item-info {
-        flex: 1;
-      }
-
-      .item-name {
-        font-size: 16px;
-        color: #64748b;
-        font-weight: 600;
-        margin-bottom: 6px;
-        letter-spacing: 0.5px;
-      }
-
-      .item-details {
-        font-size: 14px;
-        color: #64748b;
-        margin-top: 6px;
-        font-weight: 300;
-      }
-
-      .item-price {
-        font-size: 16px;
-        background: linear-gradient(135deg, #10b981 0%, #d4af37 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-weight: 500;
-        margin-left: 20px;
-      }
-
-      .total-amount {
-        font-size: 26px;
-        background: linear-gradient(135deg, #10b981 0%, #d4af37 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-weight: 300;
-        letter-spacing: 2px;
-        text-align: right;
-        margin-top: 25px;
-        padding-top: 25px;
-        border-top: 2px solid;
-        border-image: linear-gradient(90deg, #10b981, #d4af37) 1;
-      }
-
-      /* Footer */
-      .footer {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        color: #94a3b8;
-        padding: 45px 40px;
-        text-align: center;
-        border-top: 1px solid #334155;
-      }
-
-      .footer-brand {
-        font-size: 20px;
-        background: linear-gradient(135deg, #10b981 0%, #d4af37 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        letter-spacing: 4px;
-        margin-bottom: 15px;
-        text-transform: uppercase;
-        font-weight: 300;
-      }
-
-      .accent-line {
-        height: 1px;
-        background: linear-gradient(to right, transparent, #10b981, #d4af37, transparent);
-        margin: 20px auto;
-        width: 220px;
-      }
-
-      .footer-tagline {
-        font-size: 12px;
-        letter-spacing: 2px;
-        color: #64748b;
-        margin: 18px 0;
-        text-transform: uppercase;
-        font-style: italic;
-        font-weight: 300;
-      }
-
-      .footer-text {
-        font-size: 13px;
-        color: #475569;
-        margin: 8px 0;
-        line-height: 1.6;
-        font-weight: 300;
-      }
-
-      /* Responsive */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: 'Georgia', 'Times New Roman', serif; line-height: 1.8; color: #1a1a1a; background: #0f172a; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-weight: 300; letter-spacing: 0.015em; }
+      .email-wrapper { background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%); padding: 50px 20px; }
+      .container { max-width: 650px; margin: 0 auto; background: #ffffff; border-radius: 0; overflow: hidden; box-shadow: 0 25px 70px rgba(16, 185, 129, 0.3); }
+      .header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 50px 40px; border-bottom: 3px solid #10b981; position: relative; }
+      .header::after { content: ''; position: absolute; bottom: -3px; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #10b981 0%, #d4af37 100%); }
+      .logo-section { display: flex; align-items: center; gap: 30px; margin-bottom: 25px; }
+      .logo { width: 65px; height: 65px; margin-right: 20px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(16, 185, 129, 0.3)); }
+      .brand-container { flex: 1; }
+      .brand-name { font-size: 34px; font-weight: 300; letter-spacing: 5px; background: linear-gradient(135deg, #10b981 0%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-transform: uppercase; font-family: 'Garamond', 'Georgia', serif; margin-bottom: 8px; }
+      .subtitle { font-size: 11px; letter-spacing: 2.5px; color: #94a3b8; text-transform: uppercase; font-family: 'Arial', sans-serif; font-weight: 300; margin-bottom: 25px; }
+      .content { padding: 55px 45px; background: #ffffff; }
+      .greeting { font-size: 32px; color: #0f172a; margin-bottom: 30px; font-weight: 300; letter-spacing: 2px; line-height: 1.4; }
+      .intro-text { font-size: 16px; color: #334155; margin-bottom: 35px; line-height: 1.9; font-weight: 300; }
+      .divider { height: 2px; background: linear-gradient(to right, transparent, #10b981, #d4af37, transparent); margin: 40px 0; }
+      .details-card { background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); padding: 40px; margin: 35px 0; border-left: 5px solid #10b981; border-radius: 0; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1); }
+      .details-title { font-size: 22px; background: linear-gradient(135deg, #10b981 0%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 35px; letter-spacing: 2px; text-transform: uppercase; font-weight: 300; }
+      .info-box { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 2px solid #d4af37; padding: 35px; margin: 35px 0; border-radius: 0; box-shadow: 0 4px 6px -1px rgba(212, 175, 55, 0.1); }
+      .info-title { font-size: 17px; color: #b8923b; margin-bottom: 25px; letter-spacing: 2px; text-transform: uppercase; font-family: 'Arial', sans-serif; font-weight: 500; }
+      .info-list { list-style: none; padding: 0; margin: 0; }
+      .info-list li { padding: 12px 0; padding-left: 30px; position: relative; color: #64748b; font-size: 15px; line-height: 1.7; font-weight: 300; }
+      .info-list li:before { content: '◆'; position: absolute; left: 0; color: #10b981; font-size: 11px; top: 13px; }
+      .cta-button { display: inline-block; padding: 20px 55px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; text-transform: uppercase; letter-spacing: 3px; font-size: 13px; font-weight: 300; border-radius: 0; margin: 30px 0; font-family: 'Arial', sans-serif; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35); transition: all 0.3s ease; border: 1px solid rgba(212, 175, 55, 0.3); }
+      .item-list { list-style: none; padding: 0; margin: 0; }
+      .item-list li { padding: 18px 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 25px; }
+      .item-list li:last-child { border-bottom: none; }
+      .item-info { flex: 1; }
+      .item-name { font-size: 16px; color: #64748b; font-weight: 600; margin-bottom: 6px; letter-spacing: 0.5px; }
+      .item-details { font-size: 14px; color: #64748b; margin-top: 6px; font-weight: 300; }
+      .item-price { font-size: 16px; background: linear-gradient(135deg, #10b981 0%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 500; margin-left: 20px; }
+      .total-amount { font-size: 26px; background: linear-gradient(135deg, #10b981 0%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 300; letter-spacing: 2px; text-align: right; margin-top: 25px; padding-top: 25px; border-top: 2px solid; border-image: linear-gradient(90deg, #10b981, #d4af37) 1; }
+      .footer { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #94a3b8; padding: 45px 40px; text-align: center; border-top: 1px solid #334155; }
+      .footer-brand { font-size: 20px; background: linear-gradient(135deg, #10b981 0%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 4px; margin-bottom: 15px; text-transform: uppercase; font-weight: 300; }
+      .accent-line { height: 1px; background: linear-gradient(to right, transparent, #10b981, #d4af37, transparent); margin: 20px auto; width: 220px; }
+      .footer-tagline { font-size: 12px; letter-spacing: 2px; color: #64748b; margin: 18px 0; text-transform: uppercase; font-style: italic; font-weight: 300; }
+      .footer-text { font-size: 13px; color: #475569; margin: 8px 0; line-height: 1.6; font-weight: 300; }
       @media only screen and (max-width: 600px) {
-        .email-wrapper {
-          padding: 30px 15px;
-        }
-
-        .header {
-          padding: 35px 25px;
-        }
-
-        .content {
-          padding: 40px 25px;
-        }
-
-        .logo-section {
-          gap: 20px;
-        }
-
-        .logo {
-          width: 50px;
-          height: 50px;
-        }
-
-        .brand-name {
-          font-size: 26px;
-          letter-spacing: 3px;
-        }
-
-        .greeting {
-          font-size: 26px;
-        }
-
-        .details-card {
-          padding: 30px 25px;
-        }
-
-        .info-box {
-          padding: 25px 20px;
-        }
-
-        .detail-row {
-          flex-direction: column;
-          gap: 8px;
-          align-items: flex-start;
-        }
-
-        .detail-value {
-          text-align: left;
-        }
+        .email-wrapper { padding: 30px 15px; }
+        .header { padding: 35px 25px; }
+        .content { padding: 40px 25px; }
+        .logo-section { gap: 20px; }
+        .logo { width: 50px; height: 50px; }
+        .brand-name { font-size: 26px; letter-spacing: 3px; }
+        .greeting { font-size: 26px; }
+        .details-card { padding: 30px 25px; }
+        .info-box { padding: 25px 20px; }
       }
-    `;
+    `.replace(/\s+/g, ' ').trim();
   }
 
   /**
-   * Get logo as base64 or URL
+   * Check email size and warn if it exceeds Gmail's 102KB clipping threshold
    */
-  private getLogoBase64(): string {
-    try {
-      const logoPath = path.join(process.cwd(), 'public', 'logo.png');
-      const logoBuffer = fs.readFileSync(logoPath);
-      const base64Logo = logoBuffer.toString('base64');
-      return `data:image/png;base64,${base64Logo}`;
-    } catch (error) {
-      console.warn('⚠ Logo file not found, using placeholder');
-      // Return a placeholder or your hosted logo URL
-      return `${this.baseUrl}/logo.png`;
+  private checkEmailSize(html: string, emailType: string): void {
+    const sizeBytes = Buffer.byteLength(html, 'utf8');
+    const sizeKB = (sizeBytes / 1024).toFixed(2);
+    const isOverLimit = sizeBytes > 102 * 1024;
+    
+    console.log(`📧 ${emailType} email size: ${sizeKB}KB ${isOverLimit ? '⚠️ EXCEEDS 102KB - WILL BE CLIPPED!' : '✓'}`);
+    
+    if (isOverLimit) {
+      console.warn(`⚠️ WARNING: Email exceeds 102KB and will be clipped by Gmail!`);
+      console.warn(`   Consider: using even more minified CSS, shorter content, or hosted images`);
     }
+  }
+
+  /**
+   * Generate plain text version for better deliverability
+   * Spam filters penalize HTML-only emails
+   */
+  private generatePlainText(content: {
+    greeting: string;
+    body: string;
+    callToAction?: string;
+    footer: string;
+  }): string {
+    return `
+${content.greeting}
+
+${content.body}
+
+${content.callToAction ? content.callToAction + '\n\n' : ''}${content.footer}
+
+---
+Casa Privé
+The Epitome of Luxury & Bespoke Entertainment
+Accra, Ghana
+${this.baseUrl}
+    `.trim();
   }
 
   /**
@@ -429,7 +153,7 @@ export class EmailService {
     phone?: string;
   }): Promise<void> {
     try {
-      const logoSrc = this.getLogoBase64();
+      const logoUrl = this.getLogoUrl();
       const memberCardUrl = `${this.baseUrl}/member-card/${member.membershipCode}`;
 
       const html = `
@@ -449,7 +173,7 @@ export class EmailService {
                 <!-- Header -->
                 <div class="header">
                   <div class="logo-section">
-                    <img src="${logoSrc}" alt="Casa Privé Logo" class="logo" />
+                    <img src="${logoUrl}" alt="Casa Privé Logo" class="logo" />
                     <div class="brand-container">
                       <div class="brand-name">CASA PRIVÉ</div>
                       <div class="subtitle">Exclusive Membership</div>
@@ -597,11 +321,52 @@ export class EmailService {
         </html>
       `;
 
+      const text = this.generatePlainText({
+        greeting: `Dear ${member.fullName},`,
+        body: `Congratulations! You are now a distinguished member of Casa Privé, Ghana's most exclusive private members club.
+
+Your Membership Details:
+- Member Name: ${member.fullName}
+- Membership ID: ${member.membershipCode}
+- Status: Active - Premium Member
+
+Your membership grants you access to our world of luxury, sophistication, and unforgettable experiences.
+
+Exclusive Member Benefits:
+- Priority access to all Casa Privé signature events
+- Complimentary guest privileges for select occasions
+- Dedicated concierge service for reservations
+- Access to members-only experiences and venues
+- Preferential booking for private dining and VIP tables
+- Invitations to exclusive networking events
+- Special member pricing on premium packages
+
+Getting Started:
+1. Save Your Digital Card - Access your membership card at the link below
+2. Stay Connected - Follow us on social media for exclusive updates
+3. Make Reservations - Contact our concierge team for priority access
+
+${member.phone ? `Contact us at ${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'} or via WhatsApp at ${member.phone}` : `Contact us at ${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}`}`,
+        callToAction: `View your digital membership card: ${memberCardUrl}`,
+        footer: 'Welcome to a world where luxury meets exclusivity.\n\nThe Casa Privé Team'
+      });
+
+      this.checkEmailSize(html, 'Member Welcome');
+
       await this.resend.emails.send({
         from: this.fromEmail,
         to,
         subject: '🎉 Welcome to Casa Privé - Your Exclusive Membership Awaits',
         html,
+        text,
+        headers: {
+          'X-Entity-Ref-ID': crypto.randomUUID(),
+          'List-Unsubscribe': `<mailto:unsubscribe@casaprive.com>`,
+        },
+        tags: [
+          { name: 'category', value: 'membership' },
+          { name: 'environment', value: process.env.NODE_ENV || 'development' },
+        ],
       });
 
       console.log(`✓ Member welcome email sent to ${to}`);
@@ -624,7 +389,7 @@ export class EmailService {
     amount: number;
   }): Promise<void> {
     try {
-      const logoSrc = this.getLogoBase64();
+      const logoUrl = this.getLogoUrl();
 
       const html = `
         <!DOCTYPE html>
@@ -643,7 +408,7 @@ export class EmailService {
                 <!-- Header -->
                 <div class="header">
                   <div class="logo-section">
-                    <img src="${logoSrc}" alt="Casa Privé Logo" class="logo" />
+                    <img src="${logoUrl}" alt="Casa Privé Logo" class="logo" />
                     <div class="brand-container">
                       <div class="brand-name">CASA PRIVÉ</div>
                       <div class="subtitle">Exclusive Events</div>
@@ -759,11 +524,42 @@ export class EmailService {
         </html>
       `;
 
+      const text = this.generatePlainText({
+        greeting: `Dear ${booking.fullName},`,
+        body: `Your reservation has been confirmed. We are delighted to welcome you to Casa Privé for an unforgettable evening of luxury and entertainment.
+
+Reservation Details:
+- Confirmation No: ${booking.id.slice(-8).toUpperCase()}
+- Package: ${booking.packageName}
+- Event Date: ${booking.eventDate}
+- Party Size: ${booking.numberOfGuests} guest(s)${booking.tableNumber ? `\n- Table Number: ${booking.tableNumber}` : ''}
+- Total Investment: GHS ${booking.amount.toFixed(2)}
+
+Essential Information:
+- Dress Code: Elegant Evening Attire - Dress to Impress
+- Arrival Time: 15 minutes prior to event commencement
+- Entry Requirement: Present this confirmation email
+- Table Capacity: Maximum of 6 distinguished guests
+- Premium Bar Service & Signature Cocktails Available
+
+For special arrangements or inquiries, contact our concierge team at ${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}`,
+        footer: 'We look forward to hosting you.\n\nThe Casa Privé Team'
+      });
+
+      this.checkEmailSize(html, 'Booking Confirmation');
+
       await this.resend.emails.send({
         from: this.fromEmail,
         to,
         subject: 'Casa Privé - Your Exclusive Reservation is Confirmed',
         html,
+        text,
+        headers: {
+          'X-Entity-Ref-ID': crypto.randomUUID(),
+        },
+        tags: [
+          { name: 'category', value: 'booking' },
+        ],
       });
 
       console.log(`✓ Booking confirmation sent to ${to}`);
@@ -784,7 +580,7 @@ export class EmailService {
     totalAmount: number;
   }): Promise<void> {
     try {
-      const logoSrc = this.getLogoBase64();
+      const logoUrl = this.getLogoUrl();
 
       const itemsList = order.items
         .map((item) => `
@@ -815,7 +611,7 @@ export class EmailService {
                 <!-- Header -->
                 <div class="header">
                   <div class="logo-section">
-                    <img src="${logoSrc}" alt="Casa Privé Logo" class="logo" />
+                    <img src="${logoUrl}" alt="Casa Privé Logo" class="logo" />
                     <div class="brand-container">
                       <div class="brand-name">CASA PRIVÉ</div>
                       <div class="subtitle">Premium Beverages</div>
@@ -906,11 +702,44 @@ export class EmailService {
         </html>
       `;
 
+      const itemsText = order.items.map(item => 
+        `- ${item.name} (Qty: ${item.quantity}) - GHS ${(item.price * item.quantity).toFixed(2)}`
+      ).join('\n');
+
+      const text = this.generatePlainText({
+        greeting: `Dear ${order.customerName},`,
+        body: `Your order has been received and our expert mixologists are preparing your selection with the utmost care and attention to detail.
+
+Order Summary:
+- Order No: ${order.id.slice(-8).toUpperCase()}
+- Table: ${order.tableNumberOrName}
+
+Your Selection:
+${itemsText}
+
+Total: GHS ${order.totalAmount.toFixed(2)}
+
+Service Details:
+- Expected service time: 15-20 minutes
+- Premium spirits and fresh ingredients used
+- Our bar staff is available for recommendations`,
+        footer: 'Enjoy your evening at Casa Privé.\n\nThe Casa Privé Bar Team'
+      });
+
+      this.checkEmailSize(html, 'Order Confirmation');
+
       await this.resend.emails.send({
         from: this.fromEmail,
         to,
         subject: 'Casa Privé - Your Order Has Been Received',
         html,
+        text,
+        headers: {
+          'X-Entity-Ref-ID': crypto.randomUUID(),
+        },
+        tags: [
+          { name: 'category', value: 'order' },
+        ],
       });
 
       console.log(`✓ Order confirmation sent to ${to}`);
@@ -925,7 +754,7 @@ export class EmailService {
    */
   async sendAdminNotification(subject: string, content: string): Promise<void> {
     try {
-      const logoSrc = this.getLogoBase64();
+      const logoUrl = this.getLogoUrl();
       const adminEmail = process.env.ADMIN_EMAIL;
 
       if (!adminEmail) {
@@ -950,7 +779,7 @@ export class EmailService {
                 <!-- Header -->
                 <div class="header">
                   <div class="logo-section">
-                    <img src="${logoSrc}" alt="Casa Privé Logo" class="logo" />
+                    <img src="${logoUrl}" alt="Casa Privé Logo" class="logo" />
                     <div class="brand-container">
                       <div class="brand-name">CASA PRIVÉ</div>
                       <div class="subtitle">Admin Dashboard</div>
@@ -977,11 +806,28 @@ export class EmailService {
         </html>
       `;
 
+      // Strip HTML tags for plain text version
+      const plainContent = content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+      const text = this.generatePlainText({
+        greeting: 'System Notification',
+        body: plainContent,
+        footer: 'Casa Privé Admin Dashboard'
+      });
+
+      this.checkEmailSize(html, 'Admin Notification');
+
       await this.resend.emails.send({
         from: this.fromEmail,
         to: adminEmail,
         subject: `[Casa Privé Admin] ${subject}`,
         html,
+        text,
+        headers: {
+          'X-Entity-Ref-ID': crypto.randomUUID(),
+        },
+        tags: [
+          { name: 'category', value: 'admin' },
+        ],
       });
 
       console.log(`✓ Admin notification sent: ${subject}`);
@@ -1000,7 +846,7 @@ export class EmailService {
     numberOfGuests: number;
   }): Promise<void> {
     try {
-      const logoSrc = this.getLogoBase64();
+      const logoUrl = this.getLogoUrl();
 
       const html = `
         <!DOCTYPE html>
@@ -1019,7 +865,7 @@ export class EmailService {
                 <!-- Header -->
                 <div class="header">
                   <div class="logo-section">
-                    <img src="${logoSrc}" alt="Casa Privé Logo" class="logo" />
+                    <img src="${logoUrl}" alt="Casa Privé Logo" class="logo" />
                     <div class="brand-container">
                       <div class="brand-name">CASA PRIVÉ</div>
                       <div class="subtitle">Exclusive Waitlist</div>
@@ -1099,11 +945,36 @@ export class EmailService {
         </html>
       `;
 
+      const text = this.generatePlainText({
+        greeting: `Dear ${waitlist.fullName},`,
+        body: `Thank you for your interest in Casa Privé. You have been added to our exclusive waitlist and will be notified immediately when a table becomes available.
+
+Waitlist Details:
+- Preferred Date: ${waitlist.preferredDate}
+- Party Size: ${waitlist.numberOfGuests} guest(s)
+
+What Happens Next:
+- We will monitor availability for your preferred date
+- You will receive priority notification when a table opens
+- Confirmation will be required within 24 hours
+- Your patience is greatly appreciated`,
+        footer: 'We appreciate your patience and look forward to hosting you soon.\n\nThe Casa Privé Concierge Team'
+      });
+
+      this.checkEmailSize(html, 'Waitlist Confirmation');
+
       await this.resend.emails.send({
         from: this.fromEmail,
         to,
         subject: 'Casa Privé - Exclusive Waitlist Confirmation',
         html,
+        text,
+        headers: {
+          'X-Entity-Ref-ID': crypto.randomUUID(),
+        },
+        tags: [
+          { name: 'category', value: 'waitlist' },
+        ],
       });
 
       console.log(`✓ Waitlist confirmation sent to ${to}`);
@@ -1123,7 +994,7 @@ export class EmailService {
     responseDeadline: string;
   }): Promise<void> {
     try {
-      const logoSrc = this.getLogoBase64();
+      const logoUrl = this.getLogoUrl();
 
       const html = `
         <!DOCTYPE html>
@@ -1142,7 +1013,7 @@ export class EmailService {
                 <!-- Header -->
                 <div class="header">
                   <div class="logo-section">
-                    <img src="${logoSrc}" alt="Casa Privé Logo" class="logo" />
+                    <img src="${logoUrl}" alt="Casa Privé Logo" class="logo" />
                     <div class="brand-container">
                       <div class="brand-name">CASA PRIVÉ</div>
                       <div class="subtitle">Priority Notification</div>
@@ -1237,11 +1108,40 @@ export class EmailService {
         </html>
       `;
 
+      const text = this.generatePlainText({
+        greeting: `Dear ${details.fullName},`,
+        body: `Excellent news! A table has become available for your preferred date. As a valued waitlist member, you have exclusive priority access to secure this reservation.
+
+Reservation Opportunity:
+- Available Date: ${details.preferredDate}
+- Party Size: ${details.numberOfGuests} guest(s)
+- Response Deadline: ${details.responseDeadline}
+
+Act Quickly:
+- This is a limited-time priority offer
+- Please confirm within 24 hours to secure your table
+- First confirmation receives the reservation
+- Contact our concierge for immediate assistance
+
+Contact: ${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}`,
+        callToAction: `Secure your reservation: ${this.baseUrl}/booking`,
+        footer: 'We look forward to welcoming you to Casa Privé.\n\nThe Casa Privé Concierge Team'
+      });
+
+      this.checkEmailSize(html, 'Table Available');
+
       await this.resend.emails.send({
         from: this.fromEmail,
         to,
         subject: '🎉 Casa Privé - Exclusive Table Now Available for Your Preferred Date',
         html,
+        text,
+        headers: {
+          'X-Entity-Ref-ID': crypto.randomUUID(),
+        },
+        tags: [
+          { name: 'category', value: 'waitlist-available' },
+        ],
       });
 
       console.log(`✓ Table available notification sent to ${to}`);

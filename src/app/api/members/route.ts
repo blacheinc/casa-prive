@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateQRCode, generateMembershipCode } from '@/lib/card';
 import { whatsappService } from '@/lib/whatsapp';
+import { emailService } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,15 +53,30 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log('✓ Member created:', member.fullName);
+    console.log('✓ Member created:', member.fullName, `(${member.membershipCode})`);
+
+    // Send welcome email (non-blocking)
+    emailService.sendMemberWelcome(email, {
+      fullName: member.fullName,
+      membershipCode: member.membershipCode,
+      email: member.email,
+      phone: member.phone || undefined,
+    }).then(() => {
+      console.log('✓ Welcome email sent to:', email);
+    }).catch(error => {
+      console.error('❌ Email send failed (non-critical):', error.message);
+      // Don't fail the request - member is already created
+    });
 
     // Send WhatsApp message if phone provided (non-blocking)
     if (phone) {
       whatsappService.sendMemberWelcome(phone, {
         fullName: member.fullName,
         membershipCode: member.membershipCode,
+      }).then(() => {
+        console.log('✓ WhatsApp sent to:', phone);
       }).catch(error => {
-        console.error('WhatsApp send failed (non-critical):', error.message);
+        console.error('❌ WhatsApp send failed (non-critical):', error.message);
         // Don't fail the request - member is already created
       });
     } else {
@@ -76,12 +92,10 @@ export async function POST(request: NextRequest) {
         membershipCode: member.membershipCode,
         cardUrl,
       },
-      message: phone 
-        ? 'Member created successfully. WhatsApp message sent.'
-        : 'Member created successfully. No phone number provided for WhatsApp.'
+      message: `Member created successfully! Welcome email sent to ${email}.${phone ? ' WhatsApp message sent.' : ''}`
     });
   } catch (error) {
-    console.error('Create member error:', error);
+    console.error('❌ Create member error:', error);
     return NextResponse.json(
       { error: 'Failed to create member' },
       { status: 500 }
@@ -132,7 +146,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ members });
   } catch (error) {
-    console.error('Get member error:', error);
+    console.error('❌ Get member error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch member' },
       { status: 500 }

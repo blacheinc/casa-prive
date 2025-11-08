@@ -19,7 +19,10 @@ export async function generateAppleWalletPass(
   const certPath = path.join(process.cwd(), "certificates");
   const modelPath = path.join(process.cwd(), "passkit-model.pass");
   // Use /tmp which is writable on Vercel/Lambda - MUST end with .pass
-  const tempModelPath = path.join("/tmp", `pass-${member.membershipCode}-${Date.now()}.pass`);
+  const tempModelPath = path.join(
+    "/tmp",
+    `pass-${member.membershipCode}-${Date.now()}.pass`
+  );
 
   console.log("Certificate path:", certPath);
   console.log("Model path:", modelPath);
@@ -37,17 +40,18 @@ export async function generateAppleWalletPass(
   const wwdr = process.env.APPLE_WWDR_CERT
     ? Buffer.from(process.env.APPLE_WWDR_CERT.replace(/\\n/g, "\n"))
     : await fs.readFile(path.join(certPath, "wwdr.pem"));
-  
+
   const signerCert = process.env.APPLE_SIGNER_CERT
     ? Buffer.from(process.env.APPLE_SIGNER_CERT.replace(/\\n/g, "\n"))
     : await fs.readFile(path.join(certPath, "signerCert.pem"));
-  
+
   const signerKey = process.env.APPLE_SIGNER_KEY
     ? Buffer.from(process.env.APPLE_SIGNER_KEY.replace(/\\n/g, "\n"))
     : await fs.readFile(path.join(certPath, "signerKey.pem"));
-  
+
   const envPassphrase = process.env.PASS_CERT_PASSPHRASE;
-  const signerKeyPassphrase = (envPassphrase && envPassphrase.trim() !== '') ? envPassphrase : undefined;
+  const signerKeyPassphrase =
+    envPassphrase && envPassphrase.trim() !== "" ? envPassphrase : undefined;
 
   // Determine membership tier
   const joinedDate = new Date(member.joinedAt);
@@ -72,11 +76,11 @@ export async function generateAppleWalletPass(
     // Create temporary model directory in /tmp
     await fs.mkdir(tempModelPath, { recursive: true });
     console.log("Created temp directory");
-    
+
     // Copy all files except pass.json from model to temp
     const files = await fs.readdir(modelPath);
     for (const file of files) {
-      if (file === 'pass.json') continue;
+      if (file === "pass.json") continue;
       await fs.copyFile(
         path.join(modelPath, file),
         path.join(tempModelPath, file)
@@ -87,7 +91,8 @@ export async function generateAppleWalletPass(
     // Create pass.json with populated values
     const passJson = {
       formatVersion: 1,
-      passTypeIdentifier: process.env.PASS_TYPE_IDENTIFIER || "pass.ass.com.casaprive.membership",
+      passTypeIdentifier:
+        process.env.PASS_TYPE_IDENTIFIER || "pass.ass.com.casaprive.membership",
       teamIdentifier: process.env.TEAM_IDENTIFIER || "64PS3B42A3",
       organizationName: "Casa Privé",
       description: "Casa Privé Exclusive Membership Card",
@@ -96,60 +101,73 @@ export async function generateAppleWalletPass(
       backgroundColor: "rgb(4, 99, 72)",
       labelColor: "rgb(255, 255, 255)",
       serialNumber: member.membershipCode,
-      barcodes: [{
-        message: member.membershipCode,
-        format: "PKBarcodeFormatQR",
-        messageEncoding: "iso-8859-1"
-      }],
+      barcodes: [
+        {
+          message: `${
+            process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL
+          }/member-card/${member.membershipCode}`,
+          format: "PKBarcodeFormatQR",
+          messageEncoding: "iso-8859-1",
+        },
+      ],
       storeCard: {
         headerFields: [],
-        primaryFields: [{
-          key: "member",
-          label: tierName.toUpperCase(),
-          value: member.fullName,
-          textAlignment: "PKTextAlignmentCenter"
-        }],
-        secondaryFields: [{
-          key: "code",
-          label: "MEMBERSHIP CODE",
-          value: member.membershipCode
-        }],
-        auxiliaryFields: [{
-          key: "joined",
-          label: "MEMBER SINCE",
-          value: joinedDate.toLocaleDateString("en-US", {
-            month: "short",
-            year: "numeric"
-          })
-        }],
+        primaryFields: [
+          {
+            key: "member",
+            label: tierName.toUpperCase(),
+            value: member.fullName,
+            textAlignment: "PKTextAlignmentCenter",
+          },
+        ],
+        secondaryFields: [
+          {
+            key: "code",
+            label: "MEMBERSHIP CODE",
+            value: member.membershipCode,
+          },
+        ],
+        auxiliaryFields: [
+          {
+            key: "joined",
+            label: "MEMBER SINCE",
+            value: joinedDate.toLocaleDateString("en-US", {
+              month: "short",
+              year: "numeric",
+            }),
+          },
+        ],
         backFields: [
           {
             key: "welcome",
             label: "Welcome",
-            value: `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events.`
+            value: `Dear ${member.fullName},\n\nThank you for being a valued member of Casa Privé. Enjoy exclusive access to our premium events.`,
           },
           {
             key: "email",
             label: "Email",
-            value: member.email
+            value: member.email,
           },
           {
             key: "benefits",
             label: "Membership Benefits",
-            value: "• Priority table reservations\n• Exclusive event access\n• Special member pricing\n• VIP concierge service\n• Complimentary amenities"
+            value:
+              "• Priority table reservations\n• Exclusive event access\n• Special member pricing\n• VIP concierge service\n• Complimentary amenities",
           },
           {
             key: "contact",
             label: "Contact Us",
-            value: "Visit casaprive.com\nEmail: info@casaprivé.com\nPhone: +233 24 496 3777"
+            value:
+              "Visit casaprive.com\nEmail: info@casaprivé.com\nPhone: +233 24 496 3777",
           },
           {
             key: "terms",
             label: "Terms & Conditions",
-            value: "This membership card is non-transferable. Visit casaprive.com/terms for full terms and conditions."
-          }
-        ]
-      }
+            value:
+              "This membership card is non-transferable. Visit casaprive.com/terms for full terms and conditions.",
+          },
+        ],
+      },
     };
 
     // Add optional fields
@@ -157,7 +175,7 @@ export async function generateAppleWalletPass(
       passJson.storeCard.secondaryFields.push({
         key: "status",
         label: "STATUS",
-        value: member.status
+        value: member.status,
       });
     }
 
@@ -167,8 +185,8 @@ export async function generateAppleWalletPass(
         label: "VALID UNTIL",
         value: new Date(member.expiresAt).toLocaleDateString("en-US", {
           month: "short",
-          year: "numeric"
-        })
+          year: "numeric",
+        }),
       });
     }
 
@@ -185,7 +203,7 @@ export async function generateAppleWalletPass(
       signerCert,
       signerKey,
     };
-    
+
     if (signerKeyPassphrase) {
       certConfig.signerKeyPassphrase = signerKeyPassphrase;
     }
@@ -217,14 +235,17 @@ export async function generateAppleWalletPass(
 
     console.log("Pass validation successful");
     return buffer;
-
   } catch (error) {
     // Cleanup on error
     try {
       await fs.rm(tempModelPath, { recursive: true, force: true });
     } catch {}
-    
+
     console.error("Error creating pass:", error);
-    throw new Error(`Failed to create pass: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to create pass: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
   }
 }

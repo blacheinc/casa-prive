@@ -47,6 +47,7 @@ export async function PATCH(
         "COCKTAIL",
         "COGNAC",
         "TEQUILA",
+        "MOCKTAIL",
       ];
 
       if (!validCategories.includes(category as MenuCategory)) {

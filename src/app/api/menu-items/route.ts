@@ -60,6 +60,7 @@ export async function GET(request: NextRequest) {
       "COCKTAIL",
       "COGNAC",
       "TEQUILA",
+      "MOCKTAIL",
     ];
 
     let where = {};

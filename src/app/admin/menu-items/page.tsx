@@ -21,6 +21,7 @@ const CATEGORIES = [
   'COCKTAIL',
   'COGNAC',
   'TEQUILA',
+  'MOCKTAIL',
 ];
 
 export default function AdminMenuItems() {
@@ -309,6 +310,7 @@ export default function AdminMenuItems() {
                     <option value="COCKTAIL">Cocktail</option>
                     <option value="COGNAC">Cognac</option>
                     <option value="TEQUILA">Tequila</option>
+                    <option value="MOCKTAIL">Mocktail</option>
                   </select>
                 </div>
 

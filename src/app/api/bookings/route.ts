@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
         process.env.NEXT_PUBLIC_APP_URL ||
         process.env.NEXT_PUBLIC_BASE_URL ||
         "http://localhost:3000";
-      const callbackUrl = `${baseUrl}/payment/callback`;
+      const callbackUrl = `${baseUrl}/api/payment/callback`;
 
       const paymentResponse = await paystack.initializeTransaction(
         email,
@@ -114,19 +114,26 @@ export async function POST(request: NextRequest) {
         }
       );
 
-      await prisma.booking.update({
+      // Save the Paystack reference immediately
+      const updatedBooking = await prisma.booking.update({
         where: { id: booking.id },
-        data: { paymentReference: paymentResponse.data.reference },
+        data: { 
+          paymentReference: paymentResponse.data.reference 
+        },
+        include: {
+          package: true,
+        },
       });
 
       // Return immediately - send notifications in background
-      sendBookingNotifications(booking, tablePackage).catch((err) =>
+      sendBookingNotifications(updatedBooking, tablePackage).catch((err) =>
         console.error("Background notification error:", err)
       );
 
       return NextResponse.json({
-        booking,
+        booking: updatedBooking,
         paymentUrl: paymentResponse.data.authorization_url,
+        reference: paymentResponse.data.reference,
       });
     }
 
@@ -182,7 +189,7 @@ async function sendBookingNotifications(booking: any, tablePackage: any) {
         amount: booking.amount,
         paymentMethod: booking.paymentMethod,
         paymentStatus: booking.paymentStatus,
-        proofOfPayment: booking.proofOfPayment || "",
+        proofOfPayment: booking.proofOfPayment || booking.paymentReference || "",
       })
       .catch((err) => console.error("Sheets error:", err))
   );
@@ -208,6 +215,7 @@ async function sendBookingNotifications(booking: any, tablePackage: any) {
         <p><strong>Guests:</strong> ${booking.numberOfGuests}</p>
         <p><strong>Amount:</strong> GHS ${tablePackage.price}</p>
         <p><strong>Payment Method:</strong> ${booking.paymentMethod}</p>
+        ${booking.paymentReference ? `<p><strong>Payment Reference:</strong> ${booking.paymentReference}</p>` : ''}
         ${
           booking.paymentMethod === "BANK_TRANSFER"
             ? `

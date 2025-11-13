@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
         tableNumberOrName,
         email: email || null,
         paymentMethod,
-        paymentStatus: paymentMethod === "CASH" ? "PENDING" : "PENDING",
+        paymentStatus: paymentMethod === "CASH" || paymentMethod === "POS" ? "PENDING" : "PENDING",
         totalAmount,
         status: "PENDING",
         items: {
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         process.env.NEXT_PUBLIC_APP_URL || 
         process.env.NEXT_PUBLIC_BASE_URL ||
         "http://localhost:3000";
-      const callbackUrl = `${baseUrl}/payment/callback`;
+      const callbackUrl = `${baseUrl}/api/payment/callback`;
 
       const paymentResponse = await paystack.initializeTransaction(
         email || "noemail@casaprive.com",
@@ -87,24 +87,35 @@ export async function POST(request: NextRequest) {
         }
       );
 
-      await prisma.order.update({
+      // Save the Paystack reference immediately
+      const updatedOrder = await prisma.order.update({
         where: { id: order.id },
-        data: { paymentReference: paymentResponse.data.reference },
+        data: { 
+          paymentReference: paymentResponse.data.reference 
+        },
+        include: {
+          items: {
+            include: {
+              menuItem: true,
+            },
+          },
+        },
       });
 
       // Return immediately with payment URL - don't wait for email/sheets
       // Fire off background tasks without blocking
-      sendOrderNotifications(order, email).catch((err) =>
+      sendOrderNotifications(updatedOrder, email).catch((err) =>
         console.error("Background notification error:", err)
       );
 
       return NextResponse.json({
-        order,
+        order: updatedOrder,
         paymentUrl: paymentResponse.data.authorization_url,
+        reference: paymentResponse.data.reference,
       });
     }
 
-    // For cash orders, send response immediately
+    // For cash/POS orders, send response immediately
     const response = NextResponse.json({ order });
 
     // Send notifications in background (non-blocking)
@@ -139,6 +150,7 @@ async function sendOrderNotifications(order: any, email?: string) {
         price: item.price,
       })),
       totalAmount: order.totalAmount,
+      paymentReference: order.paymentReference,
     };
 
     notifications.push(
@@ -152,7 +164,7 @@ async function sendOrderNotifications(order: any, email?: string) {
   notifications.push(
     googleSheets
       .logOrder({
-        id: order.id,
+        id: order.paymentReference || order.id,
         date: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
         customerName: order.customerName,
         tableNumberOrName: order.tableNumberOrName,
@@ -184,6 +196,7 @@ async function sendOrderNotifications(order: any, email?: string) {
         <p><strong>Table:</strong> ${order.tableNumberOrName}</p>
         <p><strong>Total:</strong> GHS ${order.totalAmount.toFixed(2)}</p>
         <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+        ${order.paymentReference ? `<p><strong>Payment Reference:</strong> ${order.paymentReference}</p>` : ''}
         <h3>Items:</h3>
         <ul>
           ${order.items

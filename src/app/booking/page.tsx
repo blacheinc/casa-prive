@@ -88,7 +88,7 @@ export default function BookingPage() {
     try {
       let proofUrl = '';
       
-      // Mobile Money or Bank Transfer - both require proof of payment
+      // Only Bank Transfer requires proof of payment
       if (formData.paymentMethod === 'BANK_TRANSFER') {
         if (!proofFile) {
           setMessage('Please upload proof of payment');
@@ -134,9 +134,6 @@ export default function BookingPage() {
       } else {
         window.location.href = `/booking/success?id=${data.booking.id}`;
       }
-
-      // Bank transfer always goes to success page
-      window.location.href = `/booking/success?id=${data.booking.id}`;
     } catch (error: any) {
       setMessage(error.message || 'Failed to create booking');
       setLoading(false);
@@ -297,6 +294,7 @@ export default function BookingPage() {
                         className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
                       />
                     </div>
+
                     <div>
                       <label className="block text-gray-300 mb-2 text-sm font-light">Payment Method *</label>
                       <select
@@ -305,56 +303,52 @@ export default function BookingPage() {
                         className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
                       >
                         <option value="PAYSTACK">Pay Online (Paystack)</option>
-                        <option value="BANK_TRANSFER">Bank Transfer</option>
+                        <option value="BANK_TRANSFER">Bank / Momo Transfer</option>
                       </select>
                     </div>
+                  </div>
 
-                    <div>
-                      <div className="w-full px-4 py-3 bg-slate-700/50 text-gray-400 text-sm rounded border border-slate-600">
-                        Mobile Money or Bank Transfer
+                  {/* Payment Details - Only show for Bank/Momo Transfer */}
+                  {formData.paymentMethod === 'BANK_TRANSFER' && (
+                    <div className="bg-yellow-900/20 border border-yellow-500/30 rounded p-4">
+                      <h4 className="text-yellow-500 font-light text-sm mb-3">Payment Details:</h4>
+                      
+                      {/* Mobile Money Option */}
+                      <div className="mb-4">
+                        <p className="text-gray-200 text-sm mb-2 font-medium">Option 1: Mobile Money</p>
+                        <p className="text-gray-300 text-xs mb-1 font-light">Network: MTN Mobile Money</p>
+                        <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé LTD</p>
+                        <p className="text-gray-300 text-xs font-light">Number: 0541476632</p>
+                      </div>
+
+                      {/* Bank Transfer Option */}
+                      <div className="mb-4 pt-4 border-t border-yellow-500/20">
+                        <p className="text-gray-200 text-sm mb-2 font-medium">Option 2: Bank Transfer</p>
+                        <p className="text-gray-300 text-xs mb-1 font-light">Bank: First Atlantic Bank</p>
+                        <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé Ltd</p>
+                        <p className="text-gray-300 text-xs font-light">Account Number: 2705702751017</p>
+                      </div>
+                      
+                      <label className="block text-gray-300 mb-2 text-sm font-light">
+                        Upload Proof of Payment * (JPG, PNG, or PDF - Max 5MB)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="file"
+                          required
+                          accept="image/jpeg,image/png,image/jpg,.pdf"
+                          onChange={(e) => setProofFile(e.target.files?.[0] || null)}
+                          className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-light file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 file:cursor-pointer"
+                        />
+                        {proofFile && (
+                          <div className="mt-2 flex items-center gap-2 text-emerald-400 text-xs">
+                            <Upload className="w-4 h-4" />
+                            <span>{proofFile.name}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
-
-                  {/* Payment Details - Both Mobile Money and Bank Transfer */}
-                  <div className="bg-yellow-900/20 border border-yellow-500/30 rounded p-4">
-                    <h4 className="text-yellow-500 font-light text-sm mb-3">Payment Details:</h4>
-                    
-                    {/* Mobile Money Option */}
-                    <div className="mb-4">
-                      <p className="text-gray-200 text-sm mb-2 font-medium">Option 1: Mobile Money</p>
-                      <p className="text-gray-300 text-xs mb-1 font-light">Network: MTN Mobile Money</p>
-                      <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé LTD</p>
-                      <p className="text-gray-300 text-xs font-light">Number: 0541476632</p>
-                    </div>
-
-                    {/* Bank Transfer Option */}
-                    <div className="mb-4 pt-4 border-t border-yellow-500/20">
-                      <p className="text-gray-200 text-sm mb-2 font-medium">Option 2: Bank Transfer</p>
-                      <p className="text-gray-300 text-xs mb-1 font-light">Bank: First Atlantic Bank</p>
-                      <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé Ltd</p>
-                      <p className="text-gray-300 text-xs font-light">Account Number: 2705702751017</p>
-                    </div>
-                    
-                    <label className="block text-gray-300 mb-2 text-sm font-light">
-                      Upload Proof of Payment * (JPG, PNG, or PDF - Max 5MB)
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="file"
-                        required
-                        accept="image/jpeg,image/png,image/jpg,.pdf"
-                        onChange={(e) => setProofFile(e.target.files?.[0] || null)}
-                        className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-light file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 file:cursor-pointer"
-                      />
-                      {proofFile && (
-                        <div className="mt-2 flex items-center gap-2 text-emerald-400 text-xs">
-                          <Upload className="w-4 h-4" />
-                          <span>{proofFile.name}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  )}
 
                   <div>
                     <label className="block text-gray-300 mb-2 text-sm font-light">Special Requests</label>
@@ -369,7 +363,7 @@ export default function BookingPage() {
 
                   {message && (
                     <div className={`p-4 rounded text-sm ${
-                      message.includes('success') || message.includes('Uploading') || message.includes('Processing')
+                      message.includes('success') || message.includes('Uploading') || message.includes('Processing') || message.includes('Redirecting')
                         ? 'bg-emerald-900/50 text-emerald-300' 
                         : 'bg-red-900/50 text-red-300'
                     }`}>

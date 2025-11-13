@@ -272,7 +272,7 @@ export default function BookingPage() {
                     </div>
 
                     <div>
-                      <label className="block text-gray-300 mb-2 text-sm font-light">Guests (Max 6) *</label>
+                      <label className="block text-gray-300 mb-2 text-sm font-light">Guests *</label>
                       <input
                         type="number"
                         min="1"

@@ -24,7 +24,6 @@ export default function BookingPage() {
     numberOfGuests: 1,
     specialRequests: '',
     eventDate: '',
-    // CHANGED: Default to BANK_TRANSFER (Mobile Money) since Paystack is commented out
     paymentMethod: 'BANK_TRANSFER',
   });
   const [proofFile, setProofFile] = useState<File | null>(null);
@@ -129,13 +128,12 @@ export default function BookingPage() {
         throw new Error(data.error || 'Booking failed');
       }
 
-      // COMMENTED OUT: Paystack redirect logic
-      // if (data.paymentUrl) {
-      //   setMessage('Redirecting to payment...');
-      //   window.location.href = data.paymentUrl;
-      // } else {
-      //   window.location.href = `/booking/success?id=${data.booking.id}`;
-      // }
+      if (data.paymentUrl) {
+        setMessage('Redirecting to payment...');
+        window.location.href = data.paymentUrl;
+      } else {
+        window.location.href = `/booking/success?id=${data.booking.id}`;
+      }
 
       // Bank transfer always goes to success page
       window.location.href = `/booking/success?id=${data.booking.id}`;
@@ -299,9 +297,7 @@ export default function BookingPage() {
                         className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
                       />
                     </div>
-
-                    {/* COMMENTED OUT: Payment method selector since only bank transfer is available */}
-                    {/* <div>
+                    <div>
                       <label className="block text-gray-300 mb-2 text-sm font-light">Payment Method *</label>
                       <select
                         value={formData.paymentMethod}
@@ -311,11 +307,9 @@ export default function BookingPage() {
                         <option value="PAYSTACK">Pay Online (Paystack)</option>
                         <option value="BANK_TRANSFER">Bank Transfer</option>
                       </select>
-                    </div> */}
+                    </div>
 
-                    {/* ADDED: Display payment method as read-only */}
                     <div>
-                      <label className="block text-gray-300 mb-2 text-sm font-light">Payment Method</label>
                       <div className="w-full px-4 py-3 bg-slate-700/50 text-gray-400 text-sm rounded border border-slate-600">
                         Mobile Money or Bank Transfer
                       </div>

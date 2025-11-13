@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         process.env.NEXT_PUBLIC_APP_URL || 
         process.env.NEXT_PUBLIC_BASE_URL ||
         "http://localhost:3000";
-      const callbackUrl = `${baseUrl}/api/payment/callback`;
+      const callbackUrl = `${baseUrl}/payment/callback`;
 
       const paymentResponse = await paystack.initializeTransaction(
         email || "noemail@casaprive.com",

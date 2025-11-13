@@ -24,7 +24,7 @@ export default function BookingPage() {
     numberOfGuests: 1,
     specialRequests: '',
     eventDate: '',
-    paymentMethod: 'BANK_TRANSFER',
+    paymentMethod: 'PAYSTACK',
   });
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [uploadingProof, setUploadingProof] = useState(false);

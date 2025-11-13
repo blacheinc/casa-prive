@@ -51,7 +51,7 @@ export class PaystackService {
         amount: amount * 100, // Paystack expects amount in kobo/cents
         reference,
         metadata,
-        callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/payment/callback`,
+        callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/callback`,
       }),
     });
 

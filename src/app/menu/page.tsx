@@ -46,7 +46,7 @@ export default function MenuPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Map database items to match the component interface
+        //Map database items to match the component interface
         const items = data.menuItems.map((item: any) => ({
           id: item.id,
           name: item.name,

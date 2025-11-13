@@ -21,28 +21,16 @@ export default function PaymentCallbackContent() {
       return;
     }
 
+    // The API route handles the verification and redirect
+    // This page provides UI feedback during the process
     verifyPayment(reference);
   }, [reference]);
 
   const verifyPayment = async (ref: string) => {
     try {
-      // Call the callback API route to verify payment
-      const response = await fetch(`/api/payment/callback?reference=${ref}`);
-      
-      if (response.redirected) {
-        const redirectUrl = response.url;
-        
-        if (redirectUrl.includes('/success')) {
-          setStatus('success');
-          setMessage('Payment verified successfully! Redirecting...');
-        } else if (redirectUrl.includes('/failed')) {
-          setStatus('failed');
-          setMessage('Payment verification failed. Redirecting...');
-        }
-      } else {
-        // If no redirect, manually redirect
-        window.location.href = `/api/payment/callback?reference=${ref}`;
-      }
+      // Simply redirect to the callback API route
+      // The API will handle the database update and redirect to success/failure page
+      window.location.href = `/api/payment/callback?reference=${ref}`;
     } catch (error) {
       console.error('Verification error:', error);
       setStatus('failed');
@@ -138,7 +126,7 @@ export default function PaymentCallbackContent() {
               href="mailto:support@casapriv.com" 
               className="text-emerald-400 hover:text-emerald-300 underline"
             >
-              support@casapriv.com
+              support@casaprivé.com
             </a>
           </p>
         </div>

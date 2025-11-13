@@ -198,7 +198,7 @@ async function sendBookingNotifications(booking: any, tablePackage: any) {
   notifications.push(
     emailService
       .sendAdminNotification(
-        booking.paymentMethod === "BANK_TRANSFER"
+        booking.paymentMethod === "BANK_TRANSFER" || "PAYSTACK"
           ? "New Booking - Pending Payment Verification"
           : "New Booking Received",
         `

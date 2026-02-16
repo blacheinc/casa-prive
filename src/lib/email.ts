@@ -86,7 +86,7 @@ export class EmailService {
       .footer { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #94a3b8; padding: 45px 40px; text-align: center; border-top: 1px solid #334155; }
       .footer-brand { font-size: 20px; background: linear-gradient(135deg, #10b981 0%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 4px; margin-bottom: 15px; text-transform: uppercase; font-weight: 300; }
       .accent-line { height: 1px; background: linear-gradient(to right, transparent, #10b981, #d4af37, transparent); margin: 20px auto; width: 220px; }
-      .footer-tagline { font-size: 12px; letter-spacing: 2px; color: #64748b; margin: 18px 0; text-transform: uppercase; font-style: italic; font-weight: 300; }
+      .footer-tagline { font-size: 12px; letter-spacing: 2px; color: #64748b; margin: 18px 0; text-transform: uppercase; font-style: italic; font-weight: 300; } .partnership { font-size: 11px; letter-spacing: 1.5px; color: #d4af37; margin-top: 5px; }
       .footer-text { font-size: 13px; color: #475569; margin: 8px 0; line-height: 1.6; font-weight: 300; }
       @media only screen and (max-width: 600px) {
         .email-wrapper { padding: 30px 15px; }
@@ -411,7 +411,7 @@ ${process.env.ADMIN_PHONE ? `Contact us at ${process.env.ADMIN_EMAIL || 'concier
                     <img src="${logoUrl}" alt="Casa Privé Logo" class="logo" />
                     <div class="brand-container">
                       <div class="brand-name">CASA PRIVÉ</div>
-                      <div class="subtitle">Exclusive Events</div>
+                      <div class="subtitle">× Alora Beach Resort</div>
                     </div>
                   </div>
                 </div>
@@ -425,8 +425,8 @@ ${process.env.ADMIN_PHONE ? `Contact us at ${process.env.ADMIN_EMAIL || 'concier
                   </p>
                   
                   <p class="intro-text">
-                    Your reservation has been confirmed. We are delighted to welcome you to Casa Privé 
-                    for an unforgettable evening of luxury and entertainment.
+                    Your ticket has been confirmed. We are delighted to welcome you to Casa Privé
+                    × Alora Beach Resort for an unforgettable evening of luxury and entertainment.
                   </p>
 
                   <div class="divider"></div>

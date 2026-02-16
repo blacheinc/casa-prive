@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/booking/page.tsx
+// app/booking/page.tsx - Casa Privé x Alora Beach Resort Ticket Sales
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Crown, Upload } from 'lucide-react';
+import { Calendar, Ticket, Upload, MapPin } from 'lucide-react';
+import Image from 'next/image';
 
 interface TablePackage {
   id: string;
@@ -47,12 +48,12 @@ export default function BookingPage() {
       if (response.ok) {
         setPackages(data.packages || []);
       } else {
-        console.error('Failed to fetch table packages:', data.error);
-        setMessage('Failed to load booking packages. Please refresh the page.');
+        console.error('Failed to fetch ticket packages:', data.error);
+        setMessage('Failed to load ticket packages. Please refresh the page.');
       }
     } catch (error) {
-      console.error('Error fetching table packages:', error);
-      setMessage('Failed to load booking packages. Please refresh the page.');
+      console.error('Error fetching ticket packages:', error);
+      setMessage('Failed to load ticket packages. Please refresh the page.');
     } finally {
       setFetchingPackages(false);
     }
@@ -83,11 +84,11 @@ export default function BookingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('Processing your booking...');
+    setMessage('Processing your ticket purchase...');
 
     try {
       let proofUrl = '';
-      
+
       // Only Bank Transfer requires proof of payment
       if (formData.paymentMethod === 'BANK_TRANSFER') {
         if (!proofFile) {
@@ -98,7 +99,7 @@ export default function BookingPage() {
 
         setMessage('Uploading proof of payment...');
         setUploadingProof(true);
-        
+
         try {
           proofUrl = await uploadProofToCloudinary(proofFile);
         } catch (uploadError: any) {
@@ -107,9 +108,9 @@ export default function BookingPage() {
           setUploadingProof(false);
           return;
         }
-        
+
         setUploadingProof(false);
-        setMessage('Processing your booking...');
+        setMessage('Processing your ticket purchase...');
       }
 
       const response = await fetch('/api/bookings', {
@@ -125,7 +126,7 @@ export default function BookingPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Booking failed');
+        throw new Error(data.error || 'Ticket purchase failed');
       }
 
       if (data.paymentUrl) {
@@ -135,7 +136,7 @@ export default function BookingPage() {
         window.location.href = `/booking/success?id=${data.booking.id}`;
       }
     } catch (error: any) {
-      setMessage(error.message || 'Failed to create booking');
+      setMessage(error.message || 'Failed to complete ticket purchase');
       setLoading(false);
       setUploadingProof(false);
     }
@@ -146,9 +147,9 @@ export default function BookingPage() {
       <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 py-32">
         <div className="max-w-2xl mx-auto px-4">
           <div className="bg-slate-800/50 border border-yellow-700/30 p-8 rounded-lg text-center">
-            <h1 className="text-3xl font-light text-yellow-500 mb-4">All Tables Reserved</h1>
+            <h1 className="text-3xl font-light text-yellow-500 mb-4">Tickets Sold Out</h1>
             <p className="text-gray-300 font-light text-sm mb-6">
-              We&apos;re currently fully booked. Join our waitlist to be notified when a table becomes available.
+              This month&apos;s event is fully sold out. Join our waitlist to be notified for the next event at Alora Beach Resort.
             </p>
             <a
               href="/waitlist"
@@ -167,21 +168,23 @@ export default function BookingPage() {
       <div className="max-w-6xl mx-auto px-4">
         {/* Hero Section */}
         <div className="relative h-80 mb-12 overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: `url('/uploads/booking.jpg')`,
-            }}
+          <Image
+            src="/gallery/1.png"
+            alt="Casa Privé x Alora Beach Resort"
+            fill
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-slate-900/40" />
           <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
-            <Crown className="w-12 h-12 text-yellow-500 mb-4" />
+            <Ticket className="w-12 h-12 text-yellow-500 mb-4" />
             <h1 className="text-4xl md:text-5xl font-light mb-4 text-white">
-              Reserve Your Table
+              Get Your Tickets
             </h1>
-            <p className="text-gray-200 font-light text-sm max-w-xl">
-              Experience an unforgettable evening at Casa Privé
-            </p>
+            <p className="text-yellow-400 font-light text-sm mb-1">Casa Privé × Alora Beach Resort</p>
+            <div className="flex items-center gap-2 text-gray-300 text-xs">
+              <MapPin size={14} className="text-yellow-500" />
+              <span className="font-light">Alora Beach Resort &bull; Monthly Events</span>
+            </div>
           </div>
         </div>
 
@@ -224,7 +227,7 @@ export default function BookingPage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-400 font-light">No booking packages available at this time.</p>
+                <p className="text-gray-400 font-light">No ticket packages available at this time.</p>
               </div>
             )}
 
@@ -233,7 +236,7 @@ export default function BookingPage() {
               <div className="bg-slate-800/50 border border-emerald-700/30 p-8 rounded">
                 <h2 className="text-2xl font-light text-white mb-6 flex items-center gap-3">
                   <Calendar className="w-6 h-6 text-yellow-500" />
-                  Booking Details
+                  Ticket Details
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -312,7 +315,7 @@ export default function BookingPage() {
                   {formData.paymentMethod === 'BANK_TRANSFER' && (
                     <div className="bg-yellow-900/20 border border-yellow-500/30 rounded p-4">
                       <h4 className="text-yellow-500 font-light text-sm mb-3">Payment Details:</h4>
-                      
+
                       {/* Mobile Money Option */}
                       <div className="mb-4">
                         <p className="text-gray-200 text-sm mb-2 font-medium">Option 1: Mobile Money</p>
@@ -328,7 +331,7 @@ export default function BookingPage() {
                         <p className="text-gray-300 text-xs mb-1 font-light">Account Name: Casa Privé Ltd</p>
                         <p className="text-gray-300 text-xs font-light">Account Number: 2705702751017</p>
                       </div>
-                      
+
                       <label className="block text-gray-300 mb-2 text-sm font-light">
                         Upload Proof of Payment * (JPG, PNG, or PDF - Max 5MB)
                       </label>
@@ -364,7 +367,7 @@ export default function BookingPage() {
                   {message && (
                     <div className={`p-4 rounded text-sm ${
                       message.includes('success') || message.includes('Uploading') || message.includes('Processing') || message.includes('Redirecting')
-                        ? 'bg-emerald-900/50 text-emerald-300' 
+                        ? 'bg-emerald-900/50 text-emerald-300'
                         : 'bg-red-900/50 text-red-300'
                     }`}>
                       {uploadingProof && (
@@ -382,7 +385,7 @@ export default function BookingPage() {
                     disabled={loading || !selectedPackage || uploadingProof}
                     className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-sm font-light tracking-wider rounded hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:scale-105"
                   >
-                    {uploadingProof ? 'UPLOADING...' : loading ? 'PROCESSING...' : 'CONFIRM BOOKING'}
+                    {uploadingProof ? 'UPLOADING...' : loading ? 'PROCESSING...' : 'CONFIRM TICKET PURCHASE'}
                   </button>
                 </form>
               </div>

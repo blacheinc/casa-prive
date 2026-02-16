@@ -1,4 +1,4 @@
-// components/Footer.tsx - UPDATED WITH WORKING LINKS
+// components/Footer.tsx - Casa Privé x Alora Beach Resort
 import Link from 'next/link';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import Image from 'next/image';
@@ -11,7 +11,7 @@ export default function Footer() {
                     <div className="grid md:grid-cols-4 gap-8 mb-8">
                         {/* Brand */}
                         <div>
-                            <div className="flex items-center gap-2 mb-4">
+                            <div className="flex items-center gap-2 mb-2">
                                 <Image
                                     src="/logo.png"
                                     alt="Casa Privé Logo"
@@ -22,8 +22,9 @@ export default function Footer() {
                                 />
                                 <span className="text-lg font-light text-emerald-400">CASA PRIVÉ</span>
                             </div>
+                            <p className="text-yellow-500 text-xs font-light tracking-wider mb-3">× ALORA BEACH RESORT</p>
                             <p className="text-gray-400 text-xs font-light leading-relaxed">
-                                The epitome of luxury and bespoke entertainment. An exclusive sanctuary celebrating the art of living.
+                                An exclusive monthly experience of premium drinks, music, and luxury at Alora Beach Resort. Two icons of luxury united.
                             </p>
                         </div>
 
@@ -33,12 +34,12 @@ export default function Footer() {
                             <ul className="space-y-2">
                                 <li>
                                     <Link href="/booking" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
-                                        Book a Table
+                                        Get Tickets
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/menu" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
-                                        View Menu
+                                        Drinks Menu
                                     </Link>
                                 </li>
                                 <li>
@@ -94,7 +95,7 @@ export default function Footer() {
                                 </li>
                                 <li className="flex items-start gap-2 text-gray-400 text-xs">
                                     <MapPin size={14} className="text-yellow-500 mt-0.5 flex-shrink-0" />
-                                    <span className="font-light">Accra, Ghana</span>
+                                    <span className="font-light">Alora Beach Resort, Accra, Ghana</span>
                                 </li>
                             </ul>
                         </div>
@@ -102,10 +103,10 @@ export default function Footer() {
 
                     <div className="border-t border-emerald-700/30 pt-6 text-center">
                         <p className="text-gray-400 text-xs font-light">
-                            © {new Date().getFullYear()} Casa Privé. All rights reserved.
+                            © {new Date().getFullYear()} Casa Privé × Alora Beach Resort. All rights reserved.
                         </p>
                         <p className="text-gray-500 text-xs mt-2 font-light">
-                            Crafted with excellence for discerning individuals
+                            A partnership crafted for unforgettable experiences
                         </p>
 
                         {/* Powered By */}

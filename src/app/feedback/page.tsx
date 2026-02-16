@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/feedback/page.tsx - PRODUCTION
+// app/feedback/page.tsx - Casa Privé x Alora Beach Resort
 'use client';
 
 import { useState } from 'react';
@@ -58,7 +58,7 @@ export default function FeedbackPage() {
             Share Your Feedback
           </h1>
           <p className="text-gray-300 font-light text-sm">
-            Your opinion matters. Help us create even better experiences at Casa Privé.
+            Your opinion matters. Help us create even better experiences at Casa Privé × Alora Beach Resort.
           </p>
           <div className="h-px w-24 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mx-auto mt-6" />
         </div>
@@ -130,7 +130,7 @@ export default function FeedbackPage() {
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 rows={6}
                 className="w-full px-4 py-3 bg-slate-700 text-white text-sm rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                placeholder="Share your experience with us..."
+                placeholder="Share your experience at Casa Privé × Alora Beach Resort..."
               />
             </div>
 

@@ -23,9 +23,9 @@ export default function PrivacyPage() {
         {/* Introduction */}
         <div className="bg-slate-800/50 border border-emerald-700/30 p-8 rounded mb-8">
           <p className="text-gray-300 font-light text-sm leading-relaxed">
-            Casa Privé (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) is committed to protecting your privacy. This Privacy Policy 
-            explains how we collect, use, disclose, and safeguard your information when you visit our website 
-            and use our services. Please read this policy carefully. If you do not agree with the terms of 
+            Casa Privé × Alora Beach Resort (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) is committed to protecting your privacy. This Privacy Policy
+            explains how we collect, use, disclose, and safeguard your information when you visit our website
+            and use our services for our monthly events at Alora Beach Resort. Please read this policy carefully. If you do not agree with the terms of
             this privacy policy, please do not access the site.
           </p>
         </div>

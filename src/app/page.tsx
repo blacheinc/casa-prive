@@ -1,23 +1,23 @@
-// app/page.tsx - UPDATED WITHOUT WINE
+// app/page.tsx - Casa Privé x Alora Beach Resort Partnership
 import Link from 'next/link';
-import { Calendar, Users, Sparkles, Shield, Wine, ArrowRight, ChevronDown } from 'lucide-react';
+import { Calendar, Users, Sparkles, Shield, Ticket, ArrowRight, ChevronDown, MapPin, Music, PartyPopper } from 'lucide-react';
 import Image from 'next/image';
 
 export default function HomePage() {
   return (
     <div className="bg-emerald-950">
-      {/* 1. HERO SECTION */}
+      {/* 1. HERO SECTION - Video Background */}
       <section className="relative h-screen overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.65), rgba(6, 78, 59, 0.75)), url('https://images.unsplash.com/photo-1630395822970-acd6a691d97e?q=80&w=2074&auto=format&fit=crop')`,
-          }}
-        />
-
-        {/* https://images.unsplash.com/photo-1620551172652-3cb211f80dc3?q=80&w=2074&auto=format&fit=crop */}
-
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url('/grid.svg')` }} />
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/casa_hero.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-emerald-950/50 to-emerald-950/80" />
 
         <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
           <div className="mb-6 animate-fade-in">
@@ -31,27 +31,32 @@ export default function HomePage() {
             />
           </div>
 
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-light mb-6 tracking-widest text-white animate-fade-in-up">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-light mb-4 tracking-widest text-white animate-fade-in-up">
             CASA PRIVÉ
           </h1>
 
-          <div className="h-px w-32 bg-gradient-to-r from-transparent via-yellow-500 to-transparent mb-6" />
+          <div className="h-px w-32 bg-gradient-to-r from-transparent via-yellow-500 to-transparent mb-4" />
 
-          <p className="text-xl md:text-2xl font-light text-gray-100 mb-4 animate-fade-in-up animation-delay-200">
-            An Exclusive Drinks Experience
+          <p className="text-lg md:text-xl font-light text-yellow-400 mb-2 animate-fade-in-up animation-delay-200 tracking-wider">
+            × ALORA BEACH RESORT
           </p>
 
-          <p className="text-base md:text-lg text-gray-200 mb-12 max-w-2xl leading-relaxed font-light animate-fade-in-up animation-delay-400">
-            Immerse yourself in an evening of premium cocktails, rare spirits, and luxury champagne.
-            A sophisticated sanctuary for discerning palates.
+          <p className="text-base md:text-lg text-gray-200 mb-4 max-w-2xl leading-relaxed font-light animate-fade-in-up animation-delay-400">
+            An exclusive monthly experience of premium drinks, music, and luxury
+            at Alora Beach Resort.
           </p>
+
+          <div className="flex items-center gap-2 text-gray-300 text-sm mb-8 animate-fade-in-up animation-delay-400">
+            <MapPin size={16} className="text-yellow-500" />
+            <span className="font-light">Alora Beach Resort &bull; Monthly Events</span>
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up animation-delay-600">
             <Link
               href="/booking"
               className="group px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-light tracking-widest transition-all duration-300 flex items-center justify-center"
             >
-              RESERVE TABLE
+              GET TICKETS
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
             </Link>
             <Link
@@ -68,63 +73,77 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. DRINKS SHOWCASE */}
+      {/* 2. PARTNERSHIP BANNER */}
+      <section className="py-12 px-4 bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-950 border-y border-yellow-700/20">
+        <div className="max-w-5xl mx-auto text-center">
+          <p className="text-yellow-500 text-xs tracking-[0.3em] uppercase mb-3 font-light">Official Partnership</p>
+          <h2 className="text-2xl md:text-3xl font-light text-white mb-3">
+            Casa Privé <span className="text-yellow-500">×</span> Alora Beach Resort
+          </h2>
+          <p className="text-gray-300 font-light text-sm max-w-2xl mx-auto leading-relaxed">
+            Two icons of luxury come together. Experience Casa Privé&apos;s signature drinks and entertainment
+            at the stunning Alora Beach Resort — every month, a night to remember.
+          </p>
+        </div>
+      </section>
+
+      {/* 3. PHOTO GALLERY SHOWCASE */}
       <section className="py-20 px-4 bg-emerald-950">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <Wine className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+            <Sparkles className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
             <h2 className="text-3xl md:text-4xl font-light mb-4">
-              Premium <span className="text-yellow-500">Spirits</span>
+              The <span className="text-yellow-500">Experience</span>
             </h2>
             <p className="text-gray-300 font-light text-sm max-w-2xl mx-auto">
-              Master mixologists craft extraordinary cocktails using rare spirits and the finest ingredients
+              Premium drinks, stunning beachside vibes, and unforgettable nights at Alora Beach Resort
             </p>
             <div className="h-px w-24 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mx-auto mt-6" />
           </div>
 
-          {/* Main Featured Drinks Image */}
+          {/* Main Featured Image */}
           <div className="relative h-[500px] mb-8 group overflow-hidden">
-            <div
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-              style={{
-                backgroundImage: `url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop')`,
-              }}
+            <Image
+              src="/gallery/1.png"
+              alt="Casa Privé x Alora Beach Resort"
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-transparent to-emerald-950/30" />
             <div className="absolute bottom-0 left-0 right-0 p-12 text-center">
               <div className="max-w-3xl mx-auto">
                 <div className="h-px w-20 bg-yellow-500 mb-4 mx-auto" />
-                <h3 className="text-3xl md:text-4xl font-light mb-3 text-white">Premium Spirits & Cocktails</h3>
+                <h3 className="text-3xl md:text-4xl font-light mb-3 text-white">Beachside Luxury</h3>
                 <p className="text-gray-200 font-light text-base">
-                  From signature cocktails to rare tequilas and cognacs, every pour is an experience crafted to perfection
+                  Where the ocean breeze meets premium spirits and world-class entertainment
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Drinks Grid */}
+          {/* Gallery Grid */}
           <div className="grid md:grid-cols-4 gap-4">
             <div className="md:col-span-2 md:row-span-2 relative h-96 md:h-full group overflow-hidden">
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                style={{
-                  backgroundImage: `url('/uploads/spirit.png')`,
-                }}
+              <Image
+                src="/gallery/2.png"
+                alt="Casa Privé Event"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 p-8">
                 <div className="h-px w-16 bg-yellow-500 mb-4" />
-                <h3 className="text-2xl md:text-3xl font-light text-white mb-2">Fine Spirits</h3>
-                <p className="text-gray-200 font-light text-sm">Premium tequilas, cognacs, and rare spirits</p>
+                <h3 className="text-2xl md:text-3xl font-light text-white mb-2">The Vibes</h3>
+                <p className="text-gray-200 font-light text-sm">Premium atmosphere at Alora Beach</p>
               </div>
             </div>
 
             <div className="md:col-span-2 relative h-60 group overflow-hidden">
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                style={{
-                  backgroundImage: `url('/uploads/cocktail.jpg')`,
-                }}
+              <Image
+                src="/gallery/3.png"
+                alt="Casa Privé Drinks"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 p-6">
@@ -133,75 +152,145 @@ export default function HomePage() {
             </div>
 
             <div className="relative h-60 group overflow-hidden">
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                style={{
-                  backgroundImage: `url('https://images.unsplash.com/photo-1635547018520-043b6f0e1a36?q=80&w=2670&auto=format&fit=crop')`,
-                }}
+              <Image
+                src="/gallery/4.png"
+                alt="Casa Privé Party"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 p-6">
-                <h4 className="text-lg font-light text-white">Premium Tequila</h4>
+                <h4 className="text-lg font-light text-white">Night Energy</h4>
               </div>
             </div>
 
             <div className="relative h-60 group overflow-hidden">
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                style={{
-                  backgroundImage: `url('/uploads/champagne.jpg')`,
-                }}
+              <Image
+                src="/gallery/5.png"
+                alt="Alora Beach Resort"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 p-6">
-                <h4 className="text-lg font-light text-white">Champagne Bar</h4>
+                <h4 className="text-lg font-light text-white">Beach Setting</h4>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Gallery Row */}
+          <div className="grid md:grid-cols-3 gap-4 mt-4">
+            <div className="relative h-72 group overflow-hidden">
+              <Image
+                src="/gallery/6.png"
+                alt="Casa Privé Event Moments"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 p-6">
+                <h4 className="text-lg font-light text-white">Unforgettable Moments</h4>
+              </div>
+            </div>
+
+            <div className="relative h-72 group overflow-hidden">
+              <Image
+                src="/gallery/7.png"
+                alt="Casa Privé Premium Service"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 p-6">
+                <h4 className="text-lg font-light text-white">Premium Service</h4>
+              </div>
+            </div>
+
+            <div className="relative h-72 group overflow-hidden">
+              <Image
+                src="/gallery/8.png"
+                alt="Casa Privé Crowd"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 p-6">
+                <h4 className="text-lg font-light text-white">The Crowd</h4>
+              </div>
+            </div>
+          </div>
+
+          {/* Final Gallery Row */}
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
+            <div className="relative h-80 group overflow-hidden">
+              <Image
+                src="/gallery/9.png"
+                alt="Casa Privé Ambiance"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 p-8">
+                <h4 className="text-xl font-light text-white">The Ambiance</h4>
+              </div>
+            </div>
+
+            <div className="relative h-80 group overflow-hidden">
+              <Image
+                src="/gallery/10.png"
+                alt="Casa Privé Drinks Selection"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 p-8">
+                <h4 className="text-xl font-light text-white">Premium Drinks</h4>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. BENEFITS SECTION */}
+      {/* 4. BENEFITS SECTION */}
       <section className="py-20 px-4 bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-950">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-light mb-4">
-              Why <span className="text-yellow-500">Casa Privé</span>
+              Why <span className="text-yellow-500">Casa Privé × Alora Beach</span>
             </h2>
             <div className="h-px w-24 bg-gradient-to-r from-transparent via-yellow-500 to-transparent mx-auto" />
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             <BenefitCard
-              icon={<Wine className="w-10 h-10" />}
-              title="Premium Selection"
-              description="Curated collection of rare spirits, craft cocktails, and luxury champagne."
+              icon={<Ticket className="w-10 h-10" />}
+              title="Premium Tickets"
+              description="Secure your spot at the most exclusive monthly beach event in Accra. Limited tickets available."
             />
             <BenefitCard
               icon={<Users className="w-10 h-10" />}
               title="Elite Community"
-              description="Connect with discerning individuals in an intimate, sophisticated setting."
+              description="Connect with discerning individuals in an intimate, sophisticated beachside setting."
             />
             <BenefitCard
               icon={<Shield className="w-10 h-10" />}
               title="Exclusive Access"
-              description="Members-only events with priority reservations and special experiences."
+              description="Members-only perks with priority ticket access and VIP experiences every month."
             />
             <BenefitCard
               icon={<Calendar className="w-10 h-10" />}
-              title="Saturday Nights"
-              description="Every Saturday evening, experience Casa Privé at its finest."
+              title="Monthly Events"
+              description="Every month, experience Casa Privé at its finest — at the stunning Alora Beach Resort."
             />
             <BenefitCard
-              icon={<Sparkles className="w-10 h-10" />}
-              title="Sophisticated Ambiance"
-              description="Elegant venue with premium furnishings and intimate lighting."
+              icon={<Music className="w-10 h-10" />}
+              title="Beachside Vibes"
+              description="World-class DJs, ocean breezes, and the perfect ambiance for an unforgettable night."
             />
             <BenefitCard
-              icon={<Image src="/logo.png" alt="VIP" width={40} height={40}
-                style={{ background: 'transparent' }} />}
+              icon={<PartyPopper className="w-10 h-10" />}
               title="VIP Service"
-              description="Dedicated table service and personalized attention throughout the evening."
+              description="Dedicated table service, premium bottle packages, and personalized attention all night."
             />
           </div>
 
@@ -209,25 +298,24 @@ export default function HomePage() {
           <div className="max-w-4xl mx-auto">
             <div className="bg-emerald-950/50 border border-yellow-700/20 p-8 md:p-12 text-center">
               <blockquote className="text-xl md:text-2xl font-light leading-relaxed mb-4 text-white">
-                &quot;Where exceptional drinks meet extraordinary company. An exclusive sanctuary for those
-                who appreciate{' '}
-                <span className="text-yellow-500 italic">the art of refined living</span>&quot;
+                &quot;Where the ocean meets opulence. Casa Privé and Alora Beach Resort unite to create{' '}
+                <span className="text-yellow-500 italic">the ultimate monthly experience</span>&quot;
               </blockquote>
               <cite className="text-gray-400 not-italic text-sm font-light tracking-wider">
-                — CASA PRIVÉ
+                — CASA PRIVÉ × ALORA BEACH RESORT
               </cite>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. FINAL CTA */}
+      {/* 5. FINAL CTA */}
       <section className="py-24 px-4 relative overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop')`,
-          }}
+        <Image
+          src="/gallery/6.png"
+          alt="Casa Privé x Alora Beach Resort Event"
+          fill
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/95 via-emerald-950/90 to-emerald-950/95" />
 
@@ -241,18 +329,22 @@ export default function HomePage() {
               className="mx-auto mb-6 opacity-90"
               style={{ background: 'transparent' }}
             />
-            <h2 className="text-3xl md:text-4xl font-light mb-4 text-white">
-              Reserve Your Experience
+            <h2 className="text-3xl md:text-4xl font-light mb-2 text-white">
+              Get Your Tickets
             </h2>
+            <p className="text-yellow-400 text-sm font-light tracking-wider mb-4">
+              Casa Privé × Alora Beach Resort
+            </p>
             <p className="text-base md:text-lg text-gray-200 mb-8 font-light leading-relaxed">
-              Join us for an unforgettable evening of premium drinks and refined company
+              Join us for an unforgettable monthly experience of premium drinks,
+              music, and luxury at Alora Beach Resort
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link
                 href="/booking"
                 className="px-8 py-3 bg-white text-emerald-900 hover:bg-gray-100 text-sm font-light tracking-widest transition-all duration-300"
               >
-                BOOK A TABLE
+                GET TICKETS
               </Link>
               <Link
                 href="/menu"

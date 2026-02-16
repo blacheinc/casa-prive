@@ -209,7 +209,7 @@ export default function MembershipPage() {
                         Create New Member
                     </h1>
                     <p className="text-gray-300 font-light text-sm">
-                        Admin Panel - Add new members to Casa Privé
+                        Admin Panel - Add new members to Casa Privé × Alora Beach Resort
                     </p>
                     <div className="h-px w-24 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mx-auto mt-6" />
                 </div>

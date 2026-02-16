@@ -9,6 +9,10 @@ export async function GET(request: NextRequest) {
       totalBookings,
       confirmedBookings,
       pendingBookings,
+      totalTickets,
+      confirmedTickets,
+      pendingTickets,
+      ticketRevenue,
       totalOrders,
       totalRevenue,
       activeMembers,
@@ -19,6 +23,13 @@ export async function GET(request: NextRequest) {
       prisma.booking.count(),
       prisma.booking.count({ where: { status: 'CONFIRMED' } }),
       prisma.booking.count({ where: { status: 'PENDING' } }),
+      prisma.ticket.count(),
+      prisma.ticket.count({ where: { status: 'CONFIRMED' } }),
+      prisma.ticket.count({ where: { status: 'PENDING' } }),
+      prisma.ticket.aggregate({
+        _sum: { amount: true },
+        where: { paymentStatus: 'COMPLETED' },
+      }),
       prisma.order.count(),
       prisma.booking.aggregate({
         _sum: { amount: true },
@@ -35,6 +46,12 @@ export async function GET(request: NextRequest) {
         total: totalBookings,
         confirmed: confirmedBookings,
         pending: pendingBookings,
+      },
+      tickets: {
+        total: totalTickets,
+        confirmed: confirmedTickets,
+        pending: pendingTickets,
+        revenue: ticketRevenue._sum.amount || 0,
       },
       orders: {
         total: totalOrders,

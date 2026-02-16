@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/booking/page.tsx - Casa Privé x Alora Beach Resort Table Sales
+// app/booking/page.tsx - Casa Privé x Alora Beach Resort Table Reservations
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Table, Upload, MapPin } from 'lucide-react';
+import { Calendar, Upload, MapPin } from 'lucide-react';
 import Image from 'next/image';
 
 interface TablePackage {
@@ -48,12 +48,12 @@ export default function BookingPage() {
       if (response.ok) {
         setPackages(data.packages || []);
       } else {
-        console.error('Failed to fetch Table packages:', data.error);
-        setMessage('Failed to load Table packages. Please refresh the page.');
+        console.error('Failed to fetch table packages:', data.error);
+        setMessage('Failed to load table packages. Please refresh the page.');
       }
     } catch (error) {
-      console.error('Error fetching Table packages:', error);
-      setMessage('Failed to load Table packages. Please refresh the page.');
+      console.error('Error fetching table packages:', error);
+      setMessage('Failed to load table packages. Please refresh the page.');
     } finally {
       setFetchingPackages(false);
     }
@@ -84,7 +84,7 @@ export default function BookingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('Processing your Table purchase...');
+    setMessage('Processing your table reservation...');
 
     try {
       let proofUrl = '';
@@ -110,7 +110,7 @@ export default function BookingPage() {
         }
 
         setUploadingProof(false);
-        setMessage('Processing your Table purchase...');
+        setMessage('Processing your table reservation...');
       }
 
       const response = await fetch('/api/bookings', {
@@ -126,7 +126,7 @@ export default function BookingPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Table purchase failed');
+        throw new Error(data.error || 'Table reservation failed');
       }
 
       if (data.paymentUrl) {
@@ -136,7 +136,7 @@ export default function BookingPage() {
         window.location.href = `/booking/success?id=${data.booking.id}`;
       }
     } catch (error: any) {
-      setMessage(error.message || 'Failed to complete Table purchase');
+      setMessage(error.message || 'Failed to complete table reservation');
       setLoading(false);
       setUploadingProof(false);
     }
@@ -147,9 +147,9 @@ export default function BookingPage() {
       <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 py-32">
         <div className="max-w-2xl mx-auto px-4">
           <div className="bg-slate-800/50 border border-yellow-700/30 p-8 rounded-lg text-center">
-            <h1 className="text-3xl font-light text-yellow-500 mb-4">Tickets Sold Out</h1>
+            <h1 className="text-3xl font-light text-yellow-500 mb-4">Tables Fully Booked</h1>
             <p className="text-gray-300 font-light text-sm mb-6">
-              This month&apos;s event is fully sold out. Join our waitlist to be notified for the next event at Alora Beach Resort.
+              This month&apos;s event at Alora Beach Resort is fully booked. Join our waitlist to be notified for the next event.
             </p>
             <a
               href="/waitlist"
@@ -169,16 +169,16 @@ export default function BookingPage() {
         {/* Hero Section */}
         <div className="relative h-80 mb-12 overflow-hidden">
           <Image
-            src="/gallery/1.png"
+            src="/gallery/2.png"
             alt="Casa Privé x Alora Beach Resort"
             fill
             className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-slate-900/40" />
           <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
-            <Table className="w-12 h-12 text-yellow-500 mb-4" />
+            <Calendar className="w-12 h-12 text-yellow-500 mb-4" />
             <h1 className="text-4xl md:text-5xl font-light mb-4 text-white">
-              Get Your Table
+              Book Your Table
             </h1>
             <p className="text-yellow-400 font-light text-sm mb-1">Casa Privé × Alora Beach Resort</p>
             <div className="flex items-center gap-2 text-gray-300 text-xs">
@@ -227,7 +227,7 @@ export default function BookingPage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-400 font-light">No Table packages available at this time.</p>
+                <p className="text-gray-400 font-light">No table packages available at this time.</p>
               </div>
             )}
 
@@ -236,7 +236,7 @@ export default function BookingPage() {
               <div className="bg-slate-800/50 border border-emerald-700/30 p-8 rounded">
                 <h2 className="text-2xl font-light text-white mb-6 flex items-center gap-3">
                   <Calendar className="w-6 h-6 text-yellow-500" />
-                  Table Details
+                  Reservation Details
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -385,7 +385,7 @@ export default function BookingPage() {
                     disabled={loading || !selectedPackage || uploadingProof}
                     className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-sm font-light tracking-wider rounded hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:scale-105"
                   >
-                    {uploadingProof ? 'UPLOADING...' : loading ? 'PROCESSING...' : 'CONFIRM Table PURCHASE'}
+                    {uploadingProof ? 'UPLOADING...' : loading ? 'PROCESSING...' : 'CONFIRM TABLE RESERVATION'}
                   </button>
                 </form>
               </div>

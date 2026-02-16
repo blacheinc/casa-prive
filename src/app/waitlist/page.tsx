@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/waitlist/page.tsx
+// app/waitlist/page.tsx - Casa Privé x Alora Beach Resort
 'use client';
 
 import { useState } from 'react';
@@ -35,7 +35,7 @@ export default function WaitlistPage() {
         throw new Error(data.error || 'Failed to join waitlist');
       }
 
-      setMessage('Successfully added to waitlist! We\'ll notify you when a table becomes available.');
+      setMessage('Successfully added to waitlist! We\'ll notify you when tickets become available.');
       setFormData({
         fullName: '',
         email: '',
@@ -60,7 +60,7 @@ export default function WaitlistPage() {
             Join the Waitlist
           </h1>
           <p className="text-gray-300 font-light text-sm">
-            All tables are currently booked. Join our waitlist to be notified when a spot becomes available.
+            Tickets are currently sold out for this month&apos;s event at Alora Beach Resort. Join our waitlist to be notified when tickets become available.
           </p>
           <div className="h-px w-24 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mx-auto mt-6" />
         </div>
@@ -114,7 +114,7 @@ export default function WaitlistPage() {
             </div>
 
             <div>
-              <label className="block text-gray-300 mb-2 text-sm font-light">Preferred Date *</label>
+              <label className="block text-gray-300 mb-2 text-sm font-light">Preferred Event Date *</label>
               <input
                 type="date"
                 required
@@ -160,11 +160,11 @@ export default function WaitlistPage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-yellow-500 mt-1">•</span>
-              <span>We&apos;ll notify you via email and phone if a table becomes available</span>
+              <span>We&apos;ll notify you via email and phone when tickets become available</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-yellow-500 mt-1">•</span>
-              <span>You&apos;ll have 2 hours to confirm your booking once notified</span>
+              <span>You&apos;ll have 2 hours to confirm your ticket purchase once notified</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-yellow-500 mt-1">•</span>

@@ -64,10 +64,10 @@ function BookingSuccessContent() {
               <CheckCircle className="w-16 h-16 text-emerald-500" />
             </div>
             <h1 className="text-4xl font-bold text-emerald-400 mb-2">
-              Booking Confirmed!
+              Ticket Confirmed!
             </h1>
             <p className="text-xl text-gray-300">
-              Thank you for choosing Casa Privé
+              Thank you for choosing Casa Privé × Alora Beach Resort
             </p>
           </div>
 
@@ -75,7 +75,7 @@ function BookingSuccessContent() {
           {booking && (
             <div className="bg-slate-800 p-8 rounded-lg border border-emerald-700/30 mb-8">
               <h2 className="text-2xl font-bold text-yellow-500 mb-6">
-                Booking Details
+                Ticket Details
               </h2>
               
               <div className="space-y-4">
@@ -135,7 +135,7 @@ function BookingSuccessContent() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-yellow-500 mt-1">✓</span>
-                <span>Present this confirmation or your email at the entrance</span>
+                <span>Present this confirmation or your email at the entrance to Alora Beach Resort</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-yellow-500 mt-1">✓</span>

@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/menu/page.tsx
+// app/menu/page.tsx - Casa Privé x Alora Beach Resort
 'use client';
 
 import { useState, useEffect } from 'react';
 import { Plus, Minus, ShoppingCart, Wine } from 'lucide-react';
+import Image from 'next/image';
 
 interface MenuItem {
   id: string;
@@ -137,11 +138,11 @@ export default function MenuPage() {
       <div className="max-w-7xl mx-auto px-4">
         {/* Hero */}
         <div className="relative h-80 mb-12 overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop')`,
-            }}
+          <Image
+            src="/gallery/3.png"
+            alt="Casa Privé x Alora Beach Resort Drinks"
+            fill
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-slate-900/40" />
           <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
@@ -150,7 +151,7 @@ export default function MenuPage() {
               Drinks Menu
             </h1>
             <p className="text-gray-200 font-light text-sm max-w-xl">
-              Premium spirits, craft cocktails, and luxury champagnes
+              Premium spirits, craft cocktails, and luxury champagnes at Alora Beach Resort
             </p>
           </div>
         </div>
@@ -324,7 +325,7 @@ export default function MenuPage() {
               {message && (
                 <div className={`p-4 rounded mb-4 text-sm ${
                   message.includes('success') || message.includes('Processing') || message.includes('Redirecting')
-                    ? 'bg-emerald-900/50 text-emerald-300' 
+                    ? 'bg-emerald-900/50 text-emerald-300'
                     : 'bg-red-900/50 text-red-300'
                 }`}>
                   {message}

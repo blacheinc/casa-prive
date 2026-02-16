@@ -1,4 +1,4 @@
-// app/rules/page.tsx - NIGHTCLUB VERSION
+// app/rules/page.tsx - Casa Privé x Alora Beach Resort
 import { Shield, Users, Clock, Shirt, Wine, Camera, AlertCircle, Music } from 'lucide-react';
 
 export default function RulesPage() {
@@ -9,10 +9,10 @@ export default function RulesPage() {
         <div className="text-center mb-12">
           <Music className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
           <h1 className="text-4xl md:text-5xl font-light mb-4 text-white">
-            House Rules
+            Event Guidelines
           </h1>
           <p className="text-gray-300 font-light text-sm">
-            Let&apos;s party responsibly and keep the vibes right
+            Casa Privé × Alora Beach Resort — Let&apos;s party responsibly and keep the vibes right
           </p>
           <div className="h-px w-24 bg-gradient-to-r from-transparent via-emerald-500 to-transparent mx-auto mt-6" />
         </div>
@@ -26,10 +26,10 @@ export default function RulesPage() {
                 Dress Code: Refined Luxury Attire
               </h2>
             </div>
-            
+
             <p className="text-gray-200 mb-6 text-sm leading-relaxed font-light">
-              To preserve the prestige and exclusivity of Casa Privé, every guest is expected to embody 
-              sophistication, confidence, and effortless elegance. Our environment reflects refined luxury — 
+              To preserve the prestige and exclusivity of Casa Privé at Alora Beach Resort, every guest is expected to embody
+              sophistication, confidence, and effortless elegance. Our environment reflects refined luxury —
               your style should too.
             </p>
 
@@ -79,7 +79,7 @@ export default function RulesPage() {
 
             <div className="bg-red-900/20 border border-red-500/40 rounded p-4">
               <p className="text-red-300 text-sm font-light text-center">
-                <strong>Casa Privé represents modern opulence and timeless class.</strong> Guests not meeting 
+                <strong>Casa Privé represents modern opulence and timeless class.</strong> Guests not meeting
                 the required dress code will be respectfully denied entry to maintain the ambiance of exclusivity.
               </p>
             </div>
@@ -104,7 +104,7 @@ export default function RulesPage() {
             <RuleCard
               icon={<Shield className="w-5 h-5" />}
               title="Security Check"
-              description="All guests are subject to security screening at entry. Prohibited items include weapons, drugs, and outside food/beverages. Management reserves the right to refuse entry."
+              description="All guests are subject to security screening at entry to Alora Beach Resort. Prohibited items include weapons, drugs, and outside food/beverages. Management reserves the right to refuse entry."
               critical
             />
           </div>
@@ -114,21 +114,21 @@ export default function RulesPage() {
         <div className="mb-12">
           <h2 className="text-2xl font-light text-yellow-500 mb-6 flex items-center gap-3">
             <Users className="w-6 h-6" />
-            Table Bookings
+            Table Tickets
           </h2>
 
           <div className="space-y-6">
             <RuleCard
               icon={<Users className="w-5 h-5" />}
               title="Maximum 6 Guests Per Table"
-              description="Each table accommodates up to 6 guests. This ensures everyone has space to vibe and enjoy the night."
+              description="Each table ticket accommodates up to 6 guests. This ensures everyone has space to vibe and enjoy the night."
               critical
             />
 
             <RuleCard
               icon={<Clock className="w-5 h-5" />}
               title="Table Duration"
-              description="Your table is reserved for the entire night. Arrive when you want, stay as long as you like until closing."
+              description="Your table is reserved for the entire night at Alora Beach Resort. Arrive when you want, stay as long as you like until closing."
             />
 
             <RuleCard
@@ -179,22 +179,6 @@ export default function RulesPage() {
                 <span className="text-red-400 mt-1">•</span>
                 <span><strong>No-shows:</strong> No refund</span>
               </li>
-              {/* <li className="flex items-start gap-2">
-                <span className="text-red-400 mt-1">•</span>
-                <span><strong>48+ hours before event:</strong> Full refund minus 10% processing fee</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-red-400 mt-1">•</span>
-                <span><strong>24-48 hours before event:</strong> 50% refund</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-red-400 mt-1">•</span>
-                <span><strong>Less than 24 hours:</strong> No refund</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-red-400 mt-1">•</span>
-                <span><strong>No-shows:</strong> No refund</span>
-              </li> */}
             </ul>
           </div>
         </div>
@@ -207,7 +191,7 @@ export default function RulesPage() {
               What Gets You Kicked Out
             </h3>
             <p className="text-gray-300 mb-4 text-sm leading-relaxed font-light">
-              We want everyone to have an amazing time, but certain behaviors won&apos;t be tolerated:
+              We want everyone to have an amazing time at Alora Beach Resort, but certain behaviors won&apos;t be tolerated:
             </p>
             <ul className="space-y-2 text-gray-300 text-sm font-light">
               <li className="flex items-start gap-2">
@@ -237,7 +221,7 @@ export default function RulesPage() {
             </ul>
             <div className="mt-6 p-4 bg-red-900/20 border border-red-500/30 rounded">
               <p className="text-red-400 text-xs font-light">
-                <strong>Note:</strong> Violation of these rules will result in immediate removal without refund. Serious violations may result in a permanent ban.
+                <strong>Note:</strong> Violation of these rules will result in immediate removal without refund. Serious violations may result in a permanent ban from future Casa Privé × Alora Beach Resort events.
               </p>
             </div>
           </div>
@@ -251,7 +235,7 @@ export default function RulesPage() {
               The Good Vibes Code
             </h3>
             <p className="text-gray-300 mb-4 text-sm leading-relaxed font-light">
-              Casa Privé is all about creating unforgettable nights. Help us keep the energy right:
+              Casa Privé × Alora Beach Resort is all about creating unforgettable nights. Help us keep the energy right:
             </p>
             <ul className="space-y-2 text-gray-300 text-sm font-light">
               <li className="flex items-start gap-2">
@@ -282,7 +266,7 @@ export default function RulesPage() {
         <div className="text-center bg-slate-800/50 border border-yellow-700/30 p-8 rounded">
           <h3 className="text-xl font-light text-white mb-4">Questions?</h3>
           <p className="text-gray-300 mb-6 text-sm font-light">
-            Hit us up if you need anything or have concerns
+            Hit us up if you need anything or have concerns about the event
           </p>
           <a
             href="/feedback"
@@ -296,21 +280,21 @@ export default function RulesPage() {
   );
 }
 
-function RuleCard({ 
-  icon, 
-  title, 
-  description, 
-  critical 
-}: { 
-  icon: React.ReactNode; 
-  title: string; 
-  description: string; 
+function RuleCard({
+  icon,
+  title,
+  description,
+  critical
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
   critical?: boolean;
 }) {
   return (
     <div className={`bg-slate-800/50 p-6 rounded border transition-all hover:scale-105 ${
-      critical 
-        ? 'border-red-500/50 bg-red-900/10' 
+      critical
+        ? 'border-red-500/50 bg-red-900/10'
         : 'border-emerald-700/30'
     }`}>
       <div className="flex items-start gap-4">

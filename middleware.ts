@@ -10,6 +10,7 @@ export async function middleware(request: NextRequest) {
   const publicPaths = [
     '/',
     '/booking',
+    '/tickets',
     '/menu',
     '/membership',
     '/rules',

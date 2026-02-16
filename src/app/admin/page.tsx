@@ -2,13 +2,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BarChart, Users, Calendar, DollarSign, ShoppingBag, MessageSquare, Clock } from 'lucide-react';
+import { BarChart, Users, Calendar, DollarSign, ShoppingBag, MessageSquare, Clock, Ticket } from 'lucide-react';
 
 interface Stats {
   bookings: {
     total: number;
     confirmed: number;
     pending: number;
+  };
+  tickets: {
+    total: number;
+    confirmed: number;
+    pending: number;
+    revenue: number;
   };
   orders: {
     total: number;
@@ -73,15 +79,22 @@ export default function AdminDashboard() {
             <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-emerald-400 to-yellow-500 bg-clip-text text-transparent">
               Admin Dashboard
             </h1>
-            <p className="text-gray-300">Manage Casa Privé operations</p>
+            <p className="text-gray-300">Manage Casa Privé × Alora Beach Resort operations</p>
           </div>
 
           {/* Stats Grid */}
           {stats && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+              <StatCard
+                icon={<Ticket className="w-8 h-8" />}
+                title="Tickets"
+                value={stats.tickets?.total || 0}
+                subtitle={`${stats.tickets?.confirmed || 0} confirmed, ${stats.tickets?.pending || 0} pending`}
+                color="yellow"
+              />
               <StatCard
                 icon={<Calendar className="w-8 h-8" />}
-                title="Bookings"
+                title="Table Bookings"
                 value={stats.bookings.total}
                 subtitle={`${stats.bookings.confirmed} confirmed, ${stats.bookings.pending} pending`}
                 color="emerald"
@@ -96,8 +109,8 @@ export default function AdminDashboard() {
               <StatCard
                 icon={<DollarSign className="w-8 h-8" />}
                 title="Revenue"
-                value={`GHS ${stats.revenue.total.toLocaleString()}`}
-                subtitle="Total revenue"
+                value={`GHS ${((stats.revenue.total || 0) + (stats.tickets?.revenue || 0)).toLocaleString()}`}
+                subtitle="Tables + Tickets"
                 color="yellow"
               />
               <StatCard

@@ -20,9 +20,8 @@ export default function Footer() {
                                     className="group-hover:scale-110 transition-transform"
                                     style={{ background: 'transparent' }}
                                 />
-                                <span className="text-lg font-light text-emerald-400">CASA PRIVÉ</span>
+                                <span className="text-lg font-light text-emerald-400">CASA PRIVÉ <span className="text-yellow-500">×</span> ALORA BEACH</span>
                             </div>
-                            <p className="text-yellow-500 text-xs font-light tracking-wider mb-3">× ALORA BEACH RESORT</p>
                             <p className="text-gray-400 text-xs font-light leading-relaxed">
                                 An exclusive monthly experience of premium drinks, music, and luxury at Alora Beach Resort. Two icons of luxury united.
                             </p>
@@ -33,8 +32,13 @@ export default function Footer() {
                             <h3 className="text-white font-light mb-4 text-sm tracking-wider">Quick Links</h3>
                             <ul className="space-y-2">
                                 <li>
-                                    <Link href="/booking" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
+                                    <Link href="/tickets" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
                                         Get Tickets
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/booking" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
+                                        Book Table
                                     </Link>
                                 </li>
                                 <li>

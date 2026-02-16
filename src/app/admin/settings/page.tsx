@@ -8,8 +8,11 @@ interface Settings {
   id: string;
   totalTables: number;
   bookedTables: number;
+  totalTickets: number;
+  soldTickets: number;
   currentEventDate: string;
   isBookingOpen: boolean;
+  isTicketSalesOpen: boolean;
 }
 
 export default function AdminSettings() {
@@ -73,6 +76,42 @@ export default function AdminSettings() {
       </div>
 
       <div className="bg-slate-800 rounded-lg p-6 space-y-6">
+        {/* Ticket Settings */}
+        <div className="border-b border-slate-700 pb-4 mb-4">
+          <h3 className="text-lg font-bold text-yellow-500 mb-4">Ticket Settings</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-300 mb-2 font-medium">Total Tickets Available</label>
+              <input
+                type="number"
+                min="1"
+                value={settings.totalTickets || 200}
+                onChange={(e) => setSettings({ ...settings, totalTickets: parseInt(e.target.value) })}
+                className="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
+              />
+              <p className="text-gray-400 text-sm mt-2">
+                Sold: {settings.soldTickets || 0} / Available: {(settings.totalTickets || 200) - (settings.soldTickets || 0)}
+              </p>
+            </div>
+            <div>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.isTicketSalesOpen ?? true}
+                  onChange={(e) => setSettings({ ...settings, isTicketSalesOpen: e.target.checked })}
+                  className="w-5 h-5 rounded bg-slate-700 border-slate-600 text-emerald-600 focus:ring-emerald-500"
+                />
+                <span className="text-gray-300 font-medium">Ticket Sales Open</span>
+              </label>
+              <p className="text-gray-400 text-sm mt-2">
+                {(settings.isTicketSalesOpen ?? true)
+                  ? 'Customers can purchase tickets'
+                  : 'Ticket sales are closed'}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Total Tables */}
         <div>
           <label className="block text-gray-300 mb-2 font-medium">Total Tables</label>

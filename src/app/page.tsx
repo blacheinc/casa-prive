@@ -38,7 +38,7 @@ export default function HomePage() {
           <div className="h-px w-32 bg-gradient-to-r from-transparent via-yellow-500 to-transparent mb-4" />
 
           <p className="text-lg md:text-xl font-light text-yellow-400 mb-2 animate-fade-in-up animation-delay-200 tracking-wider">
-            × ALORA BEACH RESORT
+            CASA PRIVÉ <span className="text-white">×</span> ALORA BEACH RESORT
           </p>
 
           <p className="text-base md:text-lg text-gray-200 mb-4 max-w-2xl leading-relaxed font-light animate-fade-in-up animation-delay-400">
@@ -53,17 +53,17 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up animation-delay-600">
             <Link
-              href="/booking"
+              href="/tickets"
               className="group px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-light tracking-widest transition-all duration-300 flex items-center justify-center"
             >
               GET TICKETS
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
             </Link>
             <Link
-              href="/menu"
+              href="/booking"
               className="px-8 py-3 border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-emerald-900 text-sm font-light tracking-widest transition-all duration-300"
             >
-              VIEW DRINKS MENU
+              BOOK A TABLE
             </Link>
           </div>
         </div>
@@ -341,16 +341,16 @@ export default function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link
-                href="/booking"
+                href="/tickets"
                 className="px-8 py-3 bg-white text-emerald-900 hover:bg-gray-100 text-sm font-light tracking-widest transition-all duration-300"
               >
                 GET TICKETS
               </Link>
               <Link
-                href="/menu"
+                href="/booking"
                 className="px-8 py-3 border-2 border-white text-white hover:bg-white hover:text-emerald-900 text-sm font-light tracking-widest transition-all duration-300"
               >
-                VIEW DRINKS MENU
+                BOOK A TABLE
               </Link>
             </div>
           </div>

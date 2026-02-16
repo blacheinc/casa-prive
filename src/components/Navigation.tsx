@@ -21,7 +21,8 @@ export default function Navigation() {
 
     const links = [
         { href: '/', label: 'Home' },
-        { href: '/booking', label: 'Get Tickets' },
+        { href: '/tickets', label: 'Get Tickets' },
+        { href: '/booking', label: 'Book Table' },
         { href: '/menu', label: 'Drinks Menu' },
         { href: '/rules', label: 'Guidelines' },
         { href: '/feedback', label: 'Feedback' },
@@ -47,11 +48,8 @@ export default function Navigation() {
                             style={{ background: 'transparent' }}
                         />
                         <div className="flex flex-col">
-                            <span className="text-xl font-light tracking-wider text-white">
-                                CASA PRIVÉ
-                            </span>
-                            <span className="text-[10px] font-light tracking-wider text-yellow-500">
-                                × ALORA BEACH RESORT
+                            <span className="text-base font-light tracking-wider text-white">
+                                CASA PRIVÉ <span className="text-yellow-500">×</span> ALORA BEACH
                             </span>
                         </div>
                     </Link>

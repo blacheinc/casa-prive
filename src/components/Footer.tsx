@@ -33,7 +33,7 @@ export default function Footer() {
                             <h3 className="text-white font-light mb-4 text-sm tracking-wider">Quick Links</h3>
                             <ul className="space-y-2">
                                 <li>
-                                    <Link href="/booking" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
+                                    <Link href="/" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
                                         Get Tickets
                                     </Link>
                                 </li>

@@ -21,7 +21,7 @@ export default function Navigation() {
 
     const links = [
         { href: '/', label: 'Home' },
-        { href: '/booking', label: 'Get Tickets' },
+        { href: '/booking', label: 'Get Table' },
         { href: '/menu', label: 'Drinks Menu' },
         { href: '/rules', label: 'Guidelines' },
         { href: '/feedback', label: 'Feedback' },

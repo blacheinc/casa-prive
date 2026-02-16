@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/booking/page.tsx - Casa Privé x Alora Beach Resort Ticket Sales
+// app/booking/page.tsx - Casa Privé x Alora Beach Resort Table Sales
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Ticket, Upload, MapPin } from 'lucide-react';
+import { Calendar, Table, Upload, MapPin } from 'lucide-react';
 import Image from 'next/image';
 
 interface TablePackage {
@@ -48,12 +48,12 @@ export default function BookingPage() {
       if (response.ok) {
         setPackages(data.packages || []);
       } else {
-        console.error('Failed to fetch ticket packages:', data.error);
-        setMessage('Failed to load ticket packages. Please refresh the page.');
+        console.error('Failed to fetch Table packages:', data.error);
+        setMessage('Failed to load Table packages. Please refresh the page.');
       }
     } catch (error) {
-      console.error('Error fetching ticket packages:', error);
-      setMessage('Failed to load ticket packages. Please refresh the page.');
+      console.error('Error fetching Table packages:', error);
+      setMessage('Failed to load Table packages. Please refresh the page.');
     } finally {
       setFetchingPackages(false);
     }
@@ -84,7 +84,7 @@ export default function BookingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('Processing your ticket purchase...');
+    setMessage('Processing your Table purchase...');
 
     try {
       let proofUrl = '';
@@ -110,7 +110,7 @@ export default function BookingPage() {
         }
 
         setUploadingProof(false);
-        setMessage('Processing your ticket purchase...');
+        setMessage('Processing your Table purchase...');
       }
 
       const response = await fetch('/api/bookings', {
@@ -126,7 +126,7 @@ export default function BookingPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Ticket purchase failed');
+        throw new Error(data.error || 'Table purchase failed');
       }
 
       if (data.paymentUrl) {
@@ -136,7 +136,7 @@ export default function BookingPage() {
         window.location.href = `/booking/success?id=${data.booking.id}`;
       }
     } catch (error: any) {
-      setMessage(error.message || 'Failed to complete ticket purchase');
+      setMessage(error.message || 'Failed to complete Table purchase');
       setLoading(false);
       setUploadingProof(false);
     }
@@ -176,9 +176,9 @@ export default function BookingPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-slate-900/40" />
           <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
-            <Ticket className="w-12 h-12 text-yellow-500 mb-4" />
+            <Table className="w-12 h-12 text-yellow-500 mb-4" />
             <h1 className="text-4xl md:text-5xl font-light mb-4 text-white">
-              Get Your Tickets
+              Get Your Table
             </h1>
             <p className="text-yellow-400 font-light text-sm mb-1">Casa Privé × Alora Beach Resort</p>
             <div className="flex items-center gap-2 text-gray-300 text-xs">
@@ -227,7 +227,7 @@ export default function BookingPage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-400 font-light">No ticket packages available at this time.</p>
+                <p className="text-gray-400 font-light">No Table packages available at this time.</p>
               </div>
             )}
 
@@ -236,7 +236,7 @@ export default function BookingPage() {
               <div className="bg-slate-800/50 border border-emerald-700/30 p-8 rounded">
                 <h2 className="text-2xl font-light text-white mb-6 flex items-center gap-3">
                   <Calendar className="w-6 h-6 text-yellow-500" />
-                  Ticket Details
+                  Table Details
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -385,7 +385,7 @@ export default function BookingPage() {
                     disabled={loading || !selectedPackage || uploadingProof}
                     className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-sm font-light tracking-wider rounded hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:scale-105"
                   >
-                    {uploadingProof ? 'UPLOADING...' : loading ? 'PROCESSING...' : 'CONFIRM TICKET PURCHASE'}
+                    {uploadingProof ? 'UPLOADING...' : loading ? 'PROCESSING...' : 'CONFIRM Table PURCHASE'}
                   </button>
                 </form>
               </div>

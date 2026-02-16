@@ -53,7 +53,7 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up animation-delay-600">
             <Link
-              href="/booking"
+              href="/"
               className="group px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-light tracking-widest transition-all duration-300 flex items-center justify-center"
             >
               GET TICKETS
@@ -341,7 +341,7 @@ export default function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link
-                href="/booking"
+                href="/"
                 className="px-8 py-3 bg-white text-emerald-900 hover:bg-gray-100 text-sm font-light tracking-widest transition-all duration-300"
               >
                 GET TICKETS

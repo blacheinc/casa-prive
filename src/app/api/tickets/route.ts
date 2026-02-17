@@ -21,6 +21,9 @@ export async function POST(request: NextRequest) {
       paymentMethod,
       proofOfPayment,
       amount,
+      adminCreated,
+      status: initialStatus,
+      paymentStatus: initialPaymentStatus,
     } = body;
 
     // Validate input
@@ -31,20 +34,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check ticket availability
     const settings = await prisma.eventSettings.findFirst();
-    if (settings && settings.soldTickets >= settings.totalTickets) {
-      return NextResponse.json(
-        { error: "Tickets are sold out. Please join the waitlist." },
-        { status: 400 }
-      );
-    }
 
-    if (settings && !settings.isTicketSalesOpen) {
-      return NextResponse.json(
-        { error: "Ticket sales are currently closed." },
-        { status: 400 }
-      );
+    // Skip availability checks for admin-created tickets
+    if (!adminCreated) {
+      if (settings && settings.soldTickets >= settings.totalTickets) {
+        return NextResponse.json(
+          { error: "Tickets are sold out. Please join the waitlist." },
+          { status: 400 }
+        );
+      }
+
+      if (settings && !settings.isTicketSalesOpen) {
+        return NextResponse.json(
+          { error: "Ticket sales are currently closed." },
+          { status: 400 }
+        );
+      }
     }
 
     // Create ticket
@@ -60,8 +66,8 @@ export async function POST(request: NextRequest) {
         paymentMethod,
         proofOfPayment: proofOfPayment || null,
         amount: parseFloat(amount),
-        status: "PENDING",
-        paymentStatus: "PENDING",
+        status: initialStatus || "PENDING",
+        paymentStatus: initialPaymentStatus || "PENDING",
       },
     });
 
@@ -111,13 +117,15 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // For bank transfer, return immediately
+    // For bank transfer or admin-created, return immediately
     const response = NextResponse.json({ ticket });
 
-    // Send notifications in background
-    sendTicketNotification(ticket).catch((err) =>
-      console.error("Background ticket notification error:", err)
-    );
+    // Send notifications in background (skip for admin-created tickets)
+    if (!adminCreated) {
+      sendTicketNotification(ticket).catch((err) =>
+        console.error("Background ticket notification error:", err)
+      );
+    }
 
     return response;
   } catch (error) {

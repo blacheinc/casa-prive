@@ -9,26 +9,27 @@ import Image from 'next/image';
 const TICKET_TIERS = [
   {
     id: 'general',
-    name: 'General Admission',
+    name: 'Ticket Admission',
     price: 200,
     description: 'Access to the event, general seating area, and cash bar.',
     features: ['Event entry', 'General seating area', 'Cash bar access', 'Live entertainment'],
-  },
-  {
-    id: 'vip',
-    name: 'VIP',
-    price: 500,
-    description: 'Premium access with reserved seating and complimentary welcome drink.',
-    features: ['Priority event entry', 'Reserved VIP seating', '1 complimentary cocktail', 'Live entertainment', 'VIP lounge access'],
     popular: true,
   },
-  {
-    id: 'vvip',
-    name: 'VVIP',
-    price: 1000,
-    description: 'The ultimate experience with premium bottle, dedicated server, and exclusive perks.',
-    features: ['Express event entry', 'Premium reserved seating', '1 bottle of champagne', 'Dedicated server', 'VIP lounge access', 'Exclusive VVIP area', 'Live entertainment'],
-  },
+  // {
+  //   id: 'vip',
+  //   name: 'VIP',
+  //   price: 500,
+  //   description: 'Premium access with reserved seating and complimentary welcome drink.',
+  //   features: ['Priority event entry', 'Reserved VIP seating', '1 complimentary cocktail', 'Live entertainment', 'VIP lounge access'],
+  //   popular: true,
+  // },
+  // {
+  //   id: 'vvip',
+  //   name: 'VVIP',
+  //   price: 1000,
+  //   description: 'The ultimate experience with premium bottle, dedicated server, and exclusive perks.',
+  //   features: ['Express event entry', 'Premium reserved seating', '1 bottle of champagne', 'Dedicated server', 'VIP lounge access', 'Exclusive VVIP area', 'Live entertainment'],
+  // },
 ];
 
 export default function TicketsPage() {
@@ -170,11 +171,10 @@ export default function TicketsPage() {
             <div
               key={tier.id}
               onClick={() => setSelectedTier(tier.id)}
-              className={`relative bg-slate-800/50 p-6 rounded border-2 cursor-pointer transition-all transform hover:scale-105 ${
-                selectedTier === tier.id
+              className={`relative bg-slate-800/50 p-6 rounded border-2 cursor-pointer transition-all transform hover:scale-105 ${selectedTier === tier.id
                   ? 'border-yellow-500 shadow-lg shadow-yellow-500/20'
                   : 'border-emerald-700/30 hover:border-emerald-500/50'
-              }`}
+                }`}
             >
               {tier.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-yellow-500 text-emerald-900 text-xs font-medium rounded-full">
@@ -325,11 +325,10 @@ export default function TicketsPage() {
               )}
 
               {message && (
-                <div className={`p-4 rounded text-sm ${
-                  message.includes('success') || message.includes('Uploading') || message.includes('Processing') || message.includes('Redirecting')
+                <div className={`p-4 rounded text-sm ${message.includes('success') || message.includes('Uploading') || message.includes('Processing') || message.includes('Redirecting')
                     ? 'bg-emerald-900/50 text-emerald-300'
                     : 'bg-red-900/50 text-red-300'
-                }`}>
+                  }`}>
                   {uploadingProof && (
                     <div className="flex items-center gap-2">
                       <div className="animate-spin rounded-full h-4 w-4 border-2 border-emerald-400 border-t-transparent"></div>

@@ -125,10 +125,10 @@ function TicketSuccessContent() {
               BACK TO HOME
             </Link>
             <Link
-              href="/menu"
+              href="/booking"
               className="px-6 py-3 border border-emerald-600 text-emerald-400 rounded-lg hover:bg-emerald-600 hover:text-white transition text-center text-sm font-light"
             >
-              VIEW DRINKS MENU
+              BOOK A TABLE
             </Link>
           </div>
         </div>

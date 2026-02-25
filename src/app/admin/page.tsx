@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BarChart, Users, Calendar, DollarSign, ShoppingBag, MessageSquare, Clock, Ticket } from 'lucide-react';
+import { BarChart, Users, Calendar, DollarSign, MessageSquare, Clock, Ticket } from 'lucide-react';
 
 interface Stats {
   bookings: {
@@ -84,7 +84,7 @@ export default function AdminDashboard() {
 
           {/* Stats Grid */}
           {stats && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               <StatCard
                 icon={<Ticket className="w-8 h-8" />}
                 title="Tickets"
@@ -98,13 +98,6 @@ export default function AdminDashboard() {
                 value={stats.bookings.total}
                 subtitle={`${stats.bookings.confirmed} confirmed, ${stats.bookings.pending} pending`}
                 color="emerald"
-              />
-              <StatCard
-                icon={<ShoppingBag className="w-8 h-8" />}
-                title="Orders"
-                value={stats.orders.total}
-                subtitle="Total orders placed"
-                color="blue"
               />
               <StatCard
                 icon={<DollarSign className="w-8 h-8" />}
@@ -204,16 +197,6 @@ export default function AdminDashboard() {
               >
                 Bookings
               </button>
-              <button
-                onClick={() => setActiveTab('orders')}
-                className={`flex-1 px-6 py-4 font-semibold transition ${
-                  activeTab === 'orders'
-                    ? 'bg-emerald-900/50 text-emerald-400 border-b-2 border-emerald-500'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                Orders
-              </button>
             </div>
 
             <div className="p-6">
@@ -244,22 +227,6 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {activeTab === 'orders' && (
-                <div className="text-center py-12">
-                  <ShoppingBag className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">Order Management</h3>
-                  <p className="text-gray-400 mb-6">
-                    View and manage all menu orders
-                  </p>
-                  <a
-                    href="/api/orders"
-                    target="_blank"
-                    className="inline-block px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition"
-                  >
-                    View All Orders
-                  </a>
-                </div>
-              )}
             </div>
           </div>
 

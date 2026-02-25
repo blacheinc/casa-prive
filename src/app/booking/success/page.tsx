@@ -157,10 +157,10 @@ function BookingSuccessContent() {
               Return Home
             </Link>
             <Link
-              href="/menu"
+              href="/tickets"
               className="flex-1 px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 text-white rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-400 transition text-center"
             >
-              View Menu
+              Get Tickets
             </Link>
           </div>
 

@@ -7,7 +7,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
     LayoutDashboard,
     Calendar,
-    ShoppingBag,
     Users,
     Crown,
     Clock,
@@ -61,10 +60,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
         { name: 'Tickets', href: '/admin/tickets', icon: Ticket },
         { name: 'Bookings', href: '/admin/bookings', icon: Calendar },
-        { name: 'Orders', href: '/admin/orders', icon: ShoppingBag },
         { name: 'Members', href: '/admin/members', icon: Crown },
         { name: 'Tables', href: '/admin/packages', icon: Table },
-        { name: 'Menu', href: '/admin/menu-items', icon: Menu },
         { name: 'Waitlist', href: '/admin/waitlist', icon: Clock },
         { name: 'Feedback', href: '/admin/feedback', icon: MessageSquare },
         { name: 'Settings', href: '/admin/settings', icon: Settings },

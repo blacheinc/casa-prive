@@ -140,14 +140,8 @@ function OrderSuccessContent() {
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
-              href="/menu"
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg font-semibold hover:from-emerald-500 hover:to-emerald-400 transition text-center"
-            >
-              Order More
-            </Link>
-            <Link
               href="/"
-              className="flex-1 px-6 py-3 bg-slate-700 text-white rounded-lg font-semibold hover:bg-slate-600 transition text-center"
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg font-semibold hover:from-emerald-500 hover:to-emerald-400 transition text-center"
             >
               Return Home
             </Link>

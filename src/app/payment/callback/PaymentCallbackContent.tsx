@@ -98,10 +98,10 @@ export default function PaymentCallbackContent() {
           {status === 'failed' && (
             <div className="space-y-3">
               <button
-                onClick={() => window.location.href = '/menu'}
+                onClick={() => window.location.href = '/tickets'}
                 className="w-full px-6 py-3 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-500 transition font-light tracking-wider"
               >
-                RETURN TO MENU
+                RETURN TO TICKETS
               </button>
               <button
                 onClick={() => window.location.href = '/booking'}

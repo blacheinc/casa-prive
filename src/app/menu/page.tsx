@@ -3,7 +3,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Minus, ShoppingCart, Wine } from 'lucide-react';
+// import { Plus, Minus, ShoppingCart, Wine } from 'lucide-react';
+import { Wine } from 'lucide-react';
 import Image from 'next/image';
 
 interface MenuItem {
@@ -14,25 +15,26 @@ interface MenuItem {
   price: number;
 }
 
-interface CartItem extends MenuItem {
-  quantity: number;
-  notes?: string;
-}
+// Cart and checkout interfaces (purchase disabled)
+// interface CartItem extends MenuItem {
+//   quantity: number;
+//   notes?: string;
+// }
 
 export default function MenuPage() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
+  // const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('ALL');
-  const [customerInfo, setCustomerInfo] = useState({
-    customerName: '',
-    tableNumberOrName: '',
-    email: '',
-    paymentMethod: 'PAYSTACK',
-  });
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // const [customerInfo, setCustomerInfo] = useState({
+  //   customerName: '',
+  //   tableNumberOrName: '',
+  //   email: '',
+  //   paymentMethod: 'PAYSTACK',
+  // });
+  // const [showCheckout, setShowCheckout] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [fetchingMenu, setFetchingMenu] = useState(true);
-  const [message, setMessage] = useState('');
+  // const [message, setMessage] = useState('');
 
   const categories = ['ALL', 'CHAMPAGNE', 'COCKTAIL', 'COGNAC','TEQUILA','MOCKTAIL'];
 
@@ -58,11 +60,9 @@ export default function MenuPage() {
         setMenuItems(items);
       } else {
         console.error('Failed to fetch menu items:', data.error);
-        setMessage('Failed to load menu items. Please refresh the page.');
       }
     } catch (error) {
       console.error('Error fetching menu items:', error);
-      setMessage('Failed to load menu items. Please refresh the page.');
     } finally {
       setFetchingMenu(false);
     }
@@ -70,68 +70,69 @@ export default function MenuPage() {
 
   const filteredItems = selectedCategory === 'ALL' ? menuItems : menuItems.filter(item => item.category === selectedCategory);
 
-  const addToCart = (item: MenuItem) => {
-    const existing = cart.find(i => i.id === item.id);
-    if (existing) {
-      setCart(cart.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i));
-    } else {
-      setCart([...cart, { ...item, quantity: 1 }]);
-    }
-  };
+  // Purchase functionality disabled (read-only menu)
+  // const addToCart = (item: MenuItem) => {
+  //   const existing = cart.find(i => i.id === item.id);
+  //   if (existing) {
+  //     setCart(cart.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i));
+  //   } else {
+  //     setCart([...cart, { ...item, quantity: 1 }]);
+  //   }
+  // };
 
-  const removeFromCart = (itemId: string) => {
-    const existing = cart.find(i => i.id === itemId);
-    if (existing && existing.quantity > 1) {
-      setCart(cart.map(i => i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i));
-    } else {
-      setCart(cart.filter(i => i.id !== itemId));
-    }
-  };
+  // const removeFromCart = (itemId: string) => {
+  //   const existing = cart.find(i => i.id === itemId);
+  //   if (existing && existing.quantity > 1) {
+  //     setCart(cart.map(i => i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i));
+  //   } else {
+  //     setCart(cart.filter(i => i.id !== itemId));
+  //   }
+  // };
 
-  const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  // const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  const handleCheckout = async () => {
-    if (!customerInfo.customerName || !customerInfo.tableNumberOrName) {
-      setMessage('Please fill in your name and table number');
-      return;
-    }
+  // const handleCheckout = async () => {
+  //   if (!customerInfo.customerName || !customerInfo.tableNumberOrName) {
+  //     setMessage('Please fill in your name and table number');
+  //     return;
+  //   }
 
-    if (cart.length === 0) {
-      setMessage('Your cart is empty');
-      return;
-    }
+  //   if (cart.length === 0) {
+  //     setMessage('Your cart is empty');
+  //     return;
+  //   }
 
-    setLoading(true);
-    setMessage('Processing your order...');
+  //   setLoading(true);
+  //   setMessage('Processing your order...');
 
-    try {
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...customerInfo,
-          items: cart.map(item => ({ menuItemId: item.id, quantity: item.quantity, notes: item.notes })),
-        }),
-      });
+  //   try {
+  //     const response = await fetch('/api/orders', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({
+  //         ...customerInfo,
+  //         items: cart.map(item => ({ menuItemId: item.id, quantity: item.quantity, notes: item.notes })),
+  //       }),
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Order failed');
-      }
+  //     if (!response.ok) {
+  //       throw new Error(data.error || 'Order failed');
+  //     }
 
-      if (data.paymentUrl) {
-        setMessage('Redirecting to payment...');
-        window.location.href = data.paymentUrl;
-      } else {
-        // Redirect to success page (using 'id' param to match your existing page)
-        window.location.href = `/order/success?id=${data.order.id}`;
-      }
-    } catch (error: any) {
-      setMessage(error.message || 'Failed to place order');
-      setLoading(false);
-    }
-  };
+  //     if (data.paymentUrl) {
+  //       setMessage('Redirecting to payment...');
+  //       window.location.href = data.paymentUrl;
+  //     } else {
+  //       // Redirect to success page (using 'id' param to match your existing page)
+  //       window.location.href = `/order/success?id=${data.order.id}`;
+  //     }
+  //   } catch (error: any) {
+  //     setMessage(error.message || 'Failed to place order');
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 py-32">
@@ -196,13 +197,14 @@ export default function MenuPage() {
                       <p className="text-gray-400 text-xs mb-4 font-light">{item.description}</p>
                       <div className="flex items-center justify-between">
                         <span className="text-xl font-light text-emerald-400">GHS {item.price}</span>
-                        <button
+                        {/* Add to cart button disabled (read-only menu) */}
+                        {/* <button
                           onClick={() => addToCart(item)}
                           className="px-4 py-2 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-500 transition flex items-center gap-2 font-light"
                         >
                           <Plus size={14} />
                           ADD
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   </div>
@@ -216,8 +218,8 @@ export default function MenuPage() {
           </>
         )}
 
-        {/* Cart Summary */}
-        {cart.length > 0 && (
+        {/* Cart Summary - disabled (read-only menu) */}
+        {/* {cart.length > 0 && (
           <div className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-emerald-700 p-4 shadow-lg z-50">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -239,16 +241,16 @@ export default function MenuPage() {
               </button>
             </div>
           </div>
-        )}
+        )} */}
 
-        {/* Checkout Modal */}
-        {showCheckout && (
+        {/* Checkout Modal - disabled (read-only menu) */}
+        {/* {showCheckout && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
             <div className="bg-slate-800 border border-emerald-700/30 rounded max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
               <h2 className="text-2xl font-light text-yellow-500 mb-6">Checkout</h2>
 
               {/* Cart Items */}
-              <div className="mb-6">
+              {/* <div className="mb-6">
                 {cart.map((item) => (
                   <div key={item.id} className="flex items-center justify-between py-3 border-b border-slate-700">
                     <div className="flex-1">
@@ -274,10 +276,10 @@ export default function MenuPage() {
                     Total: GHS {totalAmount.toFixed(2)}
                   </span>
                 </div>
-              </div>
+              </div> */}
 
               {/* Customer Info */}
-              <div className="space-y-4 mb-6">
+              {/* <div className="space-y-4 mb-6">
                 <div>
                   <label className="block text-gray-300 mb-2 text-sm font-light">Your Name *</label>
                   <input
@@ -320,9 +322,9 @@ export default function MenuPage() {
                     <option value="CASH">Pay with Cash</option>
                   </select>
                 </div>
-              </div>
+              </div> */}
 
-              {message && (
+              {/* {message && (
                 <div className={`p-4 rounded mb-4 text-sm ${
                   message.includes('success') || message.includes('Processing') || message.includes('Redirecting')
                     ? 'bg-emerald-900/50 text-emerald-300'
@@ -330,9 +332,9 @@ export default function MenuPage() {
                 }`}>
                   {message}
                 </div>
-              )}
+              )} */}
 
-              <div className="flex gap-3">
+              {/* <div className="flex gap-3">
                 <button
                   onClick={() => setShowCheckout(false)}
                   className="flex-1 px-6 py-3 bg-slate-700 text-white text-sm rounded hover:bg-slate-600 font-light"
@@ -349,7 +351,7 @@ export default function MenuPage() {
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

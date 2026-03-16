@@ -750,6 +750,182 @@ Service Details:
   }
 
   /**
+   * Send ticket confirmation email with download link
+   */
+  async sendTicketConfirmation(to: string, ticket: {
+    id: string;
+    ticketCode: string;
+    fullName: string;
+    tierName: string;
+    numberOfGuests: number;
+    eventDate: string;
+    eventName?: string;
+    venue?: string;
+    amount: number;
+  }): Promise<void> {
+    try {
+      const logoUrl = this.getLogoUrl();
+      const downloadUrl = `${this.baseUrl}/api/tickets/${ticket.id}/download`;
+
+      const html = `
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="color-scheme" content="light">
+            <meta name="supported-color-schemes" content="light">
+            <title>Ticket Confirmed - Casa Privé</title>
+            <style>${this.getEmailStyles()}</style>
+          </head>
+          <body>
+            <div class="email-wrapper">
+              <div class="container">
+                <div class="header">
+                  <div class="logo-section">
+                    <img src="${logoUrl}" alt="Casa Privé Logo" class="logo" />
+                    <div class="brand-container">
+                      <div class="brand-name">CASA PRIVÉ</div>
+                      <div class="subtitle">× Alora Beach Resort</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="content">
+                  <h1 class="greeting">Your Ticket is Confirmed</h1>
+
+                  <p class="intro-text">Dear ${ticket.fullName},</p>
+
+                  <p class="intro-text">
+                    Your ticket has been confirmed. We look forward to welcoming you to
+                    ${ticket.eventName ? `<strong>${ticket.eventName}</strong>` : 'Casa Privé × Alora Beach Resort'}.
+                  </p>
+
+                  <div class="divider"></div>
+
+                  <div class="details-card">
+                    <h2 class="details-title">Ticket Details</h2>
+                    <ul class="item-list">
+                      <li>
+                        <div class="item-info">
+                          <div class="item-name">Ticket Code</div>
+                          <div class="item-details" style="font-family:monospace;letter-spacing:2px;color:#10b981;">${ticket.ticketCode}</div>
+                        </div>
+                      </li>
+                      <li>
+                        <div class="item-info">
+                          <div class="item-name">Tier</div>
+                          <div class="item-details">${ticket.tierName}</div>
+                        </div>
+                      </li>
+                      <li>
+                        <div class="item-info">
+                          <div class="item-name">Event Date</div>
+                          <div class="item-details">${ticket.eventDate}</div>
+                        </div>
+                      </li>
+                      ${ticket.venue ? `
+                      <li>
+                        <div class="item-info">
+                          <div class="item-name">Venue</div>
+                          <div class="item-details">${ticket.venue}</div>
+                        </div>
+                      </li>` : ''}
+                      <li>
+                        <div class="item-info">
+                          <div class="item-name">Guests</div>
+                          <div class="item-details">${ticket.numberOfGuests}</div>
+                        </div>
+                      </li>
+                      <li>
+                        <div class="item-info">
+                          <div class="item-name">Amount Paid</div>
+                          <div class="item-details">GHS ${ticket.amount.toFixed(2)}</div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div style="text-align:center;margin:30px 0;">
+                    <a href="${downloadUrl}" style="display:inline-block;background:#d4af37;color:#0f172a;padding:14px 32px;border-radius:4px;font-weight:bold;font-size:14px;text-decoration:none;letter-spacing:1px;">
+                      DOWNLOAD YOUR TICKET
+                    </a>
+                  </div>
+
+                  <div class="info-box">
+                    <h3 class="info-title">Before You Arrive</h3>
+                    <ul class="info-list">
+                      <li>Present your ticket code or show this email at the entrance</li>
+                      <li>Arrive 15 minutes before the event starts</li>
+                      <li>Dress Code: Elegant attire — Dress to Impress</li>
+                    </ul>
+                  </div>
+
+                  <div class="divider"></div>
+
+                  <p class="intro-text">
+                    For enquiries contact us at <strong>${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}</strong>
+                  </p>
+                  <p class="intro-text" style="margin-top:10px;margin-bottom:0;">
+                    <em>The Casa Privé Team</em>
+                  </p>
+                </div>
+
+                <div class="footer">
+                  <div class="footer-brand">CASA PRIVÉ</div>
+                  <div class="accent-line"></div>
+                  <p class="footer-tagline">The Epitome of Luxury & Bespoke Entertainment</p>
+                  <p class="footer-text">© ${new Date().getFullYear()} Casa Privé. All Rights Reserved.</p>
+                  <p class="footer-text">Accra, Ghana</p>
+                </div>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+
+      const text = this.generatePlainText({
+        greeting: `Dear ${ticket.fullName},`,
+        body: `Your ticket has been confirmed for ${ticket.eventName || 'Casa Privé × Alora Beach Resort'}.
+
+Ticket Details:
+- Ticket Code: ${ticket.ticketCode}
+- Tier: ${ticket.tierName}
+- Event Date: ${ticket.eventDate}${ticket.venue ? `\n- Venue: ${ticket.venue}` : ''}
+- Guests: ${ticket.numberOfGuests}
+- Amount Paid: GHS ${ticket.amount.toFixed(2)}
+
+Download your ticket here: ${downloadUrl}
+
+Before You Arrive:
+- Present your ticket code or this email at the entrance
+- Arrive 15 minutes before the event starts
+- Dress Code: Elegant attire — Dress to Impress
+
+For enquiries: ${process.env.ADMIN_EMAIL || 'concierge@casaprive.com'}`,
+        footer: 'We look forward to hosting you.\n\nThe Casa Privé Team'
+      });
+
+      this.checkEmailSize(html, 'Ticket Confirmation');
+
+      await this.resend.emails.send({
+        from: this.fromEmail,
+        to,
+        subject: `Casa Privé — Your Ticket is Confirmed (${ticket.ticketCode})`,
+        html,
+        text,
+        headers: { 'X-Entity-Ref-ID': crypto.randomUUID() },
+        tags: [{ name: 'category', value: 'ticket' }],
+      });
+
+      console.log(`✓ Ticket confirmation sent to ${to}`);
+    } catch (error) {
+      console.error('Failed to send ticket confirmation:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Send admin notification
    */
   async sendAdminNotification(subject: string, content: string): Promise<void> {

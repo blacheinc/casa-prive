@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { paystack } from "@/lib/paystack";
 import { googleSheets } from "@/lib/sheets";
 import { emailService } from "@/lib/email";
+import { whatsappService } from "@/lib/whatsapp";
 import { format } from "date-fns";
 import { BookingStatus } from "@prisma/client";
 
@@ -159,6 +160,8 @@ export async function POST(request: NextRequest) {
 async function sendBookingNotifications(booking: any, tablePackage: any) {
   const notifications = [];
 
+  const bookingDateStr = format(new Date(booking.eventDate), "MMMM dd, yyyy");
+
   // Send customer confirmation email
   notifications.push(
     emailService
@@ -167,11 +170,24 @@ async function sendBookingNotifications(booking: any, tablePackage: any) {
         fullName: booking.fullName,
         packageName: tablePackage.name,
         numberOfGuests: booking.numberOfGuests,
-        eventDate: format(new Date(booking.eventDate), "MMMM dd, yyyy"),
+        eventDate: bookingDateStr,
         tableNumber: booking.tableNumber,
         amount: booking.amount,
       })
       .catch((err) => console.error("Email error:", err))
+  );
+
+  // Send WhatsApp confirmation
+  notifications.push(
+    whatsappService
+      .sendBookingConfirmation(booking.phone, {
+        fullName: booking.fullName,
+        packageName: tablePackage.name,
+        eventDate: bookingDateStr,
+        numberOfGuests: booking.numberOfGuests,
+        confirmationCode: booking.id.slice(-8).toUpperCase(),
+      })
+      .catch((err) => console.error("WhatsApp booking error:", err))
   );
 
   // Log to Google Sheets

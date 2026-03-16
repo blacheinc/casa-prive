@@ -48,10 +48,10 @@ function EventCard({ event, onSelect }: { event: any; onSelect: () => void }) {
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
-          {/* Slides */}
+          {/* Slides — each slide is 100% of the container, track moves by one container width per step */}
           <div
             className="flex h-full transition-transform duration-300 ease-in-out"
-            style={{ transform: `translateX(-${idx * 100}%)`, width: `${total * 100}%` }}
+            style={{ transform: `translateX(-${idx * (100 / total)}%)`, width: `${total * 100}%` }}
           >
             {fliers.map((url, i) => (
               /* eslint-disable-next-line @next/next/no-img-element */
@@ -327,27 +327,20 @@ export default function TicketsPage() {
             <ChevronLeft size={16} /> Back to events
           </button>
 
-          {/* Event header with flier gallery */}
+          {/* Event header with portrait fliers displayed separately */}
           <div className="mb-10">
             {selectedEvent.fliers.length > 0 && (
-              <div className="relative rounded-lg overflow-hidden mb-6">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={selectedEvent.fliers[activeFlierIdx]}
-                  alt={selectedEvent.name}
-                  className="w-full max-h-96 object-cover"
-                />
-                {selectedEvent.fliers.length > 1 && (
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-                    {selectedEvent.fliers.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setActiveFlierIdx(i)}
-                        className={`w-2 h-2 rounded-full transition ${i === activeFlierIdx ? 'bg-white' : 'bg-white/40'}`}
-                      />
-                    ))}
+              <div className={`mb-6 grid gap-3 ${selectedEvent.fliers.length === 1 ? 'grid-cols-1 max-w-sm mx-auto' : selectedEvent.fliers.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                {selectedEvent.fliers.map((url, i) => (
+                  <div key={i} className="rounded-lg overflow-hidden bg-slate-900" style={{ aspectRatio: '9/16' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={url}
+                      alt={`${selectedEvent.name} flier ${i + 1}`}
+                      className="w-full h-full object-cover object-center"
+                    />
                   </div>
-                )}
+                ))}
               </div>
             )}
             <h1 className="text-3xl font-light text-white mb-2">{selectedEvent.name}</h1>

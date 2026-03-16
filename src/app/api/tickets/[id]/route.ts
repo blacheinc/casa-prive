@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { emailService } from "@/lib/email";
+import { whatsappService } from "@/lib/whatsapp";
 import { format } from "date-fns";
 
 export async function GET(
@@ -53,7 +54,7 @@ export async function PATCH(
       before?.status !== 'CONFIRMED' && ticket.status === 'CONFIRMED';
 
     if (justConfirmed) {
-      emailService.sendTicketConfirmation(ticket.email, {
+      const ticketPayload = {
         id: ticket.id,
         ticketCode: ticket.ticketCode,
         fullName: ticket.fullName,
@@ -63,7 +64,15 @@ export async function PATCH(
         eventName: ticket.event?.name,
         venue: ticket.event?.venue ?? undefined,
         amount: ticket.amount,
-      }).catch(err => console.error('Ticket confirmation email error:', err));
+      };
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
+
+      emailService.sendTicketConfirmation(ticket.email, ticketPayload)
+        .catch(err => console.error('Ticket confirmation email error:', err));
+      whatsappService.sendTicketConfirmation(ticket.phone, {
+        ...ticketPayload,
+        downloadUrl: `${baseUrl}/api/tickets/${ticket.id}/download`,
+      }).catch(err => console.error('Ticket WhatsApp error:', err));
     }
 
     return NextResponse.json({ ticket });

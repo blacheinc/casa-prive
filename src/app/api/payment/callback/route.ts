@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { emailService } from '@/lib/email';
+import { whatsappService } from '@/lib/whatsapp';
 import { format } from 'date-fns';
 
 export async function GET(request: NextRequest) {
@@ -75,8 +76,7 @@ export async function GET(request: NextRequest) {
         },
       });
 
-      // Send confirmation email with download link in background
-      emailService.sendTicketConfirmation(ticket.email, {
+      const ticketPayload = {
         id: ticket.id,
         ticketCode: ticket.ticketCode,
         fullName: ticket.fullName,
@@ -86,7 +86,16 @@ export async function GET(request: NextRequest) {
         eventName: ticket.event?.name,
         venue: ticket.event?.venue ?? undefined,
         amount: ticket.amount,
-      }).catch(err => console.error('Ticket confirmation email error:', err));
+      };
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
+
+      // Email + WhatsApp in background
+      emailService.sendTicketConfirmation(ticket.email, ticketPayload)
+        .catch(err => console.error('Ticket confirmation email error:', err));
+      whatsappService.sendTicketConfirmation(ticket.phone, {
+        ...ticketPayload,
+        downloadUrl: `${baseUrl}/api/tickets/${ticket.id}/download`,
+      }).catch(err => console.error('Ticket WhatsApp error:', err));
 
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL}/tickets/success?id=${ticket.id}`

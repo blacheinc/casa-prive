@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { googleSheets } from '@/lib/sheets';
 import { emailService } from '@/lib/email';
+import { whatsappService } from '@/lib/whatsapp';
 import { format } from 'date-fns';
 
 export async function GET(request: NextRequest) {
@@ -60,15 +61,24 @@ export async function POST(request: NextRequest) {
       console.error('Google Sheets logging failed:', error);
     }
 
+    const waitlistDate = format(new Date(preferredDate), 'MMMM dd, yyyy');
+
     try {
       await emailService.sendWaitlistConfirmation(email, {
         fullName,
-        preferredDate: format(new Date(preferredDate), 'MMMM dd, yyyy'),
+        preferredDate: waitlistDate,
         numberOfGuests,
       });
     } catch (error) {
       console.error('Email sending failed:', error);
     }
+
+    // WhatsApp confirmation (non-blocking)
+    whatsappService.sendWaitlistConfirmation(phone, {
+      fullName,
+      preferredDate: waitlistDate,
+      numberOfGuests: parseInt(numberOfGuests),
+    }).catch(err => console.error('WhatsApp waitlist error:', err));
 
     return NextResponse.json({ waitlist });
   } catch (error) {

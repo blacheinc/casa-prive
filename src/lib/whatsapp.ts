@@ -172,6 +172,105 @@ See you soon at Casa Privé!
   }
 
   /**
+   * Send ticket confirmation via WhatsApp
+   */
+  async sendTicketConfirmation(phone: string, ticket: {
+    fullName: string;
+    ticketCode: string;
+    tierName: string;
+    eventName?: string;
+    eventDate: string;
+    venue?: string;
+    numberOfGuests: number;
+    amount: number;
+    downloadUrl: string;
+  }): Promise<void> {
+    if (!this.enabled || !this.client) {
+      console.log('⚠ WhatsApp not configured, skipping message');
+      return;
+    }
+
+    try {
+      const message = `🎟️ *Ticket Confirmed — Casa Privé*
+
+Dear ${ticket.fullName},
+
+Your ticket is confirmed! See you at the event.
+
+*Ticket Details:*
+━━━━━━━━━━━━━━━━━━━━
+${ticket.eventName ? `🎉 Event: ${ticket.eventName}\n` : ''}📅 Date: ${ticket.eventDate}
+${ticket.venue ? `📍 Venue: ${ticket.venue}\n` : ''}🎫 Tier: ${ticket.tierName}
+👥 Guests: ${ticket.numberOfGuests}
+💰 Amount Paid: GHS ${ticket.amount.toFixed(2)}
+🔑 Ticket Code: *${ticket.ticketCode}*
+
+*Download your ticket here:*
+${ticket.downloadUrl}
+
+*Before You Arrive:*
+👔 Dress Code: Elegant attire — Dress to Impress
+⏰ Arrive 15 minutes early
+📱 Present this message or your ticket code at the entrance
+
+— Casa Privé Team`.trim();
+
+      await this.client.messages.create({
+        from: this.fromNumber,
+        to: this.formatPhoneNumber(phone),
+        body: message,
+      });
+
+      console.log(`✓ WhatsApp ticket confirmation sent to ${phone}`);
+    } catch (error: any) {
+      console.error('Failed to send WhatsApp ticket confirmation:', error);
+      if (error.code) console.error(`Twilio Error ${error.code}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Send waitlist confirmation via WhatsApp
+   */
+  async sendWaitlistConfirmation(phone: string, details: {
+    fullName: string;
+    preferredDate: string;
+    numberOfGuests: number;
+  }): Promise<void> {
+    if (!this.enabled || !this.client) {
+      console.log('⚠ WhatsApp not configured, skipping message');
+      return;
+    }
+
+    try {
+      const message = `✅ *Waitlist Confirmed — Casa Privé*
+
+Dear ${details.fullName},
+
+You've been added to the Casa Privé waitlist!
+
+*Details:*
+━━━━━━━━━━━━━━━━━━━━
+📅 Preferred Date: ${details.preferredDate}
+👥 Guests: ${details.numberOfGuests}
+
+We'll notify you as soon as a spot becomes available.
+
+— Casa Privé Team`.trim();
+
+      await this.client.messages.create({
+        from: this.fromNumber,
+        to: this.formatPhoneNumber(phone),
+        body: message,
+      });
+
+      console.log(`✓ WhatsApp waitlist confirmation sent to ${phone}`);
+    } catch (error: any) {
+      console.error('Failed to send WhatsApp waitlist confirmation:', error);
+      if (error.code) console.error(`Twilio Error ${error.code}: ${error.message}`);
+    }
+  }
+
+  /**
    * Send general notification via WhatsApp
    */
   async sendNotification(phone: string, message: string): Promise<void> {

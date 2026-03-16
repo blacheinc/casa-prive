@@ -2,8 +2,150 @@
 // app/tickets/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Ticket, Upload, MapPin, CalendarDays, ChevronLeft, Users, Image as ImageIcon } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Ticket, Upload, MapPin, CalendarDays, ChevronLeft, Image as ImageIcon } from 'lucide-react';
+
+// ─── Swipeable portrait flier carousel ────────────────────────────────────────
+function EventCard({ event, onSelect }: { event: any; onSelect: () => void }) {
+  const [idx, setIdx] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const fliers: string[] = event.fliers || [];
+  const total = fliers.length;
+
+  const prev = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
+    setIdx(i => (i - 1 + total) % total);
+  }, [total]);
+
+  const next = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
+    setIdx(i => (i + 1) % total);
+  }, [total]);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(delta) > 40) delta < 0 ? next(e) : prev(e);
+    touchStartX.current = null;
+  };
+
+  const soldOut = event.soldTickets >= event.totalTickets;
+
+  return (
+    <div
+      onClick={onSelect}
+      className="bg-slate-800/60 border border-emerald-700/30 rounded-lg overflow-hidden cursor-pointer hover:border-emerald-500/60 transition-all"
+    >
+      {/* Portrait flier area */}
+      {total > 0 ? (
+        <div
+          className="relative w-full overflow-hidden bg-slate-900"
+          style={{ aspectRatio: '9/16', maxHeight: '520px' }}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
+          {/* Slides */}
+          <div
+            className="flex h-full transition-transform duration-300 ease-in-out"
+            style={{ transform: `translateX(-${idx * 100}%)`, width: `${total * 100}%` }}
+          >
+            {fliers.map((url, i) => (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                key={i}
+                src={url}
+                alt={event.name}
+                className="h-full object-cover object-center flex-shrink-0"
+                style={{ width: `${100 / total}%` }}
+              />
+            ))}
+          </div>
+
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent pointer-events-none" />
+
+          {/* Badges */}
+          {!event.isSalesOpen && (
+            <div className="absolute top-3 right-3 bg-red-600/90 text-white text-xs px-3 py-1 rounded-full">Sales Closed</div>
+          )}
+          {soldOut && (
+            <div className="absolute top-3 right-3 bg-orange-600/90 text-white text-xs px-3 py-1 rounded-full">Sold Out</div>
+          )}
+
+          {/* Prev / Next arrows (only when >1 flier) */}
+          {total > 1 && (
+            <>
+              <button
+                onClick={prev}
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition text-xs"
+                aria-label="Previous"
+              >‹</button>
+              <button
+                onClick={next}
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition text-xs"
+                aria-label="Next"
+              >›</button>
+              {/* Dot indicators */}
+              <div
+                className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5"
+                onClick={e => e.stopPropagation()}
+              >
+                {fliers.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={e => { e.stopPropagation(); setIdx(i); }}
+                    className={`w-1.5 h-1.5 rounded-full transition ${i === idx ? 'bg-white' : 'bg-white/40'}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="flex items-center justify-center bg-slate-900" style={{ aspectRatio: '9/16', maxHeight: '520px' }}>
+          <ImageIcon className="w-10 h-10 text-slate-700" />
+        </div>
+      )}
+
+      {/* Info */}
+      <div className="p-5">
+        <h3 className="text-white text-xl font-light mb-2">{event.name}</h3>
+        <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400 mb-3">
+          <span className="flex items-center gap-1">
+            <CalendarDays size={12} className="text-emerald-400" />
+            {new Date(event.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </span>
+          {event.venue && (
+            <span className="flex items-center gap-1">
+              <MapPin size={12} className="text-yellow-500" />
+              {event.venue}
+            </span>
+          )}
+          {!soldOut && event.isSalesOpen && (
+            <span className="text-yellow-500/80">⚡ Limited tickets left</span>
+          )}
+        </div>
+        {event.description && (
+          <p className="text-gray-500 text-xs mb-4 line-clamp-2">{event.description}</p>
+        )}
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2 flex-wrap">
+            {event.tiers.filter((t: any) => t.isActive).map((t: any) => (
+              <span key={t.id} className="text-xs bg-emerald-900/40 text-emerald-400 px-2 py-0.5 rounded-full">
+                {t.name} · GHS {t.price}
+              </span>
+            ))}
+          </div>
+          <span className="text-emerald-400 text-xs font-light">Select →</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface EventTier {
   id: string;
@@ -153,67 +295,15 @@ export default function TicketsPage() {
           ) : (
             <div className="grid gap-6 md:grid-cols-2">
               {events.map(event => (
-                <div
+                <EventCard
                   key={event.id}
-                  onClick={() => {
+                  event={event}
+                  onSelect={() => {
                     setSelectedEvent(event);
                     setActiveFlierIdx(0);
                     setStep('tiers');
                   }}
-                  className="bg-slate-800/60 border border-emerald-700/30 rounded-lg overflow-hidden cursor-pointer hover:border-emerald-500/60 transition-all transform hover:scale-[1.02] group"
-                >
-                  {/* Flier */}
-                  {event.fliers.length > 0 ? (
-                    <div className="relative h-64 bg-slate-900 overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={event.fliers[0]} alt={event.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
-                      {!event.isSalesOpen && (
-                        <div className="absolute top-3 right-3 bg-red-600/90 text-white text-xs px-3 py-1 rounded-full">
-                          Sales Closed
-                        </div>
-                      )}
-                      {event.soldTickets >= event.totalTickets && (
-                        <div className="absolute top-3 right-3 bg-orange-600/90 text-white text-xs px-3 py-1 rounded-full">
-                          Sold Out
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="h-40 bg-slate-900 flex items-center justify-center">
-                      <ImageIcon className="w-10 h-10 text-slate-700" />
-                    </div>
-                  )}
-
-                  <div className="p-5">
-                    <h3 className="text-white text-xl font-light mb-2">{event.name}</h3>
-                    <div className="flex items-center gap-4 text-xs text-gray-400 mb-3">
-                      <span className="flex items-center gap-1">
-                        <CalendarDays size={12} className="text-emerald-400" />
-                        {new Date(event.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                      </span>
-                      {event.venue && (
-                        <span className="flex items-center gap-1">
-                          <MapPin size={12} className="text-yellow-500" />
-                          {event.venue}
-                        </span>
-                      )}
-                    </div>
-                    {event.description && (
-                      <p className="text-gray-500 text-xs mb-4 line-clamp-2">{event.description}</p>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-2 flex-wrap">
-                        {event.tiers.filter(t => t.isActive).map(t => (
-                          <span key={t.id} className="text-xs bg-emerald-900/40 text-emerald-400 px-2 py-0.5 rounded-full">
-                            {t.name} · GHS {t.price}
-                          </span>
-                        ))}
-                      </div>
-                      <span className="text-emerald-400 text-xs font-light">Select →</span>
-                    </div>
-                  </div>
-                </div>
+                />
               ))}
             </div>
           )}
@@ -274,9 +364,8 @@ export default function TicketsPage() {
                   {selectedEvent.venue}
                 </span>
               )}
-              <span className="flex items-center gap-1">
-                <Users size={14} className="text-gray-500" />
-                {remaining} tickets remaining
+              <span className="flex items-center gap-1 text-yellow-500/80">
+                ⚡ Limited tickets left
               </span>
             </div>
             {selectedEvent.description && (
@@ -338,8 +427,8 @@ export default function TicketsPage() {
                           ))}
                         </ul>
                       )}
-                      {tierRemaining !== null && !tierSoldOut && (
-                        <p className="text-gray-500 text-xs mt-2">{tierRemaining} spots left</p>
+                      {!tierSoldOut && (
+                        <p className="text-yellow-500/70 text-xs mt-2">⚡ Limited tickets left</p>
                       )}
                     </div>
                   );

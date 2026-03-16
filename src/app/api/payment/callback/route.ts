@@ -57,7 +57,27 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // If no booking or order found with this reference
+    // Check if it's a ticket
+    const ticket = await prisma.ticket.findFirst({
+      where: { paymentReference: transactionId },
+    });
+
+    if (ticket) {
+      await prisma.ticket.update({
+        where: { id: ticket.id },
+        data: {
+          paymentStatus: 'COMPLETED',
+          status: 'CONFIRMED',
+          paymentReference: transactionId,
+        },
+      });
+
+      return NextResponse.redirect(
+        `${process.env.NEXT_PUBLIC_APP_URL}/tickets/success?id=${ticket.id}`
+      );
+    }
+
+    // If no booking, order, or ticket found with this reference
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_APP_URL}/payment/failed?error=not-found`
     );

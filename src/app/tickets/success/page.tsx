@@ -3,7 +3,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { CheckCircle, Ticket } from 'lucide-react';
+import { CheckCircle, Ticket, Download } from 'lucide-react';
 import Link from 'next/link';
 
 function TicketSuccessContent() {
@@ -118,6 +118,16 @@ function TicketSuccessContent() {
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {ticketId && (
+              <a
+                href={`/api/tickets/${ticketId}/download`}
+                download
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-yellow-500 text-emerald-900 rounded-lg hover:bg-yellow-400 transition text-center text-sm font-medium"
+              >
+                <Download className="w-4 h-4" />
+                DOWNLOAD TICKET
+              </a>
+            )}
             <Link
               href="/"
               className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition text-center text-sm font-light"

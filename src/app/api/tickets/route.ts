@@ -24,6 +24,8 @@ export async function POST(request: NextRequest) {
       adminCreated,
       status: initialStatus,
       paymentStatus: initialPaymentStatus,
+      eventId,
+      tierId,
     } = body;
 
     // Validate input
@@ -34,22 +36,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const settings = await prisma.eventSettings.findFirst();
+    const guestCount = parseInt(numberOfGuests) || 1;
 
-    // Skip availability checks for admin-created tickets
-    if (!adminCreated) {
-      if (settings && settings.soldTickets >= settings.totalTickets) {
-        return NextResponse.json(
-          { error: "Tickets are sold out. Please join the waitlist." },
-          { status: 400 }
-        );
+    // Event-specific availability checks
+    if (eventId) {
+      const event = await prisma.event.findUnique({
+        where: { id: eventId },
+        include: { tiers: tierId ? { where: { id: tierId } } : false },
+      });
+
+      if (!event) {
+        return NextResponse.json({ error: "Event not found" }, { status: 404 });
       }
 
-      if (settings && !settings.isTicketSalesOpen) {
-        return NextResponse.json(
-          { error: "Ticket sales are currently closed." },
-          { status: 400 }
-        );
+      if (!adminCreated) {
+        if (!event.isSalesOpen) {
+          return NextResponse.json({ error: "Ticket sales for this event are currently closed." }, { status: 400 });
+        }
+        if (event.soldTickets + guestCount > event.totalTickets) {
+          return NextResponse.json({ error: "Not enough tickets available for this event." }, { status: 400 });
+        }
+        // Check tier capacity if tierId provided
+        if (tierId && event.tiers && event.tiers.length > 0) {
+          const tier = event.tiers[0];
+          if (tier.capacity !== null && tier.sold + guestCount > tier.capacity) {
+            return NextResponse.json({ error: "This ticket tier is sold out." }, { status: 400 });
+          }
+        }
+      }
+    } else {
+      // Legacy path: use EventSettings
+      const settings = await prisma.eventSettings.findFirst();
+      if (!adminCreated) {
+        if (settings && settings.soldTickets >= settings.totalTickets) {
+          return NextResponse.json(
+            { error: "Tickets are sold out. Please join the waitlist." },
+            { status: 400 }
+          );
+        }
+        if (settings && !settings.isTicketSalesOpen) {
+          return NextResponse.json(
+            { error: "Ticket sales are currently closed." },
+            { status: 400 }
+          );
+        }
       }
     }
 
@@ -61,22 +91,39 @@ export async function POST(request: NextRequest) {
         fullName,
         email,
         phone,
-        numberOfGuests: parseInt(numberOfGuests) || 1,
+        numberOfGuests: guestCount,
         eventDate: new Date(eventDate),
         paymentMethod,
         proofOfPayment: proofOfPayment || null,
         amount: parseFloat(amount),
         status: initialStatus || "PENDING",
         paymentStatus: initialPaymentStatus || "PENDING",
+        ...(eventId && { eventId }),
+        ...(tierId && { tierId }),
       },
     });
 
-    // Update sold ticket count
-    if (settings) {
-      await prisma.eventSettings.update({
-        where: { id: settings.id },
-        data: { soldTickets: settings.soldTickets + (parseInt(numberOfGuests) || 1) },
+    // Update sold ticket count on Event
+    if (eventId) {
+      await prisma.event.update({
+        where: { id: eventId },
+        data: { soldTickets: { increment: guestCount } },
       });
+      if (tierId) {
+        await prisma.eventTier.update({
+          where: { id: tierId },
+          data: { sold: { increment: guestCount } },
+        });
+      }
+    } else {
+      // Legacy EventSettings update
+      const settings = await prisma.eventSettings.findFirst();
+      if (settings) {
+        await prisma.eventSettings.update({
+          where: { id: settings.id },
+          data: { soldTickets: settings.soldTickets + guestCount },
+        });
+      }
     }
 
     // If Paystack, initialize payment

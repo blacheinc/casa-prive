@@ -1,6 +1,8 @@
 // app/api/tickets/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { emailService } from "@/lib/email";
+import { format } from "date-fns";
 
 export async function GET(
   request: NextRequest,
@@ -34,10 +36,35 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
+    // Fetch the ticket before update to detect status transition
+    const before = await prisma.ticket.findUnique({
+      where: { id },
+      include: { event: true },
+    });
+
     const ticket = await prisma.ticket.update({
       where: { id },
       data: body,
+      include: { event: true },
     });
+
+    // Send confirmation email when ticket is newly confirmed (bank/momo flow)
+    const justConfirmed =
+      before?.status !== 'CONFIRMED' && ticket.status === 'CONFIRMED';
+
+    if (justConfirmed) {
+      emailService.sendTicketConfirmation(ticket.email, {
+        id: ticket.id,
+        ticketCode: ticket.ticketCode,
+        fullName: ticket.fullName,
+        tierName: ticket.tierName,
+        numberOfGuests: ticket.numberOfGuests,
+        eventDate: format(new Date(ticket.eventDate), 'EEEE, MMMM d, yyyy'),
+        eventName: ticket.event?.name,
+        venue: ticket.event?.venue ?? undefined,
+        amount: ticket.amount,
+      }).catch(err => console.error('Ticket confirmation email error:', err));
+    }
 
     return NextResponse.json({ ticket });
   } catch (error) {

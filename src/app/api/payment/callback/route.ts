@@ -1,6 +1,8 @@
 // app/api/payment/callback/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { emailService } from '@/lib/email';
+import { format } from 'date-fns';
 
 export async function GET(request: NextRequest) {
   try {
@@ -60,6 +62,7 @@ export async function GET(request: NextRequest) {
     // Check if it's a ticket
     const ticket = await prisma.ticket.findFirst({
       where: { paymentReference: transactionId },
+      include: { event: true },
     });
 
     if (ticket) {
@@ -71,6 +74,19 @@ export async function GET(request: NextRequest) {
           paymentReference: transactionId,
         },
       });
+
+      // Send confirmation email with download link in background
+      emailService.sendTicketConfirmation(ticket.email, {
+        id: ticket.id,
+        ticketCode: ticket.ticketCode,
+        fullName: ticket.fullName,
+        tierName: ticket.tierName,
+        numberOfGuests: ticket.numberOfGuests,
+        eventDate: format(new Date(ticket.eventDate), 'EEEE, MMMM d, yyyy'),
+        eventName: ticket.event?.name,
+        venue: ticket.event?.venue ?? undefined,
+        amount: ticket.amount,
+      }).catch(err => console.error('Ticket confirmation email error:', err));
 
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL}/tickets/success?id=${ticket.id}`

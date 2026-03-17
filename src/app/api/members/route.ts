@@ -55,30 +55,32 @@ export async function POST(request: NextRequest) {
 
     console.log('✓ Member created:', member.fullName, `(${member.membershipCode})`);
 
-    // Send welcome email (non-blocking)
-    emailService.sendMemberWelcome(email, {
-      fullName: member.fullName,
-      membershipCode: member.membershipCode,
-      email: member.email,
-      phone: member.phone || undefined,
-    }).then(() => {
-      console.log('✓ Welcome email sent to:', email);
-    }).catch(error => {
-      console.error('❌ Email send failed (non-critical):', error.message);
-      // Don't fail the request - member is already created
-    });
-
-    // Send WhatsApp message if phone provided (non-blocking)
-    if (phone) {
-      whatsappService.sendMemberWelcome(phone, {
+    // Send welcome email — awaited so serverless functions don't terminate before it fires
+    try {
+      await emailService.sendMemberWelcome(email, {
         fullName: member.fullName,
         membershipCode: member.membershipCode,
-      }).then(() => {
+        email: member.email,
+        phone: member.phone || undefined,
+      });
+      console.log('✓ Welcome email sent to:', email);
+    } catch (error: any) {
+      console.error('❌ Email send failed (non-critical):', error.message);
+      // Don't fail the request - member is already created
+    }
+
+    // Send WhatsApp message if phone provided — awaited for the same reason
+    if (phone) {
+      try {
+        await whatsappService.sendMemberWelcome(phone, {
+          fullName: member.fullName,
+          membershipCode: member.membershipCode,
+        });
         console.log('✓ WhatsApp sent to:', phone);
-      }).catch(error => {
+      } catch (error: any) {
         console.error('❌ WhatsApp send failed (non-critical):', error.message);
         // Don't fail the request - member is already created
-      });
+      }
     } else {
       console.log('ℹ️  No phone number provided - skipping WhatsApp');
     }

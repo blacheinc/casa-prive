@@ -67,12 +67,16 @@ export async function PATCH(
       };
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
 
-      emailService.sendTicketConfirmation(ticket.email, ticketPayload)
-        .catch(err => console.error('Ticket confirmation email error:', err));
-      whatsappService.sendTicketConfirmation(ticket.phone, {
-        ...ticketPayload,
-        downloadUrl: `${baseUrl}/api/tickets/${ticket.id}/download`,
-      }).catch(err => console.error('Ticket WhatsApp error:', err));
+      try {
+        await emailService.sendTicketConfirmation(ticket.email, ticketPayload);
+      } catch (err) { console.error('Ticket confirmation email error:', err); }
+
+      try {
+        await whatsappService.sendTicketConfirmation(ticket.phone, {
+          ...ticketPayload,
+          downloadUrl: `${baseUrl}/api/tickets/${ticket.id}/download`,
+        });
+      } catch (err) { console.error('Ticket WhatsApp error:', err); }
     }
 
     return NextResponse.json({ ticket });

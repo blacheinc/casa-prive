@@ -73,12 +73,13 @@ export async function POST(request: NextRequest) {
       console.error('Email sending failed:', error);
     }
 
-    // WhatsApp confirmation (non-blocking)
-    whatsappService.sendWaitlistConfirmation(phone, {
-      fullName,
-      preferredDate: waitlistDate,
-      numberOfGuests: parseInt(numberOfGuests),
-    }).catch(err => console.error('WhatsApp waitlist error:', err));
+    try {
+      await whatsappService.sendWaitlistConfirmation(phone, {
+        fullName,
+        preferredDate: waitlistDate,
+        numberOfGuests: parseInt(numberOfGuests),
+      });
+    } catch (err) { console.error('WhatsApp waitlist error:', err); }
 
     return NextResponse.json({ waitlist });
   } catch (error) {

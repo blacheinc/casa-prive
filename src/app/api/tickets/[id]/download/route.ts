@@ -204,13 +204,14 @@ export async function GET(
 
     // ── Serialise ─────────────────────────────────────────────────────────────
     const pdfBytes = await pdfDoc.save();
+    const pdfBuffer = Buffer.from(pdfBytes);
 
-    return new NextResponse(pdfBytes, {
+    return new NextResponse(pdfBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="ticket-${ticket.ticketCode}.pdf"`,
-        'Content-Length': String(pdfBytes.byteLength),
+        'Content-Length': String(pdfBuffer.byteLength),
       },
     });
   } catch (error) {

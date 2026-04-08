@@ -23,6 +23,7 @@ export default function Navigation() {
         { href: '/', label: 'Home' },
         { href: '/tickets', label: 'Get Tickets' },
         { href: '/booking', label: 'Book Table' },
+        { href: '/gallery', label: 'Gallery' },
         { href: '/menu', label: 'Drinks Menu' },
         { href: '/rules', label: 'Guidelines' },
         { href: '/feedback', label: 'Feedback' },

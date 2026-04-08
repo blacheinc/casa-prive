@@ -81,9 +81,9 @@ export default function GalleryPage() {
           <p className="text-gray-400 font-light">No images to display yet.</p>
           <p className="text-gray-600 text-sm font-light max-w-sm text-center">
             Set{' '}
-            <code className="text-emerald-400">GOOGLE_SHEETS_GALLERY_ID</code> and{' '}
-            <code className="text-emerald-400">GOOGLE_SHEETS_API_KEY</code> in your environment
-            variables, then add image URLs to the linked Google Sheet.
+            <code className="text-emerald-400">GOOGLE_DRIVE_FOLDER_ID</code> and{' '}
+            <code className="text-emerald-400">GOOGLE_DRIVE_API_KEY</code> in your environment
+            variables, then add images to the linked Google Drive folder.
           </p>
         </div>
       )}

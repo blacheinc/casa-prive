@@ -285,6 +285,15 @@ img {
   }
 }
 
+/* Hide scrollbar utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Experience section — infinite marquee */
 @keyframes marquee-left {
   0%   { transform: translateX(0); }

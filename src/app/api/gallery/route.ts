@@ -33,8 +33,7 @@ export async function GET() {
     const images = (data.files ?? []).map((file: { id: string; name: string }) => ({
       id: file.id,
       name: file.name,
-      // Direct CDN URL — works for files in a publicly shared folder
-      url: `https://lh3.googleusercontent.com/d/${file.id}`,
+      url: `/api/drive-image/${file.id}`,
     }));
 
     return NextResponse.json({ images });

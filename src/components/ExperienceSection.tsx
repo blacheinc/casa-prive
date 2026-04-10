@@ -1,184 +1,236 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Sparkles, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Sparkles, X, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
 
 interface DriveImage { id: string; name: string; url: string; }
 interface Category   { key: string; label: string; images: DriveImage[]; }
-interface Lightbox   { catIdx: number; imgIdx: number; }
 
-// ─── Lightbox ────────────────────────────────────────────────────────────────
+// ─── Fullscreen lightbox (used inside the More modal) ────────────────────────
 
-function LightboxModal({
-  categories,
-  lightbox,
-  onClose,
-  onNav,
+function Lightbox({
+  images, idx, onClose, onNav,
 }: {
-  categories: Category[];
-  lightbox: Lightbox;
-  onClose: () => void;
-  onNav: (catIdx: number, imgIdx: number) => void;
+  images: DriveImage[]; idx: number; onClose: () => void; onNav: (i: number) => void;
 }) {
-  const cat = categories[lightbox.catIdx];
-  const img = cat?.images[lightbox.imgIdx];
-
-  const prev = useCallback(() => {
-    const newIdx = (lightbox.imgIdx - 1 + cat.images.length) % cat.images.length;
-    onNav(lightbox.catIdx, newIdx);
-  }, [lightbox, cat, onNav]);
-
-  const next = useCallback(() => {
-    const newIdx = (lightbox.imgIdx + 1) % cat.images.length;
-    onNav(lightbox.catIdx, newIdx);
-  }, [lightbox, cat, onNav]);
+  const prev = useCallback(() => onNav((idx - 1 + images.length) % images.length), [idx, images.length, onNav]);
+  const next = useCallback(() => onNav((idx + 1) % images.length),                 [idx, images.length, onNav]);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape')      onClose();
-      if (e.key === 'ArrowLeft')   prev();
-      if (e.key === 'ArrowRight')  next();
+    const h = (e: KeyboardEvent) => {
+      if (e.key === 'Escape')     onClose();
+      if (e.key === 'ArrowLeft')  prev();
+      if (e.key === 'ArrowRight') next();
     };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
   }, [onClose, prev, next]);
 
-  if (!img) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      {/* Close */}
-      <button
-        className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors z-10 p-2"
-        onClick={onClose}
-      >
-        <X size={24} />
+    <div className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center" onClick={onClose}>
+      <button className="absolute top-4 right-4 text-white/60 hover:text-white p-2 z-10" onClick={onClose}>
+        <X size={22} />
       </button>
-
-      {/* Counter + label */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 text-center pointer-events-none">
-        <p className="text-xs tracking-widest text-emerald-400 uppercase">{cat.label}</p>
-        <p className="text-white/40 text-xs mt-0.5">{lightbox.imgIdx + 1} / {cat.images.length}</p>
-      </div>
-
-      {/* Prev */}
-      <button
-        className="absolute left-2 md:left-6 text-white/60 hover:text-white transition-colors z-10 p-2"
-        onClick={e => { e.stopPropagation(); prev(); }}
-      >
-        <ChevronLeft size={36} />
+      <span className="absolute top-5 left-1/2 -translate-x-1/2 text-white/40 text-xs tracking-widest">
+        {idx + 1} / {images.length}
+      </span>
+      <button className="absolute left-3 p-2 text-white/60 hover:text-white z-10"
+        onClick={e => { e.stopPropagation(); prev(); }}>
+        <ChevronLeft size={32} />
       </button>
-
-      {/* Image */}
-      <div
-        className="relative max-w-[90vw] max-h-[85vh] flex items-center justify-center"
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={images[idx].url} alt={images[idx].name}
+        className="max-w-[88vw] max-h-[88vh] object-contain"
         onClick={e => e.stopPropagation()}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={img.url}
-          alt={img.name}
-          className="max-w-[90vw] max-h-[85vh] object-contain"
-          style={{ boxShadow: '0 0 60px rgba(16,185,129,0.15)' }}
-        />
-        {/* Neon corner accents */}
-        {[['top-0 left-0','border-t border-l'],['top-0 right-0','border-t border-r'],
-          ['bottom-0 left-0','border-b border-l'],['bottom-0 right-0','border-b border-r']].map(([pos, border]) => (
-          <div key={pos} className={`absolute ${pos} w-5 h-5 ${border} border-emerald-500/60`} />
-        ))}
-      </div>
-
-      {/* Next */}
-      <button
-        className="absolute right-2 md:right-6 text-white/60 hover:text-white transition-colors z-10 p-2"
-        onClick={e => { e.stopPropagation(); next(); }}
-      >
-        <ChevronRight size={36} />
+      />
+      <button className="absolute right-3 p-2 text-white/60 hover:text-white z-10"
+        onClick={e => { e.stopPropagation(); next(); }}>
+        <ChevronRight size={32} />
       </button>
     </div>
   );
 }
 
-// ─── Category row ─────────────────────────────────────────────────────────────
+// ─── "More" modal — full grid of all images in a category ────────────────────
 
-function CategoryRow({
-  category,
-  index,
-  onImageClick,
-}: {
-  category: Category;
-  index: number;
-  onImageClick: (imgIdx: number) => void;
-}) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+function MoreModal({ category, onClose }: { category: Category; onClose: () => void; }) {
+  const [lbIdx, setLbIdx] = useState<number | null>(null);
 
-  const scroll = (dir: 'left' | 'right') => {
-    scrollRef.current?.scrollBy({ left: dir === 'right' ? 600 : -600, behavior: 'smooth' });
-  };
+  // Prevent body scroll while open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
 
-  const number = String(index + 1).padStart(2, '0');
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => { if (e.key === 'Escape' && lbIdx === null) onClose(); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [onClose, lbIdx]);
 
   return (
-    <div className="mb-14">
+    <div className="fixed inset-0 z-50 bg-black/95 flex flex-col">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-4 px-4 md:px-8">
-        <span className="text-4xl font-light select-none" style={{ color: 'rgba(16,185,129,0.15)' }}>
-          {number}
-        </span>
+      <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b border-emerald-900/40"
+           style={{ background: 'rgba(1,15,14,0.95)', backdropFilter: 'blur(12px)' }}>
         <div>
           <p className="text-xs tracking-[0.3em] text-emerald-500 uppercase mb-0.5">The Experience</p>
-          <h3 className="text-lg md:text-xl font-light tracking-widest text-white">
-            {category.label.toUpperCase()}
-          </h3>
+          <h2 className="text-white font-light tracking-widest text-lg">{category.label.toUpperCase()}</h2>
+          <p className="text-white/30 text-xs mt-0.5">{category.images.length} photos</p>
         </div>
-        <div className="flex-1 h-px ml-2" style={{
-          background: 'linear-gradient(90deg,rgba(16,185,129,0.4),transparent)',
-        }} />
-        {/* Arrows */}
-        <div className="flex gap-1">
-          <button
-            onClick={() => scroll('left')}
-            className="w-8 h-8 flex items-center justify-center border border-emerald-800 text-emerald-500 hover:border-emerald-500 hover:text-white transition-colors"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <button
-            onClick={() => scroll('right')}
-            className="w-8 h-8 flex items-center justify-center border border-emerald-800 text-emerald-500 hover:border-emerald-500 hover:text-white transition-colors"
-          >
-            <ChevronRight size={16} />
-          </button>
+        <button onClick={onClose} className="text-white/50 hover:text-white transition-colors p-2">
+          <X size={22} />
+        </button>
+      </div>
+
+      {/* Grid */}
+      <div className="flex-1 overflow-y-auto p-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          {category.images.map((img, i) => (
+            <button
+              key={img.id}
+              onClick={() => setLbIdx(i)}
+              className="relative overflow-hidden group aspect-[4/3] bg-emerald-950/50 focus:outline-none"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={img.url} alt={img.name} loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Scroll strip */}
-      <div
-        ref={scrollRef}
-        className="flex gap-2 overflow-x-auto scrollbar-hide px-4 md:px-8"
-        style={{ scrollSnapType: 'x mandatory' }}
-      >
-        {category.images.map((img, i) => (
-          <button
-            key={img.id}
-            onClick={() => onImageClick(i)}
-            className="flex-shrink-0 overflow-hidden group focus:outline-none"
-            style={{ width: 280, height: 200, scrollSnapAlign: 'start' }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={img.url}
-              alt={img.name}
-              loading="lazy"
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            />
-          </button>
-        ))}
+      {/* Lightbox within modal */}
+      {lbIdx !== null && (
+        <Lightbox
+          images={category.images}
+          idx={lbIdx}
+          onClose={() => setLbIdx(null)}
+          onNav={setLbIdx}
+        />
+      )}
+    </div>
+  );
+}
 
-        {/* Spacer so last card isn't flush against the edge */}
-        <div className="flex-shrink-0 w-4 md:w-8" />
+// ─── Category grid card with auto-advancing slideshow ────────────────────────
+
+function CategoryCard({
+  category, index, onMore,
+}: {
+  category: Category; index: number; onMore: () => void;
+}) {
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [visible, setVisible]       = useState(true); // for cross-fade
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const images = category.images;
+
+  const goTo = useCallback((next: number) => {
+    setVisible(false);
+    setTimeout(() => {
+      setCurrentIdx(next);
+      setVisible(true);
+    }, 350);
+  }, []);
+
+  // Auto-advance
+  useEffect(() => {
+    if (images.length <= 1) return;
+    timerRef.current = setInterval(() => {
+      setCurrentIdx(prev => {
+        const next = (prev + 1) % images.length;
+        setVisible(false);
+        setTimeout(() => { setCurrentIdx(next); setVisible(true); }, 350);
+        return prev; // keep prev while fading
+      });
+    }, 4500);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [images.length]);
+
+  const manualNav = (dir: 'prev' | 'next') => {
+    if (timerRef.current) clearInterval(timerRef.current); // reset timer
+    const next = dir === 'next'
+      ? (currentIdx + 1) % images.length
+      : (currentIdx - 1 + images.length) % images.length;
+    goTo(next);
+  };
+
+  const num = String(index + 1).padStart(2, '0');
+
+  if (images.length === 0) {
+    return (
+      <div className="relative aspect-[4/3] bg-emerald-950/40 border border-emerald-900/30 flex items-center justify-center">
+        <p className="text-emerald-900 text-xs tracking-widest uppercase">No images</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative aspect-[4/3] overflow-hidden group bg-black">
+
+      {/* Slideshow image */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={images[currentIdx].url}
+        alt={images[currentIdx].name}
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+        style={{ opacity: visible ? 1 : 0 }}
+      />
+
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/30 pointer-events-none" />
+
+      {/* Top row: counter + MORE button */}
+      <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+        <span className="text-white/40 text-xs tabular-nums">
+          {currentIdx + 1}<span className="text-white/20"> / </span>{images.length}
+        </span>
+        <button
+          onClick={onMore}
+          className="flex items-center gap-1.5 px-2.5 py-1 text-xs tracking-widest text-white/70 border border-white/20 hover:border-emerald-400 hover:text-emerald-400 transition-all duration-200"
+          style={{ backdropFilter: 'blur(8px)', background: 'rgba(0,0,0,0.4)' }}
+        >
+          <LayoutGrid size={11} />
+          MORE
+        </button>
+      </div>
+
+      {/* Prev / Next arrows — visible on hover */}
+      <button
+        onClick={() => manualNav('prev')}
+        className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-white/60 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+      >
+        <ChevronLeft size={20} />
+      </button>
+      <button
+        onClick={() => manualNav('next')}
+        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-white/60 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+      >
+        <ChevronRight size={20} />
+      </button>
+
+      {/* Bottom: number, label, dot indicators */}
+      <div className="absolute bottom-0 left-0 right-0 p-4">
+        <p className="text-xs text-emerald-500 tracking-[0.3em] uppercase mb-0.5">{num}</p>
+        <h3 className="text-white font-light tracking-widest text-base mb-2">
+          {category.label.toUpperCase()}
+        </h3>
+        {/* Dot indicators */}
+        <div className="flex items-center gap-1">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => { if (timerRef.current) clearInterval(timerRef.current); goTo(i); }}
+              className={`h-0.5 rounded-full transition-all duration-300 ${
+                i === currentIdx ? 'w-5 bg-emerald-400' : 'w-1.5 bg-white/25 hover:bg-white/50'
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -188,29 +240,16 @@ function CategoryRow({
 
 function Skeleton() {
   return (
-    <div className="mb-14">
-      <div className="flex items-center gap-4 mb-4 px-4 md:px-8">
-        <div className="w-10 h-8 loading-shimmer" />
-        <div className="space-y-1.5">
-          <div className="h-2 w-16 loading-shimmer" />
-          <div className="h-4 w-36 loading-shimmer" />
-        </div>
-      </div>
-      <div className="flex gap-2 px-4 md:px-8 overflow-hidden">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex-shrink-0 loading-shimmer" style={{ width: 280, height: 200, opacity: 1 - i * 0.15 }} />
-        ))}
-      </div>
-    </div>
+    <div className="aspect-[4/3] loading-shimmer" />
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
+// ─── Main ────────────────────────────────────────────────────────────────────
 
 export default function ExperienceSection() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading]       = useState(true);
-  const [lightbox, setLightbox]     = useState<Lightbox | null>(null);
+  const [openCat, setOpenCat]       = useState<Category | null>(null);
 
   useEffect(() => {
     fetch('/api/experience')
@@ -220,23 +259,17 @@ export default function ExperienceSection() {
       .finally(() => setLoading(false));
   }, []);
 
-  const openLightbox  = (catIdx: number, imgIdx: number) => setLightbox({ catIdx, imgIdx });
-  const closeLightbox = () => setLightbox(null);
-  const navLightbox   = (catIdx: number, imgIdx: number) => setLightbox({ catIdx, imgIdx });
-
   return (
-    <section
-      className="py-16 overflow-hidden"
-      style={{ background: 'linear-gradient(180deg,#022522 0%,#010f0e 100%)' }}
-    >
+    <section className="py-16" style={{ background: 'linear-gradient(180deg,#022522 0%,#010f0e 100%)' }}>
+
       {/* Header */}
-      <div className="text-center mb-12 px-4">
+      <div className="text-center mb-10 px-4">
         <div className="inline-flex items-center gap-3 mb-3">
           <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg,transparent,#10b981)' }} />
           <Sparkles className="w-4 h-4 text-emerald-500" />
           <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg,#10b981,transparent)' }} />
         </div>
-        <h2 className="text-4xl md:text-5xl font-light tracking-[0.15em] text-white mb-3">
+        <h2 className="text-4xl md:text-5xl font-light tracking-[0.15em] text-white mb-2">
           THE{' '}
           <span style={{
             background: 'linear-gradient(135deg,#10b981,#d4af37)',
@@ -252,27 +285,26 @@ export default function ExperienceSection() {
         </p>
       </div>
 
-      {/* Rows */}
-      {loading
-        ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} />)
-        : categories.map((cat, i) => (
-            <CategoryRow
-              key={cat.key}
-              category={cat}
-              index={i}
-              onImageClick={imgIdx => openLightbox(i, imgIdx)}
-            />
-          ))
-      }
+      {/* Grid */}
+      <div className="px-4 md:px-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} />)
+            : categories.map((cat, i) => (
+                <CategoryCard
+                  key={cat.key}
+                  category={cat}
+                  index={i}
+                  onMore={() => setOpenCat(cat)}
+                />
+              ))
+          }
+        </div>
+      </div>
 
-      {/* Lightbox */}
-      {lightbox && (
-        <LightboxModal
-          categories={categories}
-          lightbox={lightbox}
-          onClose={closeLightbox}
-          onNav={navLightbox}
-        />
+      {/* More modal */}
+      {openCat && (
+        <MoreModal category={openCat} onClose={() => setOpenCat(null)} />
       )}
     </section>
   );

@@ -25,7 +25,7 @@ async function fetchFolder(folderId: string): Promise<{ id: string; name: string
   return (data.files ?? []).map((f: { id: string; name: string }) => ({
     id: f.id,
     name: f.name,
-    url: `https://lh3.googleusercontent.com/d/${f.id}`,
+    url: `/api/drive-image/${f.id}`,
   }));
 }
 

@@ -216,23 +216,6 @@ function CategoryCard({ category, index, onMore }: {
         <h3 className="text-white font-light tracking-widest text-sm mb-2">
           {category.label.toUpperCase()}
         </h3>
-        {/* Dot indicators */}
-        {images.length > 1 && (
-          <div className="flex items-center gap-1">
-            {images.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setIdx(i)}
-                className="rounded-full transition-all duration-300"
-                style={{
-                  height: 2,
-                  width: i === idx ? 20 : 6,
-                  background: i === idx ? '#10b981' : 'rgba(255,255,255,0.25)',
-                }}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -285,7 +268,7 @@ export default function ExperienceSection() {
 
       {/* Grid */}
       <div className="px-4 md:px-8 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3">
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} />)
             : categories.map((cat, i) => (

@@ -5,7 +5,9 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     // Wrap each query with .catch to prevent one failure from breaking the whole dashboard
-    const safe = <T>(p: Promise<T>, fallback: T): Promise<T> => p.catch(() => fallback);
+    function safe<T>(p: Promise<T>, fallback: T): Promise<T> {
+      return p.catch(() => fallback);
+    }
 
     const [
       totalBookings,

@@ -123,7 +123,7 @@ function CategoryCard({ category, index, onMore }: {
   // Auto-advance — simple interval, no state nesting
   useEffect(() => {
     if (images.length <= 1) return;
-    const id = setInterval(() => setIdx(i => (i + 1) % images.length), 10000);
+    const id = setInterval(() => setIdx(i => (i + 1) % images.length), 4500);
     return () => clearInterval(id);
   }, [images.length]);
 

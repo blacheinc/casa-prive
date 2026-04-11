@@ -3,14 +3,17 @@ import { prisma } from '@/lib/prisma';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ code: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { code } = await params;
     const body = await request.json();
     const { fullName, email, phone, profession, interest, membershipType, status } = body;
 
-    const existing = await prisma.member.findUnique({ where: { id } });
+    // Find member by ID or membership code
+    const existing = await prisma.member.findFirst({
+      where: { OR: [{ id: code }, { membershipCode: code }] },
+    });
     if (!existing) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
@@ -31,7 +34,7 @@ export async function PATCH(
     if (membershipType === 'PREMIUM' || membershipType === 'STANDARD') data.membershipType = membershipType;
     if (status === 'ACTIVE' || status === 'EXPIRED' || status === 'SUSPENDED') data.status = status;
 
-    const member = await prisma.member.update({ where: { id }, data });
+    const member = await prisma.member.update({ where: { id: existing.id }, data });
 
     return NextResponse.json({ success: true, member });
   } catch (error) {
@@ -42,17 +45,19 @@ export async function PATCH(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ code: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { code } = await params;
 
-    const existing = await prisma.member.findUnique({ where: { id } });
+    const existing = await prisma.member.findFirst({
+      where: { OR: [{ id: code }, { membershipCode: code }] },
+    });
     if (!existing) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
-    await prisma.member.delete({ where: { id } });
+    await prisma.member.delete({ where: { id: existing.id } });
 
     return NextResponse.json({ success: true, message: `Member ${existing.fullName} deleted` });
   } catch (error) {

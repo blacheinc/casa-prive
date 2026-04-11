@@ -396,12 +396,12 @@ function MemberCardContent() {
           <h3 className={`text-xl font-light mb-4 ${isPremium ? 'text-yellow-400' : 'text-emerald-400'}`}>Your Information</h3>
           <div className="space-y-3">
             <div className="flex items-center gap-3 text-gray-300 text-sm">
-              <Mail className={`w-5 h-5 flex-shrink-0 ${isPremium ? 'text-yellow-500' : 'text-yellow-500'}`} />
+              <Mail className={`w-5 h-5 flex-shrink-0 ${isPremium ? 'text-yellow-500' : 'text-emerald-500'}`} />
               <span className="font-light">{member.email}</span>
             </div>
             {member.phone && (
               <div className="flex items-center gap-3 text-gray-300 text-sm">
-                <Phone className={`w-5 h-5 flex-shrink-0 ${isPremium ? 'text-yellow-500' : 'text-yellow-500'}`} />
+                <Phone className={`w-5 h-5 flex-shrink-0 ${isPremium ? 'text-yellow-500' : 'text-emerald-500'}`} />
                 <span className="font-light">{member.phone}</span>
               </div>
             )}

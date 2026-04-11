@@ -151,6 +151,7 @@ ${this.baseUrl}
     membershipCode: string;
     email: string;
     phone?: string;
+    membershipType?: string;
   }): Promise<void> {
     try {
       const logoUrl = this.getLogoUrl();
@@ -219,7 +220,7 @@ ${this.baseUrl}
                       <li>
                         <div class="item-info">
                           <div class="item-name">Status</div>
-                          <div class="item-details">Active - Premium Member</div>
+                          <div class="item-details">Active - ${member.membershipType === 'PREMIUM' ? 'Premium' : 'Standard'} Member</div>
                         </div>
                       </li>
                     </ul>
@@ -328,7 +329,7 @@ ${this.baseUrl}
 Your Membership Details:
 - Member Name: ${member.fullName}
 - Membership ID: ${member.membershipCode}
-- Status: Active - Premium Member
+- Status: Active - ${member.membershipType === 'PREMIUM' ? 'Premium' : 'Standard'} Member
 
 Your membership grants you access to our world of luxury, sophistication, and unforgettable experiences.
 

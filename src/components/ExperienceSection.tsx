@@ -151,6 +151,7 @@ function CategoryCard({ category, onMore }: {
           alt=""
           className="absolute inset-0 w-full h-full object-cover transition-all duration-[1.2s] ease-out"
           style={{
+            objectPosition: 'center 30%',
             opacity: i === idx ? 1 : 0,
             transform: i === idx ? 'scale(1)' : 'scale(1.03)',
             ...(Math.abs(i - idx) <= 1 ? {} : { loading: 'lazy' as const }),

@@ -10,6 +10,7 @@ export interface MemberPassData {
   joinedAt: string;
   status?: string;
   expiresAt?: string;
+  membershipType?: string;
 }
 
 /** Generate Apple Wallet pass */
@@ -53,22 +54,12 @@ export async function generateAppleWalletPass(
   const signerKeyPassphrase =
     envPassphrase && envPassphrase.trim() !== "" ? envPassphrase : undefined;
 
-  // Determine membership tier
-  const joinedDate = new Date(member.joinedAt);
-  const now = new Date();
-  const monthsSince = Math.floor(
-    (now.getTime() - joinedDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
-  );
-
+  // Determine membership tier based on actual membership type
   let tierName = "Member";
   let tierColor = "rgb(212, 175, 55)";
 
-  if (monthsSince >= 12) {
-    tierName = "Elite Member";
-    tierColor = "rgb(229, 228, 226)";
-  }
-  if (monthsSince >= 24) {
-    tierName = "VIP Member";
+  if (member.membershipType === "PREMIUM") {
+    tierName = "Premium Member";
     tierColor = "rgb(255, 215, 0)";
   }
 
@@ -131,7 +122,7 @@ export async function generateAppleWalletPass(
           {
             key: "joined",
             label: "MEMBER SINCE",
-            value: joinedDate.toLocaleDateString("en-US", {
+            value: new Date(member.joinedAt).toLocaleDateString("en-US", {
               month: "short",
               year: "numeric",
             }),

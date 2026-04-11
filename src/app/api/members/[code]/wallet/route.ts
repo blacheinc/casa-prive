@@ -33,6 +33,7 @@ export async function GET(
       joinedAt: member.joinedAt.toISOString(),
       status: member.status,
       expiresAt: member.expiresAt?.toISOString(),
+      membershipType: member.membershipType,
     });
 
     // Convert Buffer to Uint8Array (compatible with NextResponse)

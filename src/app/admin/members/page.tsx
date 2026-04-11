@@ -33,7 +33,7 @@ export default function AdminMembers() {
         try {
             const response = await fetch('/api/members');
             const data = await response.json();
-            setMembers(data.members);
+            setMembers(data.members ?? []);
         } catch (error) {
             console.error('Error fetching members:', error);
         } finally {

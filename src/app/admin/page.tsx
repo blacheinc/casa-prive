@@ -51,14 +51,9 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 15000);
-      const response = await fetch('/api/stats', { signal: controller.signal });
-      clearTimeout(timeout);
+      const response = await fetch('/api/stats');
       const data = await response.json();
-      if (data.stats) {
-        setStats(data.stats);
-      }
+      setStats(data.stats);
     } catch (error) {
       console.error('Error fetching stats:', error);
     } finally {
@@ -72,22 +67,6 @@ export default function AdminDashboard() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-500 mx-auto mb-4"></div>
           <p className="text-gray-300">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!stats) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-950 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-400 mb-4">Failed to load dashboard statistics.</p>
-          <button
-            onClick={() => { setLoading(true); fetchStats(); }}
-            className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition"
-          >
-            Retry
-          </button>
         </div>
       </div>
     );

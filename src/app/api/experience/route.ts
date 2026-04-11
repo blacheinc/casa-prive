@@ -34,6 +34,7 @@ export async function GET() {
     { key: 'the-vibes',              label: 'The Vibes',              folderId: process.env.GOOGLE_DRIVE_FOLDER_THE_VIBES ?? '' },
     { key: 'unforgettable-moments',  label: 'Unforgettable Moments',  folderId: process.env.GOOGLE_DRIVE_FOLDER_UNFORGETTABLE_MOMENTS ?? '' },
     { key: 'the-crowd',              label: 'The Crowd',              folderId: process.env.GOOGLE_DRIVE_FOLDER_THE_CROWD ?? '' },
+    { key: 'the-ambiance',           label: 'The Ambiance',           folderId: process.env.GOOGLE_DRIVE_FOLDER_PREMIUM_SERVICE ?? '' },
   ];
 
   const results = await Promise.all(

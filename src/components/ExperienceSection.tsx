@@ -119,6 +119,7 @@ function CategoryCard({ category, index, onMore }: {
 }) {
   const [idx, setIdx] = useState(0);
   const images = category.images;
+  const isEven = index % 2 === 0;
 
   // Auto-advance — simple interval, no state nesting
   useEffect(() => {
@@ -132,90 +133,100 @@ function CategoryCard({ category, index, onMore }: {
 
   if (images.length === 0) {
     return (
-      <div className="aspect-[4/3] bg-emerald-950/20 flex items-center justify-center"
-        style={{ border: '1px solid rgba(16,185,129,0.1)' }}>
+      <div className="aspect-[16/9] md:aspect-[21/9] bg-emerald-950/20 flex items-center justify-center rounded-lg"
+        style={{ border: '1px solid rgba(16,185,129,0.08)' }}>
         <p className="text-white/20 text-xs tracking-widest uppercase">No images</p>
       </div>
     );
   }
 
   return (
-    <div className="relative overflow-hidden group" style={{ aspectRatio: '4/3', background: '#000' }}>
+    <div
+      className={`flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} gap-0 rounded-lg overflow-hidden`}
+      style={{ background: '#080f0e', border: '1px solid rgba(16,185,129,0.08)' }}
+    >
+      {/* Image slideshow */}
+      <div className="relative overflow-hidden group md:w-[65%] flex-shrink-0" style={{ aspectRatio: '16/10' }}>
+        {images.map((img, i) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={img.id}
+            src={img.url}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{
+              opacity: i === idx ? 1 : 0,
+              transition: 'opacity 1s ease',
+              transform: i === idx ? 'scale(1)' : 'scale(1.05)',
+              ...(Math.abs(i - idx) <= 1 ? {} : { loading: 'lazy' as const }),
+            }}
+          />
+        ))}
 
-      {/* Stack all images — CSS opacity handles the crossfade, no JS animation state */}
-      {images.map((img, i) => (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          key={img.id}
-          src={img.url}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{
-            opacity: i === idx ? 1 : 0,
-            transition: 'opacity 0.8s ease',
-            // Only load current + neighbours eagerly
-            ...(Math.abs(i - idx) <= 1 ? {} : { loading: 'lazy' as const }),
-          }}
-        />
-      ))}
+        {/* Subtle vignette */}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%)' }} />
 
-      {/* Dark gradient — pointer-events-none so it doesn't block clicks */}
-      <div className="absolute inset-0 pointer-events-none"
-        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%, rgba(0,0,0,0.25) 100%)' }} />
-
-      {/* Top bar: counter + MORE */}
-      <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-3">
-        <span className="text-white/40 text-xs tabular-nums"
-          style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
-          {idx + 1} / {images.length}
-        </span>
+        {/* Side arrows — appear on hover */}
         <button
-          onClick={onMore}
-          className="flex items-center gap-1.5 px-2.5 py-1 text-xs tracking-widest border transition-all duration-200"
-          style={{
-            background: 'rgba(0,0,0,0.5)',
-            backdropFilter: 'blur(6px)',
-            borderColor: 'rgba(255,255,255,0.2)',
-            color: 'rgba(255,255,255,0.7)',
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = '#10b981';
-            (e.currentTarget as HTMLButtonElement).style.color = '#10b981';
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.2)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.7)';
-          }}
+          onClick={prev}
+          className="absolute left-0 top-0 bottom-0 w-14 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+          style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.5), transparent)' }}
         >
-          <LayoutGrid size={11} />
-          VIEW ALL
+          <ChevronLeft size={20} className="text-white/80" />
         </button>
+        <button
+          onClick={next}
+          className="absolute right-0 top-0 bottom-0 w-14 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+          style={{ background: 'linear-gradient(to left, rgba(0,0,0,0.5), transparent)' }}
+        >
+          <ChevronRight size={20} className="text-white/80" />
+        </button>
+
+        {/* Image counter */}
+        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <span className="text-white/50 text-xs tabular-nums px-2 py-1 rounded"
+            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+            {idx + 1} / {images.length}
+          </span>
+        </div>
       </div>
 
-      {/* Side arrows — appear on hover */}
-      <button
-        onClick={prev}
-        className="absolute left-0 top-0 bottom-0 w-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-        style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.4), transparent)' }}
-      >
-        <ChevronLeft size={22} className="text-white drop-shadow" />
-      </button>
-      <button
-        onClick={next}
-        className="absolute right-0 top-0 bottom-0 w-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-        style={{ background: 'linear-gradient(to left, rgba(0,0,0,0.4), transparent)' }}
-      >
-        <ChevronRight size={22} className="text-white drop-shadow" />
-      </button>
-
-      {/* Bottom: number, label, dots */}
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <p className="text-emerald-400 text-xs tracking-[0.3em] uppercase mb-0.5">
-          {String(index + 1).padStart(2, '0')}
-        </p>
-        <h3 className="text-white font-light tracking-widest text-sm mb-2">
-          {category.label.toUpperCase()}
-        </h3>
+      {/* Info panel */}
+      <div className="flex flex-col justify-between p-6 md:p-8 md:w-[35%]">
+        <div>
+          <span className="text-emerald-500/40 text-5xl md:text-6xl font-extralight leading-none">
+            {String(index + 1).padStart(2, '0')}
+          </span>
+          <div className="mt-3 mb-4">
+            <div className="w-8 h-px bg-emerald-500/30 mb-4" />
+            <h3 className="text-white font-light tracking-[0.2em] text-lg md:text-xl">
+              {category.label.toUpperCase()}
+            </h3>
+          </div>
+        </div>
+        <button
+          onClick={onMore}
+          className="self-start flex items-center gap-2 px-5 py-2.5 text-xs tracking-[0.2em] uppercase rounded-sm transition-all duration-300 hover:gap-3"
+          style={{
+            background: 'transparent',
+            border: '1px solid rgba(16,185,129,0.3)',
+            color: 'rgba(16,185,129,0.8)',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'rgba(16,185,129,0.1)';
+            e.currentTarget.style.borderColor = '#10b981';
+            e.currentTarget.style.color = '#10b981';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.borderColor = 'rgba(16,185,129,0.3)';
+            e.currentTarget.style.color = 'rgba(16,185,129,0.8)';
+          }}
+        >
+          <LayoutGrid size={12} />
+          View Gallery
+        </button>
       </div>
     </div>
   );
@@ -224,7 +235,7 @@ function CategoryCard({ category, index, onMore }: {
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
 function Skeleton() {
-  return <div className="loading-shimmer" style={{ aspectRatio: '4/3' }} />;
+  return <div className="loading-shimmer rounded-lg" style={{ aspectRatio: '21/9' }} />;
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -243,16 +254,16 @@ export default function ExperienceSection() {
   }, []);
 
   return (
-    <section className="py-16" style={{ background: 'linear-gradient(180deg,#022522 0%,#010f0e 100%)' }}>
+    <section className="py-20 md:py-28" style={{ background: 'linear-gradient(180deg,#022522 0%,#010f0e 100%)' }}>
 
       {/* Header */}
-      <div className="text-center mb-10 px-4">
-        <div className="inline-flex items-center gap-3 mb-3">
-          <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg,transparent,#10b981)' }} />
+      <div className="text-center mb-14 px-4">
+        <div className="inline-flex items-center gap-3 mb-4">
+          <div className="w-10 h-px" style={{ background: 'linear-gradient(90deg,transparent,#10b981)' }} />
           <Sparkles className="w-4 h-4 text-emerald-500" />
-          <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg,#10b981,transparent)' }} />
+          <div className="w-10 h-px" style={{ background: 'linear-gradient(90deg,#10b981,transparent)' }} />
         </div>
-        <h2 className="text-4xl md:text-5xl font-light tracking-[0.15em] text-white mb-2">
+        <h2 className="text-4xl md:text-5xl font-light tracking-[0.15em] text-white mb-3">
           THE{' '}
           <span style={{
             background: 'linear-gradient(135deg,#10b981,#d4af37)',
@@ -261,16 +272,16 @@ export default function ExperienceSection() {
             backgroundClip: 'text',
           }}>EXPERIENCE</span>
         </h2>
-        <p className="text-gray-400 font-light text-sm tracking-widest">
-          Premium drinks, stunning beachside vibes, and unforgettable nights
+        <p className="text-gray-400 font-light text-sm tracking-widest max-w-md mx-auto">
+          Stunning beachside vibes and unforgettable nights
         </p>
       </div>
 
-      {/* Grid */}
-      <div className="px-4 md:px-8 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 gap-3">
+      {/* Cards */}
+      <div className="px-4 md:px-8 max-w-6xl mx-auto">
+        <div className="flex flex-col gap-6">
           {loading
-            ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} />)
+            ? Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} />)
             : categories.map((cat, i) => (
                 <CategoryCard key={cat.key} category={cat} index={i} onMore={() => setOpenCat(cat)} />
               ))

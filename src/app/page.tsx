@@ -32,9 +32,17 @@ export default function HomePage() {
             />
           </div>
 
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-light mb-4 tracking-widest text-white animate-fade-in-up">
-            CASA PRIVÉ
-          </h1>
+          <div className="mb-4 animate-fade-in-up">
+            <Image
+              src="/logo-text.png"
+              alt="Casa Privé"
+              width={500}
+              height={100}
+              className="mx-auto"
+              style={{ background: 'transparent' }}
+              priority
+            />
+          </div>
 
           <div className="h-px w-32 bg-gradient-to-r from-transparent via-yellow-500 to-transparent mb-4" />
 

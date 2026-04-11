@@ -1,10 +1,15 @@
 // app/api/drive-image/[fileId]/route.ts
 // Proxies a publicly-shared Google Drive image using the Drive API v3 (alt=media).
+// Compresses and resizes with sharp for fast loading.
 // Requires GOOGLE_DRIVE_API_KEY and the file to be shared "Anyone with the link".
 import { NextRequest, NextResponse } from 'next/server';
+import sharp from 'sharp';
+
+const MAX_WIDTH = 1400;
+const QUALITY = 75;
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ fileId: string }> }
 ) {
   const { fileId } = await params;
@@ -17,6 +22,11 @@ export async function GET(
   if (!apiKey) {
     return new NextResponse('Not configured', { status: 500 });
   }
+
+  // Optional query params for size control
+  const { searchParams } = req.nextUrl;
+  const reqWidth = Math.min(Number(searchParams.get('w')) || MAX_WIDTH, 2400);
+  const reqQuality = Math.min(Number(searchParams.get('q')) || QUALITY, 95);
 
   // Drive API v3 alt=media — downloads file content directly.
   // Works for any file shared as "Anyone with the link" using an API key.
@@ -39,9 +49,17 @@ export async function GET(
       return new NextResponse('Image not accessible', { status: 403 });
     }
 
-    return new NextResponse(res.body, {
+    const buffer = Buffer.from(await res.arrayBuffer());
+
+    // Resize and compress to WebP
+    const optimized = await sharp(buffer)
+      .resize({ width: reqWidth, withoutEnlargement: true })
+      .webp({ quality: reqQuality })
+      .toBuffer();
+
+    return new NextResponse(optimized, {
       headers: {
-        'Content-Type': contentType,
+        'Content-Type': 'image/webp',
         'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
       },
     });

@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Crown, Search, Mail, Phone, QrCode, Pencil, Trash2, ArrowUpDown, X } from 'lucide-react';
+import { Crown, Search, Mail, Phone, QrCode, Pencil, Trash2, ArrowUpDown, X, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -31,6 +31,7 @@ export default function AdminMembers() {
         fullName: '', email: '', phone: '', profession: '', interest: '',
         membershipType: 'STANDARD', status: 'ACTIVE'
     });
+    const [viewMember, setViewMember] = useState<Member | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [actionMessage, setActionMessage] = useState('');
 
@@ -205,13 +206,21 @@ export default function AdminMembers() {
                             </div>
 
                             {/* Action buttons */}
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 mb-2">
+                                <button
+                                    onClick={() => setViewMember(member)}
+                                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg transition text-sm ${isPremium ? 'bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50' : 'bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50'}`}
+                                >
+                                    <Eye size={14} /> View Card
+                                </button>
                                 <button
                                     onClick={() => openEdit(member)}
                                     className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition text-sm"
                                 >
                                     <Pencil size={14} /> Edit
                                 </button>
+                            </div>
+                            <div className="flex gap-2">
                                 <button
                                     onClick={() => toggleMembershipType(member)}
                                     className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg transition text-sm ${isPremium ? 'bg-slate-700 text-gray-300 hover:bg-slate-600' : 'bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50'}`}
@@ -300,6 +309,57 @@ export default function AdminMembers() {
                                 {actionLoading ? 'Saving...' : 'Save Changes'}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* View Card Modal */}
+            {viewMember && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                    <div className="bg-slate-800 rounded-lg max-w-md w-full p-6 border border-slate-700">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-xl font-bold text-white">Member Card</h3>
+                            <button onClick={() => setViewMember(null)} className="text-gray-400 hover:text-white">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className={`p-6 rounded-lg mb-4 ${viewMember.membershipType === 'PREMIUM'
+                            ? 'bg-gradient-to-br from-yellow-900 to-neutral-900 border border-yellow-700/50'
+                            : 'bg-gradient-to-br from-emerald-900 to-yellow-900 border border-emerald-700/50'
+                        }`}>
+                            <div className="text-center mb-4">
+                                <Image src="/logo.png" alt="Casa Privé" width={48} height={48} className="mx-auto mb-3" style={{ background: 'transparent' }} />
+                                <h2 className="text-2xl font-bold text-white">{viewMember.fullName}</h2>
+                                <span className={`inline-block mt-2 px-3 py-0.5 rounded-full text-xs font-medium ${viewMember.membershipType === 'PREMIUM'
+                                    ? 'bg-yellow-800/50 text-yellow-300'
+                                    : 'bg-emerald-800/50 text-emerald-300'
+                                }`}>
+                                    {viewMember.membershipType === 'PREMIUM' ? 'PREMIUM MEMBER' : 'STANDARD MEMBER'}
+                                </span>
+                            </div>
+                            <div className="text-center text-yellow-500 font-mono text-xl mb-3">
+                                {viewMember.membershipCode}
+                            </div>
+                            <div className="space-y-1 text-center text-sm text-gray-300">
+                                <p>{viewMember.email}</p>
+                                {viewMember.phone && <p>{viewMember.phone}</p>}
+                            </div>
+                            <div className="text-center text-xs text-gray-500 mt-3">
+                                Member since {new Date(viewMember.joinedAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                            </div>
+                        </div>
+
+                        <a
+                            href={`/member-card/${viewMember.membershipCode}`}
+                            target="_blank"
+                            className={`block w-full px-4 py-3 text-white text-center rounded-lg transition ${viewMember.membershipType === 'PREMIUM'
+                                ? 'bg-yellow-700 hover:bg-yellow-600'
+                                : 'bg-emerald-600 hover:bg-emerald-500'
+                            }`}
+                        >
+                            Open Full Card Page
+                        </a>
                     </div>
                 </div>
             )}

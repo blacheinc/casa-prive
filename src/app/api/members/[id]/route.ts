@@ -1,4 +1,3 @@
-// app/api/members/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
@@ -16,7 +15,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
-    // If email is changing, check it's not taken by another member
     if (email && email !== existing.email) {
       const emailTaken = await prisma.member.findUnique({ where: { email } });
       if (emailTaken) {

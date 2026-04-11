@@ -60,6 +60,9 @@ export async function generateAppleWalletPass(
   const tierColor = isPremium ? "rgb(255, 215, 0)" : "rgb(212, 175, 55)";
   const bgColor = isPremium ? "rgb(26, 26, 26)" : "rgb(4, 99, 72)";
   const lblColor = isPremium ? "rgb(212, 175, 55)" : "rgb(255, 255, 255)";
+  const passDescription = isPremium
+    ? "Casa Privé Premium Membership Card"
+    : "Casa Privé Membership Card";
 
   try {
     // Create temporary model directory in /tmp
@@ -84,9 +87,7 @@ export async function generateAppleWalletPass(
         process.env.PASS_TYPE_IDENTIFIER || "pass.ass.com.casaprive.membership",
       teamIdentifier: process.env.TEAM_IDENTIFIER || "64PS3B42A3",
       organizationName: "Casa Privé",
-      description: isPremium
-        ? "Casa Privé Premium Membership Card"
-        : "Casa Privé Membership Card",
+      description: passDescription,
       logoText: "CASA PRIVÉ",
       foregroundColor: tierColor,
       backgroundColor: bgColor,

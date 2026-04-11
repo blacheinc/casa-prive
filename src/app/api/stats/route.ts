@@ -4,11 +4,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    // Wrap each query with .catch to prevent one failure from breaking the whole dashboard
-    function safe<T>(p: Promise<T>, fallback: T): Promise<T> {
-      return p.catch(() => fallback);
-    }
-
+    // Get various statistics
     const [
       totalBookings,
       confirmedBookings,
@@ -26,27 +22,27 @@ export async function GET(request: NextRequest) {
       feedbackCount,
       settings,
     ] = await Promise.all([
-      safe(prisma.booking.count(), 0),
-      safe(prisma.booking.count({ where: { status: 'CONFIRMED' } }), 0),
-      safe(prisma.booking.count({ where: { status: 'PENDING' } }), 0),
-      safe(prisma.ticket.count(), 0),
-      safe(prisma.ticket.count({ where: { status: 'CONFIRMED' } }), 0),
-      safe(prisma.ticket.count({ where: { status: 'PENDING' } }), 0),
-      safe(prisma.ticket.aggregate({
+      prisma.booking.count(),
+      prisma.booking.count({ where: { status: 'CONFIRMED' } }),
+      prisma.booking.count({ where: { status: 'PENDING' } }),
+      prisma.ticket.count(),
+      prisma.ticket.count({ where: { status: 'CONFIRMED' } }),
+      prisma.ticket.count({ where: { status: 'PENDING' } }),
+      prisma.ticket.aggregate({
         _sum: { amount: true },
         where: { paymentStatus: 'COMPLETED' },
-      }), { _sum: { amount: null } }),
-      safe(prisma.order.count(), 0),
-      safe(prisma.booking.aggregate({
+      }),
+      prisma.order.count(),
+      prisma.booking.aggregate({
         _sum: { amount: true },
         where: { paymentStatus: 'COMPLETED' },
-      }), { _sum: { amount: null } }),
-      safe(prisma.member.count({ where: { status: 'ACTIVE' } }), 0),
-      safe(prisma.member.count({ where: { status: 'ACTIVE', membershipType: 'STANDARD' } }), 0),
-      safe(prisma.member.count({ where: { status: 'ACTIVE', membershipType: 'PREMIUM' } }), 0),
-      safe(prisma.waitlist.count({ where: { status: 'PENDING' } }), 0),
-      safe(prisma.feedback.count(), 0),
-      safe(prisma.eventSettings.findFirst(), null),
+      }),
+      prisma.member.count({ where: { status: 'ACTIVE' } }),
+      prisma.member.count({ where: { status: 'ACTIVE', membershipType: 'STANDARD' } }).catch(() => 0),
+      prisma.member.count({ where: { status: 'ACTIVE', membershipType: 'PREMIUM' } }).catch(() => 0),
+      prisma.waitlist.count({ where: { status: 'PENDING' } }),
+      prisma.feedback.count(),
+      prisma.eventSettings.findFirst(),
     ]);
 
     const stats = {

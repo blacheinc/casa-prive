@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/admin/members/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -28,7 +27,10 @@ export default function AdminMembers() {
     const [editModal, setEditModal] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState<Member | null>(null);
     const [editMember, setEditMember] = useState<Member | null>(null);
-    const [editForm, setEditForm] = useState({ fullName: '', email: '', phone: '', profession: '', interest: '', membershipType: 'STANDARD', status: 'ACTIVE' });
+    const [editForm, setEditForm] = useState({
+        fullName: '', email: '', phone: '', profession: '', interest: '',
+        membershipType: 'STANDARD', status: 'ACTIVE'
+    });
     const [actionLoading, setActionLoading] = useState(false);
     const [actionMessage, setActionMessage] = useState('');
 
@@ -54,13 +56,13 @@ export default function AdminMembers() {
             fullName: member.fullName,
             email: member.email,
             phone: member.phone || '',
-            profession: (member as any).profession || '',
-            interest: (member as any).interest || '',
+            profession: member.profession || '',
+            interest: member.interest || '',
             membershipType: member.membershipType || 'STANDARD',
             status: member.status,
         });
-        setActionMessage('');
         setEditModal(true);
+        setActionMessage('');
     };
 
     const saveEdit = async () => {
@@ -74,18 +76,20 @@ export default function AdminMembers() {
                 body: JSON.stringify(editForm),
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Failed to update');
-            setActionMessage('Member updated successfully');
-            setEditModal(false);
-            fetchMembers();
-        } catch (err: any) {
-            setActionMessage(err.message);
+            if (res.ok) {
+                setEditModal(false);
+                fetchMembers();
+            } else {
+                setActionMessage(data.error || 'Failed to update');
+            }
+        } catch {
+            setActionMessage('Network error');
         } finally {
             setActionLoading(false);
         }
     };
 
-    const toggleType = async (member: Member) => {
+    const toggleMembershipType = async (member: Member) => {
         const newType = member.membershipType === 'PREMIUM' ? 'STANDARD' : 'PREMIUM';
         try {
             const res = await fetch(`/api/members/${member.id}`, {
@@ -93,10 +97,9 @@ export default function AdminMembers() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ membershipType: newType }),
             });
-            if (!res.ok) throw new Error('Failed to update');
-            fetchMembers();
-        } catch (err) {
-            console.error('Toggle type error:', err);
+            if (res.ok) fetchMembers();
+        } catch (error) {
+            console.error('Toggle membership error:', error);
         }
     };
 
@@ -104,11 +107,12 @@ export default function AdminMembers() {
         setActionLoading(true);
         try {
             const res = await fetch(`/api/members/${member.id}`, { method: 'DELETE' });
-            if (!res.ok) throw new Error('Failed to delete');
-            setDeleteConfirm(null);
-            fetchMembers();
-        } catch (err) {
-            console.error('Delete error:', err);
+            if (res.ok) {
+                setDeleteConfirm(null);
+                fetchMembers();
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
         } finally {
             setActionLoading(false);
         }
@@ -133,7 +137,7 @@ export default function AdminMembers() {
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-white mb-2">Members Management</h1>
-                    <p className="text-gray-400">Manage Casa Privé members ({members.length} total)</p>
+                    <p className="text-gray-400">Manage Casa Privé members</p>
                 </div>
                 <button
                     onClick={() => router.push('/membership')}
@@ -149,7 +153,7 @@ export default function AdminMembers() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                     <input
                         type="text"
-                        placeholder="Search by name, email, or code..."
+                        placeholder="Search members..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none"
@@ -162,36 +166,16 @@ export default function AdminMembers() {
                 {filteredMembers.map((member) => {
                     const isPremium = member.membershipType === 'PREMIUM';
                     return (
-                        <div key={member.id} className={`bg-slate-800 rounded-lg p-6 border ${
-                            isPremium ? 'border-yellow-600/40' : 'border-emerald-700/30'
-                        }`}>
+                        <div key={member.id} className={`bg-slate-800 rounded-lg p-6 border ${isPremium ? 'border-yellow-600/40' : 'border-emerald-700/30'}`}>
                             <div className="flex items-start justify-between mb-4">
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                                    isPremium
-                                        ? 'bg-gradient-to-br from-yellow-800 to-yellow-600'
-                                        : 'bg-gradient-to-br from-emerald-900 to-yellow-900'
-                                }`}>
-                                    <Image
-                                        src="/logo.png"
-                                        alt="Casa Privé Logo"
-                                        width={40}
-                                        height={40}
-                                        style={{ background: 'transparent' }}
-                                    />
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isPremium ? 'bg-gradient-to-br from-yellow-800 to-yellow-600' : 'bg-gradient-to-br from-emerald-900 to-yellow-900'}`}>
+                                    <Image src="/logo.png" alt="Logo" width={40} height={40} style={{ background: 'transparent' }} />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                        isPremium
-                                            ? 'bg-yellow-900/50 text-yellow-400'
-                                            : 'bg-slate-700/50 text-gray-400'
-                                    }`}>
+                                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${isPremium ? 'bg-yellow-900/50 text-yellow-400' : 'bg-slate-700/50 text-gray-400'}`}>
                                         {isPremium ? 'PREMIUM' : 'STANDARD'}
                                     </span>
-                                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                        member.status === 'ACTIVE'
-                                            ? 'bg-emerald-900/50 text-emerald-400'
-                                            : 'bg-red-900/50 text-red-400'
-                                    }`}>
+                                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${member.status === 'ACTIVE' ? 'bg-emerald-900/50 text-emerald-400' : 'bg-red-900/50 text-red-400'}`}>
                                         {member.status}
                                     </span>
                                 </div>
@@ -202,7 +186,7 @@ export default function AdminMembers() {
                             <div className="space-y-2 mb-4">
                                 <div className="flex items-center gap-2 text-sm text-gray-400">
                                     <Mail size={14} />
-                                    <span className="truncate">{member.email}</span>
+                                    <span>{member.email}</span>
                                 </div>
                                 {member.phone && (
                                     <div className="flex items-center gap-2 text-sm text-gray-400">
@@ -223,43 +207,25 @@ export default function AdminMembers() {
                             {/* Action buttons */}
                             <div className="flex gap-2">
                                 <button
-                                    onClick={() => toggleType(member)}
-                                    title={isPremium ? 'Downgrade to Standard' : 'Upgrade to Premium'}
-                                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs transition ${
-                                        isPremium
-                                            ? 'bg-slate-700/50 text-gray-300 hover:bg-slate-700'
-                                            : 'bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50'
-                                    }`}
+                                    onClick={() => openEdit(member)}
+                                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition text-sm"
                                 >
-                                    <ArrowUpDown size={13} />
-                                    {isPremium ? 'Downgrade' : 'Upgrade'}
+                                    <Pencil size={14} /> Edit
                                 </button>
                                 <button
-                                    onClick={() => openEdit(member)}
-                                    title="Edit member"
-                                    className="px-3 py-2 bg-slate-700/50 text-gray-300 rounded-lg hover:bg-slate-700 transition"
+                                    onClick={() => toggleMembershipType(member)}
+                                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg transition text-sm ${isPremium ? 'bg-slate-700 text-gray-300 hover:bg-slate-600' : 'bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50'}`}
+                                    title={isPremium ? 'Downgrade to Standard' : 'Upgrade to Premium'}
                                 >
-                                    <Pencil size={14} />
+                                    <ArrowUpDown size={14} /> {isPremium ? 'Downgrade' : 'Upgrade'}
                                 </button>
                                 <button
                                     onClick={() => setDeleteConfirm(member)}
-                                    title="Delete member"
                                     className="px-3 py-2 bg-red-900/30 text-red-400 rounded-lg hover:bg-red-900/50 transition"
+                                    title="Delete member"
                                 >
                                     <Trash2 size={14} />
                                 </button>
-                                <a
-                                    href={`/member-card/${member.membershipCode}`}
-                                    target="_blank"
-                                    title="View card"
-                                    className={`px-3 py-2 rounded-lg transition ${
-                                        isPremium
-                                            ? 'bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50'
-                                            : 'bg-emerald-900/50 text-emerald-400 hover:bg-emerald-900'
-                                    }`}
-                                >
-                                    <Crown size={14} />
-                                </a>
                             </div>
                         </div>
                     );
@@ -268,7 +234,7 @@ export default function AdminMembers() {
 
             {filteredMembers.length === 0 && (
                 <div className="text-center py-12">
-                    <Crown className="w-10 h-10 text-gray-600 mx-auto mb-3" />
+                    <Crown className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                     <p className="text-gray-400">No members found</p>
                 </div>
             )}
@@ -276,7 +242,7 @@ export default function AdminMembers() {
             {/* Edit Modal */}
             {editModal && editMember && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-                    <div className="bg-slate-800 rounded-lg max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+                    <div className="bg-slate-800 rounded-lg max-w-lg w-full p-6 border border-slate-700 max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-xl font-bold text-white">Edit Member</h3>
                             <button onClick={() => setEditModal(false)} className="text-gray-400 hover:text-white">
@@ -284,99 +250,55 @@ export default function AdminMembers() {
                             </button>
                         </div>
 
+                        {actionMessage && (
+                            <div className="mb-4 p-3 bg-red-900/30 text-red-400 rounded-lg text-sm">{actionMessage}</div>
+                        )}
+
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-gray-400 text-sm mb-1">Full Name</label>
-                                <input
-                                    type="text"
-                                    value={editForm.fullName}
-                                    onChange={e => setEditForm({ ...editForm, fullName: e.target.value })}
-                                    className="w-full px-3 py-2 bg-slate-700 text-white rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                                />
+                                <label className="block text-sm text-gray-400 mb-1">Full Name</label>
+                                <input type="text" value={editForm.fullName} onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })} className="w-full px-3 py-2 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none" />
                             </div>
                             <div>
-                                <label className="block text-gray-400 text-sm mb-1">Email</label>
-                                <input
-                                    type="email"
-                                    value={editForm.email}
-                                    onChange={e => setEditForm({ ...editForm, email: e.target.value })}
-                                    className="w-full px-3 py-2 bg-slate-700 text-white rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                                />
+                                <label className="block text-sm text-gray-400 mb-1">Email</label>
+                                <input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className="w-full px-3 py-2 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none" />
                             </div>
                             <div>
-                                <label className="block text-gray-400 text-sm mb-1">Phone</label>
-                                <input
-                                    type="tel"
-                                    value={editForm.phone}
-                                    onChange={e => setEditForm({ ...editForm, phone: e.target.value })}
-                                    className="w-full px-3 py-2 bg-slate-700 text-white rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                                />
+                                <label className="block text-sm text-gray-400 mb-1">Phone</label>
+                                <input type="text" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} className="w-full px-3 py-2 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none" />
                             </div>
                             <div>
-                                <label className="block text-gray-400 text-sm mb-1">Profession</label>
-                                <input
-                                    type="text"
-                                    value={editForm.profession}
-                                    onChange={e => setEditForm({ ...editForm, profession: e.target.value })}
-                                    className="w-full px-3 py-2 bg-slate-700 text-white rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                                />
+                                <label className="block text-sm text-gray-400 mb-1">Profession</label>
+                                <input type="text" value={editForm.profession} onChange={(e) => setEditForm({ ...editForm, profession: e.target.value })} className="w-full px-3 py-2 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none" />
                             </div>
                             <div>
-                                <label className="block text-gray-400 text-sm mb-1">Notes/Interest</label>
-                                <textarea
-                                    value={editForm.interest}
-                                    onChange={e => setEditForm({ ...editForm, interest: e.target.value })}
-                                    rows={3}
-                                    className="w-full px-3 py-2 bg-slate-700 text-white rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                                />
+                                <label className="block text-sm text-gray-400 mb-1">Interest / Notes</label>
+                                <textarea value={editForm.interest} onChange={(e) => setEditForm({ ...editForm, interest: e.target.value })} rows={3} className="w-full px-3 py-2 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none resize-none" />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-1">Membership Type</label>
-                                    <select
-                                        value={editForm.membershipType}
-                                        onChange={e => setEditForm({ ...editForm, membershipType: e.target.value })}
-                                        className="w-full px-3 py-2 bg-slate-700 text-white rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                                    >
+                                    <label className="block text-sm text-gray-400 mb-1">Membership Type</label>
+                                    <select value={editForm.membershipType} onChange={(e) => setEditForm({ ...editForm, membershipType: e.target.value })} className="w-full px-3 py-2 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none">
                                         <option value="STANDARD">Standard</option>
                                         <option value="PREMIUM">Premium</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-1">Status</label>
-                                    <select
-                                        value={editForm.status}
-                                        onChange={e => setEditForm({ ...editForm, status: e.target.value })}
-                                        className="w-full px-3 py-2 bg-slate-700 text-white rounded border border-slate-600 focus:border-emerald-500 focus:outline-none"
-                                    >
+                                    <label className="block text-sm text-gray-400 mb-1">Status</label>
+                                    <select value={editForm.status} onChange={(e) => setEditForm({ ...editForm, status: e.target.value })} className="w-full px-3 py-2 bg-slate-700 text-white rounded-lg border border-slate-600 focus:border-emerald-500 focus:outline-none">
                                         <option value="ACTIVE">Active</option>
-                                        <option value="SUSPENDED">Suspended</option>
                                         <option value="EXPIRED">Expired</option>
+                                        <option value="SUSPENDED">Suspended</option>
                                     </select>
                                 </div>
                             </div>
+                        </div>
 
-                            {actionMessage && (
-                                <p className={`text-sm ${actionMessage.includes('success') ? 'text-emerald-400' : 'text-red-400'}`}>
-                                    {actionMessage}
-                                </p>
-                            )}
-
-                            <div className="flex gap-3 pt-2">
-                                <button
-                                    onClick={saveEdit}
-                                    disabled={actionLoading}
-                                    className="flex-1 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition disabled:opacity-50"
-                                >
-                                    {actionLoading ? 'Saving...' : 'Save Changes'}
-                                </button>
-                                <button
-                                    onClick={() => setEditModal(false)}
-                                    className="px-6 py-2.5 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
+                        <div className="flex gap-3 mt-6">
+                            <button onClick={() => setEditModal(false)} className="flex-1 px-4 py-2 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition">Cancel</button>
+                            <button onClick={saveEdit} disabled={actionLoading} className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition disabled:opacity-50">
+                                {actionLoading ? 'Saving...' : 'Save Changes'}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -385,26 +307,15 @@ export default function AdminMembers() {
             {/* Delete Confirmation */}
             {deleteConfirm && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-                    <div className="bg-slate-800 rounded-lg max-w-sm w-full p-6">
-                        <h3 className="text-xl font-bold text-white mb-3">Delete Member</h3>
-                        <p className="text-gray-400 text-sm mb-1">
-                            Are you sure you want to permanently delete:
-                        </p>
-                        <p className="text-white font-medium mb-1">{deleteConfirm.fullName}</p>
-                        <p className="text-gray-500 text-xs mb-6">{deleteConfirm.membershipCode}</p>
+                    <div className="bg-slate-800 rounded-lg max-w-sm w-full p-6 border border-red-900/50">
+                        <h3 className="text-xl font-bold text-white mb-2">Delete Member</h3>
+                        <p className="text-gray-400 mb-1">Are you sure you want to delete:</p>
+                        <p className="text-white font-semibold mb-1">{deleteConfirm.fullName}</p>
+                        <p className="text-yellow-500 font-mono text-sm mb-6">{deleteConfirm.membershipCode}</p>
                         <div className="flex gap-3">
-                            <button
-                                onClick={() => deleteMember(deleteConfirm)}
-                                disabled={actionLoading}
-                                className="flex-1 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-500 transition disabled:opacity-50"
-                            >
+                            <button onClick={() => setDeleteConfirm(null)} className="flex-1 px-4 py-2 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition">Cancel</button>
+                            <button onClick={() => deleteMember(deleteConfirm)} disabled={actionLoading} className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition disabled:opacity-50">
                                 {actionLoading ? 'Deleting...' : 'Delete'}
-                            </button>
-                            <button
-                                onClick={() => setDeleteConfirm(null)}
-                                className="flex-1 py-2.5 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition"
-                            >
-                                Cancel
                             </button>
                         </div>
                     </div>

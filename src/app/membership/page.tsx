@@ -21,6 +21,7 @@ export default function MembershipPage() {
         interest: '',
         reference1: '',
         reference2: '',
+        membershipType: 'STANDARD' as 'STANDARD' | 'PREMIUM',
     });
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
@@ -93,6 +94,7 @@ export default function MembershipPage() {
                 interest: '',
                 reference1: '',
                 reference2: '',
+                membershipType: 'STANDARD',
             });
 
             // Optionally open the member card in new tab
@@ -240,6 +242,43 @@ export default function MembershipPage() {
                     </h2>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Membership Type Selector */}
+                        <div>
+                            <label className="block text-gray-300 mb-3 text-sm font-light">Membership Type *</label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, membershipType: 'STANDARD' })}
+                                    className={`p-5 rounded border-2 text-left transition-all ${
+                                        formData.membershipType === 'STANDARD'
+                                            ? 'border-emerald-500 bg-emerald-900/30'
+                                            : 'border-slate-600 bg-slate-700/30 hover:border-slate-500'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Crown className="w-5 h-5 text-emerald-400" />
+                                        <span className="text-white font-light tracking-wider text-sm">STANDARD</span>
+                                    </div>
+                                    <p className="text-gray-400 text-xs font-light">Priority access, premium drinks, and VIP service at all events</p>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, membershipType: 'PREMIUM' })}
+                                    className={`p-5 rounded border-2 text-left transition-all ${
+                                        formData.membershipType === 'PREMIUM'
+                                            ? 'border-yellow-500 bg-yellow-900/20'
+                                            : 'border-slate-600 bg-slate-700/30 hover:border-slate-500'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Crown className="w-5 h-5 text-yellow-400" />
+                                        <span className="text-white font-light tracking-wider text-sm">PREMIUM</span>
+                                    </div>
+                                    <p className="text-gray-400 text-xs font-light">All standard benefits plus exclusive table reservations and concierge service</p>
+                                </button>
+                            </div>
+                        </div>
+
                         <div className="grid md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-gray-300 mb-2 text-sm font-light">Full Name *</label>

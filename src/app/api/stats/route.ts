@@ -16,6 +16,8 @@ export async function GET(request: NextRequest) {
       totalOrders,
       totalRevenue,
       activeMembers,
+      standardMembers,
+      premiumMembers,
       waitlistCount,
       feedbackCount,
       settings,
@@ -36,6 +38,8 @@ export async function GET(request: NextRequest) {
         where: { paymentStatus: 'COMPLETED' },
       }),
       prisma.member.count({ where: { status: 'ACTIVE' } }),
+      prisma.member.count({ where: { status: 'ACTIVE', membershipType: 'STANDARD' } }),
+      prisma.member.count({ where: { status: 'ACTIVE', membershipType: 'PREMIUM' } }),
       prisma.waitlist.count({ where: { status: 'PENDING' } }),
       prisma.feedback.count(),
       prisma.eventSettings.findFirst(),
@@ -61,6 +65,8 @@ export async function GET(request: NextRequest) {
       },
       members: {
         active: activeMembers,
+        standard: standardMembers,
+        premium: premiumMembers,
       },
       waitlist: {
         pending: waitlistCount,

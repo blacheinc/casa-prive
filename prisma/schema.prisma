@@ -109,9 +109,10 @@ model Member {
   phone           String?
   
   // Membership Details
-  membershipCode  String        @unique
-  qrCode          String?       // Generated QR code data
-  status          MemberStatus  @default(ACTIVE)
+  membershipCode  String         @unique
+  qrCode          String?        // Generated QR code data
+  status          MemberStatus   @default(ACTIVE)
+  membershipType  MembershipType @default(STANDARD)
   
   // Additional Member Information
   profession      String?       // Profession/Industry
@@ -304,6 +305,11 @@ enum MemberStatus {
   ACTIVE
   EXPIRED
   SUSPENDED
+}
+
+enum MembershipType {
+  STANDARD
+  PREMIUM
 }
 
 enum WaitlistStatus {

@@ -8,7 +8,7 @@ import { emailService } from '@/lib/email';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { fullName, email, phone, profession, interest, reference1, reference2 } = body;
+    const { fullName, email, phone, profession, interest, reference1, reference2, membershipType } = body;
 
     // Validation
     if (!fullName || !email) {
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
         membershipCode,
         qrCode,
         status: 'ACTIVE',
+        membershipType: membershipType === 'PREMIUM' ? 'PREMIUM' : 'STANDARD',
       },
     });
 
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest) {
         membershipCode: member.membershipCode,
         email: member.email,
         phone: member.phone || undefined,
+        membershipType: member.membershipType,
       });
       console.log('✓ Welcome email sent to:', email);
     } catch (error: any) {
@@ -75,6 +77,7 @@ export async function POST(request: NextRequest) {
         await whatsappService.sendMemberWelcome(phone, {
           fullName: member.fullName,
           membershipCode: member.membershipCode,
+          membershipType: member.membershipType,
         });
         console.log('✓ WhatsApp sent to:', phone);
       } catch (error: any) {
@@ -92,6 +95,7 @@ export async function POST(request: NextRequest) {
         fullName: member.fullName,
         email: member.email,
         membershipCode: member.membershipCode,
+        membershipType: member.membershipType,
         cardUrl,
       },
       message: `Member created successfully! Welcome email sent to ${email}.${phone ? ' WhatsApp message sent.' : ''}`

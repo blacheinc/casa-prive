@@ -52,6 +52,7 @@ export class WhatsAppService {
   async sendMemberWelcome(phone: string, member: {
     fullName: string;
     membershipCode: string;
+    membershipType?: string;
   }): Promise<void> {
     if (!this.enabled || !this.client) {
       console.log('⚠ WhatsApp not configured, skipping message');
@@ -71,7 +72,7 @@ Congratulations! You are now an exclusive member of Casa Privé, Ghana's premier
 *Your Membership Details:*
 ━━━━━━━━━━━━━━━━━━━━
 📇 Member ID: ${member.membershipCode}
-✅ Status: Active Premium Member
+✅ Status: Active ${member.membershipType === 'PREMIUM' ? 'Premium' : 'Standard'} Member
 
 *Your Digital Card:*
 ${cardUrl}

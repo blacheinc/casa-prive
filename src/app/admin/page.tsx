@@ -24,6 +24,8 @@ interface Stats {
   };
   members: {
     active: number;
+    standard: number;
+    premium: number;
   };
   waitlist: {
     pending: number;
@@ -117,7 +119,7 @@ export default function AdminDashboard() {
                 icon={<Users className="w-8 h-8" />}
                 title="Members"
                 value={stats.members.active}
-                subtitle="Active memberships"
+                subtitle={`${stats.members.standard || 0} standard, ${stats.members.premium || 0} premium`}
                 color="purple"
               />
             </div>

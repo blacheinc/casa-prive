@@ -55,13 +55,14 @@ export async function generateAppleWalletPass(
     envPassphrase && envPassphrase.trim() !== "" ? envPassphrase : undefined;
 
   // Determine membership tier based on actual membership type
-  let tierName = "Member";
-  let tierColor = "rgb(212, 175, 55)";
-
-  if (member.membershipType === "PREMIUM") {
-    tierName = "Premium Member";
-    tierColor = "rgb(255, 215, 0)";
-  }
+  const isPremium = member.membershipType === "PREMIUM";
+  const tierName = isPremium ? "Premium Member" : "Member";
+  const tierColor = isPremium ? "rgb(255, 215, 0)" : "rgb(212, 175, 55)";
+  const bgColor = isPremium ? "rgb(26, 26, 26)" : "rgb(4, 99, 72)";
+  const lblColor = isPremium ? "rgb(212, 175, 55)" : "rgb(255, 255, 255)";
+  const passDescription = isPremium
+    ? "Casa Privé Premium Membership Card"
+    : "Casa Privé Membership Card";
 
   try {
     // Create temporary model directory in /tmp
@@ -86,11 +87,11 @@ export async function generateAppleWalletPass(
         process.env.PASS_TYPE_IDENTIFIER || "pass.ass.com.casaprive.membership",
       teamIdentifier: process.env.TEAM_IDENTIFIER || "64PS3B42A3",
       organizationName: "Casa Privé",
-      description: "Casa Privé Exclusive Membership Card",
+      description: passDescription,
       logoText: "CASA PRIVÉ",
       foregroundColor: tierColor,
-      backgroundColor: "rgb(4, 99, 72)",
-      labelColor: "rgb(255, 255, 255)",
+      backgroundColor: bgColor,
+      labelColor: lblColor,
       serialNumber: member.membershipCode,
       barcodes: [
         {

@@ -114,8 +114,8 @@ function MoreModal({ category, onClose }: { category: Category; onClose: () => v
 
 // ─── Category slideshow card ──────────────────────────────────────────────────
 
-function CategoryCard({ category, index, onMore }: {
-  category: Category; index: number; onMore: () => void;
+function CategoryCard({ category, onMore }: {
+  category: Category; onMore: () => void;
 }) {
   const [idx, setIdx] = useState(0);
   const images = category.images;
@@ -192,11 +192,8 @@ function CategoryCard({ category, index, onMore }: {
       <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 z-10">
         <div className="flex items-end justify-between">
           <div>
-            <span className="text-white/15 text-6xl md:text-8xl font-extralight leading-none block mb-2"
-              style={{ fontFeatureSettings: '"tnum"' }}>
-              {String(index + 1).padStart(2, '0')}
-            </span>
-            <div className="w-10 h-px mb-3" style={{ background: 'linear-gradient(90deg, #10b981, transparent)' }} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/emblem.png" alt="" className="block mb-3 opacity-40" style={{ width: 40, height: 40 }} />
             <h3 className="text-white font-light tracking-[0.25em] text-xl md:text-2xl">
               {category.label.toUpperCase()}
             </h3>
@@ -281,7 +278,7 @@ export default function ExperienceSection() {
           {loading
             ? Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} />)
             : categories.map((cat, i) => (
-                <CategoryCard key={cat.key} category={cat} index={i} onMore={() => setOpenCat(cat)} />
+                <CategoryCard key={cat.key} category={cat} onMore={() => setOpenCat(cat)} />
               ))
           }
         </div>

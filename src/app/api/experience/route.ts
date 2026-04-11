@@ -31,12 +31,9 @@ async function fetchFolder(folderId: string): Promise<{ id: string; name: string
 
 export async function GET() {
   const definitions = [
-    { key: 'night-energy',           label: 'Night Energy',           folderId: process.env.GOOGLE_DRIVE_FOLDER_NIGHT_ENERGY ?? '' },
     { key: 'the-vibes',              label: 'The Vibes',              folderId: process.env.GOOGLE_DRIVE_FOLDER_THE_VIBES ?? '' },
     { key: 'unforgettable-moments',  label: 'Unforgettable Moments',  folderId: process.env.GOOGLE_DRIVE_FOLDER_UNFORGETTABLE_MOMENTS ?? '' },
-    { key: 'premium-service',        label: 'Premium Service',        folderId: process.env.GOOGLE_DRIVE_FOLDER_PREMIUM_SERVICE ?? '' },
     { key: 'the-crowd',              label: 'The Crowd',              folderId: process.env.GOOGLE_DRIVE_FOLDER_THE_CROWD ?? '' },
-    { key: 'premium-drinks',         label: 'Premium Drinks',         folderId: process.env.GOOGLE_DRIVE_FOLDER_PREMIUM_DRINKS ?? '' },
   ];
 
   const results = await Promise.all(

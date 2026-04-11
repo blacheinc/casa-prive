@@ -149,7 +149,7 @@ function CategoryCard({ category, onMore }: {
           key={img.id}
           src={`${img.url}?w=1400&q=75`}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover object-top transition-all duration-[1.2s] ease-out"
+          className="absolute inset-0 w-full h-full object-cover transition-all duration-[1.2s] ease-out"
           style={{
             opacity: i === idx ? 1 : 0,
             transform: i === idx ? 'scale(1)' : 'scale(1.03)',

@@ -95,13 +95,6 @@ export default function RulesPage() {
 
           <div className="space-y-6">
             <RuleCard
-              icon={<Clock className="w-5 h-5" />}
-              title="Age Requirement"
-              description="18+ only. Valid ID required at the door. No exceptions."
-              critical
-            />
-
-            <RuleCard
               icon={<Shield className="w-5 h-5" />}
               title="Security Check"
               description="All guests are subject to security screening at entry to Alora Beach Resort. Prohibited items include weapons, drugs, and outside food/beverages. Management reserves the right to refuse entry."

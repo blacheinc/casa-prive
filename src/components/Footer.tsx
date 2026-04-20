@@ -42,11 +42,6 @@ export default function Footer() {
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/menu" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
-                                        Drinks Menu
-                                    </Link>
-                                </li>
-                                <li>
                                     <Link href="/rules" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
                                         Event Guidelines
                                     </Link>

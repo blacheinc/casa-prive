@@ -97,7 +97,7 @@ export default function RulesPage() {
             <RuleCard
               icon={<Clock className="w-5 h-5" />}
               title="Age Requirement"
-              description="21+ only. Valid ID required at the door. No exceptions."
+              description="18+ only. Valid ID required at the door. No exceptions."
               critical
             />
 
@@ -118,13 +118,6 @@ export default function RulesPage() {
           </h2>
 
           <div className="space-y-6">
-            <RuleCard
-              icon={<Users className="w-5 h-5" />}
-              title="Maximum 6 Guests Per Table"
-              description="Each table ticket accommodates up to 6 guests. This ensures everyone has space to vibe and enjoy the night."
-              critical
-            />
-
             <RuleCard
               icon={<Clock className="w-5 h-5" />}
               title="Table Duration"

@@ -91,12 +91,12 @@ export default function HomePage() {
           </h2>
           <p className="text-gray-300 font-light text-sm max-w-2xl mx-auto leading-relaxed">
             Two icons of luxury come together. Experience Casa Privé&apos;s signature drinks and entertainment
-            at the stunning Alora Beach Resort — every month, a night to remember.
+            at the stunning Alora Beach Resort. Every month, a night to remember.
           </p>
         </div>
       </section>
 
-      {/* 3. EXPERIENCE SECTION — dynamic from Google Drive */}
+      {/* 3. EXPERIENCE SECTION */}
       <ExperienceSection />
 
       {/* 4. BENEFITS SECTION */}
@@ -128,7 +128,7 @@ export default function HomePage() {
             <BenefitCard
               icon={<Calendar className="w-10 h-10" />}
               title="Monthly Events"
-              description="Every month, experience Casa Privé at its finest — at the stunning Alora Beach Resort."
+              description="Every month, experience Casa Privé at its finest at the stunning Alora Beach Resort."
             />
             <BenefitCard
               icon={<Music className="w-10 h-10" />}
@@ -150,7 +150,7 @@ export default function HomePage() {
                 <span className="text-yellow-500 italic">the ultimate monthly experience</span>&quot;
               </blockquote>
               <cite className="text-gray-400 not-italic text-sm font-light tracking-wider">
-                — CASA PRIVÉ × ALORA BEACH RESORT
+                CASA PRIVÉ × ALORA BEACH RESORT
               </cite>
             </div>
           </div>

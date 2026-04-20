@@ -113,6 +113,13 @@ export default function RulesPage() {
           <div className="space-y-6">
             <RuleCard
               icon={<Clock className="w-5 h-5" />}
+              title="Arrive Before 1:00 AM"
+              description="Please arrive at Alora Beach Resort before 1:00 AM. Tables not claimed by this time may be released to other guests and refunded."
+              critical
+            />
+
+            <RuleCard
+              icon={<Clock className="w-5 h-5" />}
               title="Table Duration"
               description="Your table is reserved for the entire night at Alora Beach Resort. Arrive when you want, stay as long as you like until closing."
             />

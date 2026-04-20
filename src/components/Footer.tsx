@@ -42,11 +42,6 @@ export default function Footer() {
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/menu" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
-                                        Drinks Menu
-                                    </Link>
-                                </li>
-                                <li>
                                     <Link href="/rules" className="text-gray-400 hover:text-emerald-400 transition text-xs font-light">
                                         Event Guidelines
                                     </Link>
@@ -112,26 +107,6 @@ export default function Footer() {
                         <p className="text-gray-500 text-xs mt-2 font-light">
                             A partnership crafted for unforgettable experiences
                         </p>
-
-                        {/* Powered By */}
-                        <div className="mt-4 flex items-center justify-center gap-2">
-                            <span className="text-gray-500 text-xs font-light">Powered by</span>
-                            <a
-                                href="https://xecuteteam.com"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-block"
-                            >
-                                <Image
-                                    src="/uploads/xecute.png"
-                                    alt="Xecute"
-                                    width={70}
-                                    height={20}
-                                    className="opacity-70 hover:opacity-100 transition-opacity"
-                                    style={{ background: 'transparent' }}
-                                />
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>

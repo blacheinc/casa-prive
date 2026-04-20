@@ -95,13 +95,6 @@ export default function RulesPage() {
 
           <div className="space-y-6">
             <RuleCard
-              icon={<Clock className="w-5 h-5" />}
-              title="Age Requirement"
-              description="21+ only. Valid ID required at the door. No exceptions."
-              critical
-            />
-
-            <RuleCard
               icon={<Shield className="w-5 h-5" />}
               title="Security Check"
               description="All guests are subject to security screening at entry to Alora Beach Resort. Prohibited items include weapons, drugs, and outside food/beverages. Management reserves the right to refuse entry."
@@ -119,9 +112,9 @@ export default function RulesPage() {
 
           <div className="space-y-6">
             <RuleCard
-              icon={<Users className="w-5 h-5" />}
-              title="Maximum 6 Guests Per Table"
-              description="Each table ticket accommodates up to 6 guests. This ensures everyone has space to vibe and enjoy the night."
+              icon={<Clock className="w-5 h-5" />}
+              title="Arrive Before 1:00 AM"
+              description="Please arrive at Alora Beach Resort before 1:00 AM. Tables not claimed by this time may be released to other guests and refunded."
               critical
             />
 

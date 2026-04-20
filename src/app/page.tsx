@@ -7,17 +7,17 @@ import ExperienceSection from '@/components/ExperienceSection';
 export default function HomePage() {
   return (
     <div className="bg-emerald-950">
-      {/* 1. HERO SECTION - Video Background */}
+      {/* 1. HERO SECTION - Image Background */}
       <section className="relative h-screen overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src="/casa_hero.mp4" type="video/mp4" />
-        </video>
+        <Image
+          src="/hero-bg.webp"
+          alt="Casa Privé"
+          fill
+          priority
+          quality={85}
+          sizes="100vw"
+          className="object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-emerald-950/50 to-emerald-950/80" />
 
         <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">

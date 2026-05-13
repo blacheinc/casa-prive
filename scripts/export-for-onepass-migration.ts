@@ -18,7 +18,7 @@
 // importer. Bump on the OnePass side and here in lockstep when the
 // shape needs to evolve.
 
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, realpathSync } from 'node:fs';
 import { hostname } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { PrismaClient, MemberStatus } from '@prisma/client';
@@ -204,6 +204,11 @@ async function main() {
                 .map((n) => `"${n}"`)
                 .join(', ')} — sold/quota summed.\n`,
             );
+            if (info.sold > info.quota) {
+              process.stderr.write(
+                `[export] WARN event "${ev.name}": tier ${bucket} has combined sold (${info.sold}) > combined quota (${info.quota}); review post-import.\n`,
+              );
+            }
           }
         }
         return {
@@ -254,9 +259,19 @@ async function main() {
 // Tests that `import { normalizeTier } from './export-for-…'`
 // should NOT trigger the CLI side-effect (which would open a
 // Prisma connection during test runs).
-const isDirectRun =
-  process.argv[1] !== undefined &&
-  fileURLToPath(import.meta.url) === process.argv[1];
+//
+// realpath both sides so the comparison is symlink-safe — on macOS
+// process.argv[1] often resolves to a /private/var/… path while
+// import.meta.url stays at /var/…; without realpath the equality
+// silently fails and main() never runs.
+const isDirectRun = (() => {
+  if (!process.argv[1]) return false;
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
+  } catch {
+    return false;
+  }
+})();
 if (isDirectRun) {
   main().catch((err) => {
     console.error('[export] FAILED', err);

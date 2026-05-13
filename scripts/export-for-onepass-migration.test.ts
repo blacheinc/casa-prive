@@ -1,31 +1,15 @@
 import { describe, it, expect } from 'vitest';
+import {
+  normalizeTier,
+  slugify,
+  tierHintFor,
+  toMinor,
+} from './export-for-onepass-migration';
 
-// Pure helpers from the export script don't have a great test
-// surface (they're inlined into main()), so we re-test the
-// observable contract: the dump's JSON shape and the matchers that
-// route Casa tier names into OnePass enums. Drift between this and
-// the script's own helpers is intentional — if the script changes
-// behavior, this test surfaces the mismatch on the next run.
-
-// Copy of the script's normalizer. Kept verbatim so a refactor on
-// the script side triggers a failure here.
-function normalizeTier(name: string) {
-  const n = name.toLowerCase();
-  if (n.includes('early')) return 'EARLY_BIRD';
-  if (n.includes('vvip') || n.includes('vip') || n.includes('platinum')) return 'VIP';
-  if (n.includes('table') || n.includes('booth') || n.includes('section')) return 'TABLE';
-  return 'REGULAR';
-}
-
-function slugify(s: string) {
-  return (
-    s
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .slice(0, 80) || 'event'
-  );
-}
+// Tests import the real helpers from the export script so the
+// script's behaviour and the test's assertions stay in lockstep —
+// previously the tests redeclared the helpers inline, which meant a
+// behavioural change on the script side could silently pass.
 
 describe('normalizeTier', () => {
   it('routes early-bird variants to EARLY_BIRD', () => {
@@ -74,5 +58,24 @@ describe('slugify', () => {
 
   it('caps at 80 chars', () => {
     expect(slugify('a'.repeat(120)).length).toBeLessThanOrEqual(80);
+  });
+});
+
+describe('tierHintFor', () => {
+  it('maps PREMIUM to VIP', () => {
+    expect(tierHintFor('PREMIUM')).toBe('VIP');
+  });
+  it('maps STANDARD (and anything else) to Standard', () => {
+    expect(tierHintFor('STANDARD')).toBe('Standard');
+    expect(tierHintFor('OTHER')).toBe('Standard');
+  });
+});
+
+describe('toMinor', () => {
+  it('multiplies float NGN by 100 and rounds to int kobo', () => {
+    expect(toMinor(50000)).toBe(5_000_000);
+    expect(toMinor(0.01)).toBe(1);
+    expect(toMinor(0.005)).toBe(1); // rounds to nearest int
+    expect(toMinor(0.004)).toBe(0);
   });
 });

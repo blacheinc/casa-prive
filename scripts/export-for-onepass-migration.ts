@@ -20,6 +20,7 @@
 
 import { writeFileSync } from 'node:fs';
 import { hostname } from 'node:os';
+import { fileURLToPath } from 'node:url';
 import { PrismaClient, MemberStatus } from '@prisma/client';
 
 const DUMP_VERSION = 1;
@@ -27,14 +28,16 @@ const DUMP_VERSION = 1;
 // Casa stores prices as Float (NGN); OnePass uses int-minor (kobo).
 // 100 kobo = 1 NGN. Round to int so we don't seed fractional kobo
 // (rare but possible if a price was entered with > 2 decimals).
-function toMinor(amount: number): number {
+export function toMinor(amount: number): number {
   return Math.round(amount * 100);
 }
 
 // Match free-form Casa tier names into the OnePass TicketTier enum.
 // Order matters — the specific patterns must come before REGULAR
 // (which is the fallback bucket).
-function normalizeTier(name: string): 'EARLY_BIRD' | 'REGULAR' | 'VIP' | 'TABLE' {
+export function normalizeTier(
+  name: string,
+): 'EARLY_BIRD' | 'REGULAR' | 'VIP' | 'TABLE' {
   const n = name.toLowerCase();
   if (n.includes('early')) return 'EARLY_BIRD';
   if (n.includes('vvip') || n.includes('vip') || n.includes('platinum')) return 'VIP';
@@ -45,7 +48,7 @@ function normalizeTier(name: string): 'EARLY_BIRD' | 'REGULAR' | 'VIP' | 'TABLE'
 // Casa's `membershipType` is two values; OnePass has a freeform
 // plan slug. We emit a hint that the OnePass importer's
 // resolvePlanSlug() will route correctly (vip/standard).
-function tierHintFor(membershipType: string): string {
+export function tierHintFor(membershipType: string): string {
   return membershipType === 'PREMIUM' ? 'VIP' : 'Standard';
 }
 
@@ -54,12 +57,14 @@ function tierHintFor(membershipType: string): string {
 // collapse runs. Collisions across events are resolved by
 // appending `-N` from a counter in the export loop — keeps the
 // dump deterministic on a given source DB state.
-function slugify(s: string): string {
-  return s
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 80) || 'event';
+export function slugify(s: string): string {
+  return (
+    s
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80) || 'event'
+  );
 }
 
 function parseArgs(): { output: string | null } {
@@ -147,34 +152,59 @@ async function main() {
         expiresAt: m.expiresAt ? m.expiresAt.toISOString() : null,
       })),
       events: events.map((ev) => {
+        // Collision-safe tier collapse. Casa's free-form tier names
+        // map into the OnePass 4-value enum via normalizeTier(); when
+        // two Casa tiers route to the same bucket (e.g. "Standard"
+        // and "General" both -> REGULAR), we MERGE rather than drop
+        // the second — the previous version of this script silently
+        // discarded the dropped tier's `sold` count, undercounting
+        // ticket sales on imported events. We now:
+        //   • keep the FIRST tier's name + priceMinor (sorted
+        //     ascending by price, so the cheapest collapsed tier
+        //     wins on naming)
+        //   • SUM `sold` across all collapsed source tiers so the
+        //     imported event reflects total tickets sold
+        //   • SUM `quota` across all collapsed source tiers; capacity
+        //     stays accurate even when two Casa tiers had separate
+        //     limits
         const tierBuckets = new Map<
           'EARLY_BIRD' | 'REGULAR' | 'VIP' | 'TABLE',
-          { name: string; priceMinor: number; quota: number; sold: number }
+          {
+            name: string;
+            priceMinor: number;
+            quota: number;
+            sold: number;
+            collapsedFrom: string[];
+          }
         >();
-        const dropped: string[] = [];
         for (const t of ev.tiers) {
           const bucket = normalizeTier(t.name);
-          if (tierBuckets.has(bucket)) {
-            // Two Casa tiers collapsed onto the same OnePass enum
-            // value. Keep the first (which we sorted ascending by
-            // price), log the dropped name so the operator can
-            // recreate it manually after the import.
-            dropped.push(t.name);
-            continue;
+          const existing = tierBuckets.get(bucket);
+          if (existing) {
+            existing.sold += t.sold;
+            existing.quota += t.capacity ?? 0;
+            existing.collapsedFrom.push(t.name);
+          } else {
+            tierBuckets.set(bucket, {
+              name: t.name,
+              priceMinor: toMinor(t.price),
+              quota: t.capacity ?? 0,
+              sold: t.sold,
+              collapsedFrom: [],
+            });
           }
-          tierBuckets.set(bucket, {
-            name: t.name,
-            priceMinor: toMinor(t.price),
-            quota: t.capacity ?? 0,
-            sold: t.sold,
-          });
         }
-        if (dropped.length > 0) {
-          process.stderr.write(
-            `[export] WARN event "${ev.name}": dropped tiers (collapsed onto OnePass enum): ${dropped.join(
-              ', ',
-            )}\n`,
-          );
+        // Emit a single WARN per event listing every merged-source
+        // tier so the operator can spot misclassifications and, if
+        // needed, re-model them as separate events post-import.
+        for (const [bucket, info] of tierBuckets) {
+          if (info.collapsedFrom.length > 0) {
+            process.stderr.write(
+              `[export] WARN event "${ev.name}": tier ${bucket} merged with ${info.collapsedFrom
+                .map((n) => `"${n}"`)
+                .join(', ')} — sold/quota summed.\n`,
+            );
+          }
         }
         return {
           legacyId: ev.id,
@@ -182,6 +212,9 @@ async function main() {
           title: ev.name,
           description: ev.description ?? '',
           startsAt: ev.date.toISOString(),
+          // Casa's Event has no end-time column (only `date` =
+          // start). Emit null so OnePass treats the event as
+          // single-point in time.
           endsAt: null,
           venueName: ev.venue ?? 'Casa Privé',
           // Casa events store Cloudinary URLs in `fliers[]`; first
@@ -217,7 +250,16 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error('[export] FAILED', err);
-  process.exitCode = 1;
-});
+// Only run main() when invoked directly (`tsx scripts/export….ts`).
+// Tests that `import { normalizeTier } from './export-for-…'`
+// should NOT trigger the CLI side-effect (which would open a
+// Prisma connection during test runs).
+const isDirectRun =
+  process.argv[1] !== undefined &&
+  fileURLToPath(import.meta.url) === process.argv[1];
+if (isDirectRun) {
+  main().catch((err) => {
+    console.error('[export] FAILED', err);
+    process.exitCode = 1;
+  });
+}

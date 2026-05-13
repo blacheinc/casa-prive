@@ -69,6 +69,10 @@ describe('tierHintFor', () => {
     expect(tierHintFor('STANDARD')).toBe('Standard');
     expect(tierHintFor('OTHER')).toBe('Standard');
   });
+  it('maps null / undefined (column absent on the source schema) to Standard', () => {
+    expect(tierHintFor(null)).toBe('Standard');
+    expect(tierHintFor(undefined)).toBe('Standard');
+  });
 });
 
 describe('toMinor', () => {

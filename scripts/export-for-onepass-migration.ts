@@ -17,6 +17,13 @@
 // The dump version (`meta.version`) is part of the contract with the
 // importer. Bump on the OnePass side and here in lockstep when the
 // shape needs to evolve.
+//
+// Schema tolerance: the upstream Casa schema declares
+// `membershipType MembershipType @default(STANDARD)` on Member, but
+// forks of this repo have been seen WITHOUT that field. We read it
+// through a typed cast so the export works on either shape; when
+// the field is missing every member imports as the "standard" plan
+// on OnePass and the operator promotes VIPs via /platform.
 
 import { writeFileSync, realpathSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -45,10 +52,11 @@ export function normalizeTier(
   return 'REGULAR';
 }
 
-// Casa's `membershipType` is two values; OnePass has a freeform
-// plan slug. We emit a hint that the OnePass importer's
-// resolvePlanSlug() will route correctly (vip/standard).
-export function tierHintFor(membershipType: string): string {
+// Casa's `membershipType` (when present) is two values; OnePass has
+// a freeform plan slug. We emit a hint that the OnePass importer's
+// resolvePlanSlug() will route correctly (vip/standard). When the
+// field is absent on the source schema, we hand back 'Standard'.
+export function tierHintFor(membershipType: string | null | undefined): string {
   return membershipType === 'PREMIUM' ? 'VIP' : 'Standard';
 }
 
@@ -76,6 +84,21 @@ function parseArgs(): { output: string | null } {
   return { output };
 }
 
+// Shape Member rows are read as, AFTER widening to tolerate missing
+// schema fields. Casts through `unknown` so TypeScript doesn't
+// reject the access when the generated Prisma client lacks a field.
+type MemberRow = {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string | null;
+  membershipCode: string;
+  joinedAt: Date;
+  expiresAt: Date | null;
+  // Present in the upstream schema; may be absent in forks.
+  membershipType?: string | null;
+};
+
 async function main() {
   const { output } = parseArgs();
   const db = new PrismaClient();
@@ -86,20 +109,20 @@ async function main() {
     // side (the importer starts every row ACTIVE), silently
     // undoing a revocation. The operator can re-import a single
     // legacy code manually via /platform if needed.
-    const members = await db.member.findMany({
+    //
+    // We do NOT use a `select` projection here: Casa schema forks
+    // vary on which fields exist (notably `membershipType`).
+    // findMany() with just `where` + `orderBy` returns every column
+    // the local Prisma client knows about, and we cast to MemberRow
+    // to read the fields we care about + the optional ones we
+    // tolerate. Selecting an unknown field is a hard Prisma
+    // validation error; the full row read is the schema-agnostic
+    // path.
+    const rawMembers = await db.member.findMany({
       where: { status: MemberStatus.ACTIVE },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        phone: true,
-        membershipCode: true,
-        membershipType: true,
-        joinedAt: true,
-        expiresAt: true,
-      },
       orderBy: { joinedAt: 'asc' },
     });
+    const members = rawMembers as unknown as MemberRow[];
     process.stderr.write(`[export] members: ${members.length}\n`);
 
     // ─── Events ───
@@ -147,6 +170,9 @@ async function main() {
         email: m.email.toLowerCase(),
         name: m.fullName,
         phone: m.phone,
+        // m.membershipType is undefined if the Casa fork dropped the
+        // column; tierHintFor() returns 'Standard' in that case so
+        // every member lands on the standard plan post-import.
         tier: tierHintFor(m.membershipType),
         joinedAt: m.joinedAt.toISOString(),
         expiresAt: m.expiresAt ? m.expiresAt.toISOString() : null,

@@ -194,9 +194,15 @@ async function main() {
             });
           }
         }
-        // Emit a single WARN per event listing every merged-source
-        // tier so the operator can spot misclassifications and, if
-        // needed, re-model them as separate events post-import.
+        // Emit warnings per tier bucket:
+        //   • "merged with X, Y" when collapse happened, so the
+        //     operator can spot misclassifications and, if needed,
+        //     re-model them as separate events post-import.
+        //   • "sold > quota" whenever the recorded sold count exceeds
+        //     the capacity, whether or not collapse happened. The
+        //     storefront "X tickets left" calc relies on quota-sold;
+        //     a native over-sell from Casa (sold > capacity even with
+        //     no merge) would land in OnePass and silently misreport.
         for (const [bucket, info] of tierBuckets) {
           if (info.collapsedFrom.length > 0) {
             process.stderr.write(
@@ -204,11 +210,11 @@ async function main() {
                 .map((n) => `"${n}"`)
                 .join(', ')} — sold/quota summed.\n`,
             );
-            if (info.sold > info.quota) {
-              process.stderr.write(
-                `[export] WARN event "${ev.name}": tier ${bucket} has combined sold (${info.sold}) > combined quota (${info.quota}); review post-import.\n`,
-              );
-            }
+          }
+          if (info.sold > info.quota) {
+            process.stderr.write(
+              `[export] WARN event "${ev.name}": tier ${bucket} has sold (${info.sold}) > quota (${info.quota}); review post-import.\n`,
+            );
           }
         }
         return {

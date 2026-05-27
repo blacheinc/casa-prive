@@ -3,8 +3,16 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 
+const REDIRECT_TARGET = 'https://www.xn--casapriv-i1a.com';
+
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
+  const host = request.headers.get('host') || '';
+
+  // Redirect all traffic to the canonical domain
+  if (!host.includes('xn--casapriv-i1a.com') && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+    return NextResponse.redirect(REDIRECT_TARGET + path, 308);
+  }
 
   // Public paths that don't require authentication
   const publicPaths = [
@@ -78,7 +86,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/admin/:path*',
-    '/api/:path*',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };
